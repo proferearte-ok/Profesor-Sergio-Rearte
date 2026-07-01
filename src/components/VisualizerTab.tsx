@@ -3,14 +3,18 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { 
   Info, 
   Eye, 
   BookOpen, 
   Paperclip, 
   ExternalLink, 
-  Users 
+  Users,
+  Loader2,
+  AlertTriangle,
+  RefreshCw,
+  CheckCircle2
 } from "lucide-react";
 import { 
   mockCatedras, 
@@ -20,6 +24,13 @@ import {
   mockNotasNum, 
   mockNotasStatus 
 } from "../data/mockData";
+import { SHEETS_CONFIG } from "../config/sheets";
+import { 
+  getAsistenciaFromSheet, 
+  getNotasNumFromSheet, 
+  getNotasStatusFromSheet 
+} from "../services/googleSheets";
+import { Asistencia, NotaNum, NotaStatus } from "../types";
 
 /**
  * Componente que renderiza la pestaña del Visualizador de Hojas de Datos.
@@ -28,6 +39,100 @@ import {
 export default function VisualizerTab() {
   const [selectedCatedra, setSelectedCatedra] = useState<string>("BIO_MOL");
   const [selectedSheet, setSelectedSheet] = useState<string>("catedras");
+
+  // Dynamic state for Sheets
+  const [asistencia, setAsistencia] = useState<Asistencia[]>([]);
+  const [notasNum, setNotasNum] = useState<NotaNum[]>([]);
+  const [notasStatus, setNotasStatus] = useState<NotaStatus[]>([]);
+
+  const [loadingAsistencia, setLoadingAsistencia] = useState<boolean>(false);
+  const [loadingNotas, setLoadingNotas] = useState<boolean>(false);
+
+  const [errorAsistencia, setErrorAsistencia] = useState<string | null>(null);
+  const [errorNotas, setErrorNotas] = useState<string | null>(null);
+
+  const [isDemoMode, setIsDemoMode] = useState<{ asistencia: boolean; notas: boolean }>({
+    asistencia: true,
+    notas: true,
+  });
+
+  const loadSheetsData = async () => {
+    const config = SHEETS_CONFIG[selectedCatedra];
+    if (!config) return;
+
+    const currentYear = mockCatedras.find(c => c.id === selectedCatedra)?.anio_vigente || 2026;
+
+    // --- CARGA DE ASISTENCIA ---
+    const isAsistenciaDemo = config.asistencia.spreadsheetId.startsWith("TU_ID_AQUI");
+    if (isAsistenciaDemo) {
+      setAsistencia(mockAsistencia.filter(a => a.id_catedra === selectedCatedra));
+      setLoadingAsistencia(false);
+      setErrorAsistencia(null);
+      setIsDemoMode(prev => ({ ...prev, asistencia: true }));
+    } else {
+      setLoadingAsistencia(true);
+      setErrorAsistencia(null);
+      setIsDemoMode(prev => ({ ...prev, asistencia: false }));
+      try {
+        const data = await getAsistenciaFromSheet(
+          config.asistencia.spreadsheetId,
+          config.asistencia.sheetName,
+          selectedCatedra,
+          currentYear
+        );
+        setAsistencia(data);
+      } catch (err: any) {
+        setErrorAsistencia(err.message || "Sin datos de asistencia disponibles para este ciclo");
+      } finally {
+        setLoadingAsistencia(false);
+      }
+    }
+
+    // --- CARGA DE NOTAS ---
+    const isNotasDemo = config.notas.spreadsheetId.startsWith("TU_ID_AQUI");
+    if (isNotasDemo) {
+      if (selectedCatedra === "TECNO_3") {
+        setNotasStatus(mockNotasStatus.filter(n => n.id_catedra === selectedCatedra));
+      } else {
+        setNotasNum(mockNotasNum.filter(n => n.id_catedra === selectedCatedra));
+      }
+      setLoadingNotas(false);
+      setErrorNotas(null);
+      setIsDemoMode(prev => ({ ...prev, notas: true }));
+    } else {
+      setLoadingNotas(true);
+      setErrorNotas(null);
+      setIsDemoMode(prev => ({ ...prev, notas: false }));
+      try {
+        if (selectedCatedra === "TECNO_3") {
+          const data = await getNotasStatusFromSheet(
+            config.notas.spreadsheetId,
+            config.notas.sheetName,
+            selectedCatedra,
+            currentYear
+          );
+          setNotasStatus(data);
+        } else {
+          const data = await getNotasNumFromSheet(
+            config.notas.spreadsheetId,
+            config.notas.sheetName,
+            selectedCatedra,
+            currentYear
+          );
+          setNotasNum(data);
+        }
+      } catch (err: any) {
+        setErrorNotas(err.message || "Sin datos de calificaciones disponibles para este ciclo");
+      } finally {
+        setLoadingNotas(false);
+      }
+    }
+  };
+
+  useEffect(() => {
+    loadSheetsData();
+  }, [selectedCatedra]);
+
 
   return (
     <div className="space-y-6">
@@ -259,28 +364,65 @@ export default function VisualizerTab() {
 
           {selectedSheet === "asistencia" && (
             <div>
-              <div className="mb-4 text-xs text-stone-600 bg-stone-100 p-3 rounded-lg flex items-center justify-between">
+              <div className="mb-4 text-xs text-stone-600 bg-stone-100 p-3 rounded-lg flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
                   <Info className="w-4 h-4 text-stone-500 shrink-0" />
                   <span>
-                    <strong>Requisito 1 Soportado:</strong> Muestra el porcentaje consolidado del cuatrimestre por estudiante. Soportando históricos por año.
+                    <strong>Requisito 1 Soportado:</strong> Muestra el porcentaje consolidado del cuatrimestre por estudiante. Soporta históricos por año.
                   </span>
                 </div>
-                <span className="font-semibold text-stone-700">Filtrado por: {selectedCatedra} (Año 2026)</span>
+                <div className="flex items-center gap-2 self-end sm:self-auto">
+                  <span className="font-semibold text-stone-700">Filtrado por: {selectedCatedra} (Año 2026)</span>
+                  {isDemoMode.asistencia ? (
+                    <span className="px-2 py-0.5 text-[9px] font-mono bg-amber-100 text-amber-800 rounded-sm font-bold flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                      MOCK/DEMO
+                    </span>
+                  ) : (
+                    <span className="px-2 py-0.5 text-[9px] font-mono bg-emerald-100 text-emerald-800 rounded-sm font-bold flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                      EN VIVO (SHEETS)
+                    </span>
+                  )}
+                </div>
               </div>
-              <table className="w-full text-left border-collapse font-mono text-xs">
-                <thead>
-                  <tr className="bg-stone-100 text-stone-700 uppercase">
-                    <th className="p-3 border border-stone-200">ID_Catedra (FK)</th>
-                    <th className="p-3 border border-stone-200">Anio (Cohorte)</th>
-                    <th className="p-3 border border-stone-200">Estudiante</th>
-                    <th className="p-3 border border-stone-200">Porcentaje_Asistencia</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {mockAsistencia
-                    .filter((a) => a.id_catedra === selectedCatedra)
-                    .map((a, idx) => (
+
+              {loadingAsistencia ? (
+                <div className="flex flex-col items-center justify-center py-12 gap-3 text-stone-500">
+                  <Loader2 className="w-8 h-8 animate-spin text-amber-600" />
+                  <p className="text-xs font-mono">Conectando con la API de Google Sheets...</p>
+                </div>
+              ) : errorAsistencia ? (
+                <div className="bg-rose-50 border border-rose-200 rounded-lg p-6 text-center space-y-3 my-4">
+                  <AlertTriangle className="w-8 h-8 text-rose-600 mx-auto" />
+                  <p className="text-sm font-semibold text-rose-950">No se pudieron cargar los datos de asistencia</p>
+                  <p className="text-xs text-stone-600 max-w-md mx-auto leading-relaxed">
+                    {errorAsistencia}. Asegúrate de que los IDs reales en <code className="bg-white px-1 py-0.5 rounded border">src/config/sheets.ts</code> sean correctos y que la planilla esté compartida con permisos de lectura.
+                  </p>
+                  <button
+                    onClick={loadSheetsData}
+                    className="mt-2 inline-flex items-center gap-1.5 bg-stone-900 hover:bg-stone-800 text-white px-3.5 py-1.5 rounded-lg text-xs font-semibold cursor-pointer active:scale-95 transition-all"
+                  >
+                    <RefreshCw className="w-3.5 h-3.5" />
+                    <span>Reintentar Conexión</span>
+                  </button>
+                </div>
+              ) : asistencia.length === 0 ? (
+                <div className="text-center py-12 text-stone-400 italic text-xs">
+                  Sin datos de asistencia disponibles para este ciclo
+                </div>
+              ) : (
+                <table className="w-full text-left border-collapse font-mono text-xs animate-fade-in">
+                  <thead>
+                    <tr className="bg-stone-100 text-stone-700 uppercase">
+                      <th className="p-3 border border-stone-200">ID_Catedra (FK)</th>
+                      <th className="p-3 border border-stone-200">Anio (Cohorte)</th>
+                      <th className="p-3 border border-stone-200">Estudiante</th>
+                      <th className="p-3 border border-stone-200">Porcentaje_Asistencia</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {asistencia.map((a, idx) => (
                       <tr key={idx} className={`hover:bg-amber-50/40 ${a.anio !== 2026 ? "bg-stone-50 text-stone-400 font-light" : ""}`}>
                         <td className="p-3 border border-stone-200">{a.id_catedra}</td>
                         <td className="p-3 border border-stone-200">{a.anio}</td>
@@ -288,8 +430,9 @@ export default function VisualizerTab() {
                         <td className="p-3 border border-stone-200 font-bold text-stone-900">{a.porcentaje}</td>
                       </tr>
                     ))}
-                </tbody>
-              </table>
+                  </tbody>
+                </table>
+              )}
             </div>
           )}
 
@@ -300,56 +443,104 @@ export default function VisualizerTab() {
                   <strong>⚠️ Alerta de Esquema:</strong> Esta hoja <strong>NO pertenece a Tecno III</strong>. Tecno III utiliza un esquema descriptivo/cualitativo diferente (Hoja 6) porque evalúa por estado (Aprobado/Desaprobado + Proyecto Práctico). Por favor, cambiá el filtro superior a "Biología Molecular" para ver cómo se alimenta esta tabla.
                 </div>
               )}
-              <div className="mb-4 text-xs text-amber-800 bg-amber-50 border border-amber-200 p-3 rounded-lg flex items-center gap-2">
-                <Info className="w-4 h-4 shrink-0" />
-                <span>
-                  <strong>Requisito 5 & 2 (Bio Molecular / Tecno II) Soportado:</strong> Tabla estructurada con columnas explícitas para notas de teoría y práctica independientes, campo de recuperatorio opcional (con referencia a cuál recupera) y condición final calculada.
-                </span>
+              <div className="mb-4 text-xs text-amber-800 bg-amber-50 border border-amber-200 p-3 rounded-lg flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <Info className="w-4 h-4 shrink-0" />
+                  <span>
+                    <strong>Requisito 5 & 2 (Bio Molecular / Tecno II) Soportado:</strong> Tabla estructurada con columnas para teoría/práctica independientes, recuperatorios y condición final calculada.
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 self-end sm:self-auto">
+                  {isDemoMode.notas ? (
+                    <span className="px-2 py-0.5 text-[9px] font-mono bg-amber-100 text-amber-800 rounded-sm font-bold flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                      MOCK/DEMO
+                    </span>
+                  ) : (
+                    <span className="px-2 py-0.5 text-[9px] font-mono bg-emerald-100 text-emerald-800 rounded-sm font-bold flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                      EN VIVO (SHEETS)
+                    </span>
+                  )}
+                </div>
               </div>
-              <table className="w-full text-left border-collapse font-mono text-[10px] md:text-xs">
-                <thead>
-                  <tr className="bg-stone-100 text-stone-700 uppercase">
-                    <th className="p-2 border border-stone-200">Anio</th>
-                    <th className="p-2 border border-stone-200">Estudiante</th>
-                    <th className="p-2 border border-stone-200 bg-blue-50/50">P1 Teoría %</th>
-                    <th className="p-2 border border-stone-200 bg-blue-50/50">P1 Práctica %</th>
-                    <th className="p-2 border border-stone-200 bg-blue-50/50">P1 Result.</th>
-                    <th className="p-2 border border-stone-200 bg-green-50/50">P2 Teoría %</th>
-                    <th className="p-2 border border-stone-200 bg-green-50/50">P2 Práctica %</th>
-                    <th className="p-2 border border-stone-200 bg-green-50/50">P2 Result.</th>
-                    <th className="p-2 border border-stone-200 bg-amber-50/50">Recup. (1P/2P)</th>
-                    <th className="p-2 border border-stone-200 bg-amber-50/50">Rec Teoría %</th>
-                    <th className="p-2 border border-stone-200 bg-amber-50/50">Rec Práctica %</th>
-                    <th className="p-2 border border-stone-200 bg-amber-50/50">Rec Result.</th>
-                    <th className="p-2 border border-stone-200 bg-stone-200 font-bold">Condición Final</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {mockNotasNum
-                    .filter(() => selectedCatedra !== "TECNO_3")
-                    .map((n, idx) => (
-                      <tr key={idx} className={`hover:bg-amber-50/40 ${n.anio !== 2026 ? "bg-stone-50 text-stone-400" : ""}`}>
-                        <td className="p-2 border border-stone-200">{n.anio}</td>
-                        <td className="p-2 border border-stone-200 font-bold">{n.estudiante}</td>
-                        <td className="p-2 border border-stone-200 bg-blue-50/20">{n.p1_teoria}</td>
-                        <td className="p-2 border border-stone-200 bg-blue-50/20">{n.p1_practica}</td>
-                        <td className="p-2 border border-stone-200 bg-blue-50/20 font-semibold">{n.p1_resultado}</td>
-                        <td className="p-2 border border-stone-200 bg-green-50/20">{n.p2_teoria}</td>
-                        <td className="p-2 border border-stone-200 bg-green-50/20">{n.p2_practica}</td>
-                        <td className="p-2 border border-stone-200 bg-green-50/20 font-semibold">{n.p2_resultado}</td>
-                        <td className="p-2 border border-stone-200 bg-amber-50/20 font-bold text-center">{n.recupera}</td>
-                        <td className="p-2 border border-stone-200 bg-amber-50/20">{n.rec_teoria}</td>
-                        <td className="p-2 border border-stone-200 bg-amber-50/20">{n.rec_practica}</td>
-                        <td className="p-2 border border-stone-200 bg-amber-50/20 font-semibold">{n.rec_resultado}</td>
-                        <td className="p-2 border border-stone-200 bg-stone-100 font-bold text-stone-900">
-                          <span className={`px-1.5 py-0.5 rounded-sm ${n.condicion_final === "Promoción" ? "bg-emerald-100 text-emerald-800" : "bg-amber-100 text-amber-800"}`}>
-                            {n.condicion_final}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                </tbody>
-              </table>
+
+              {loadingNotas ? (
+                <div className="flex flex-col items-center justify-center py-12 gap-3 text-stone-500">
+                  <Loader2 className="w-8 h-8 animate-spin text-amber-600" />
+                  <p className="text-xs font-mono">Conectando con la API de Google Sheets...</p>
+                </div>
+              ) : errorNotas ? (
+                <div className="bg-rose-50 border border-rose-200 rounded-lg p-6 text-center space-y-3 my-4">
+                  <AlertTriangle className="w-8 h-8 text-rose-600 mx-auto" />
+                  <p className="text-sm font-semibold text-rose-950">No se pudieron cargar las calificaciones numéricas</p>
+                  <p className="text-xs text-stone-600 max-w-md mx-auto leading-relaxed">
+                    {errorNotas}. Asegúrate de que los IDs reales en <code className="bg-white px-1 py-0.5 rounded border">src/config/sheets.ts</code> sean correctos y que la planilla esté compartida con permisos de lectura.
+                  </p>
+                  <button
+                    onClick={loadSheetsData}
+                    className="mt-2 inline-flex items-center gap-1.5 bg-stone-900 hover:bg-stone-800 text-white px-3.5 py-1.5 rounded-lg text-xs font-semibold cursor-pointer active:scale-95 transition-all"
+                  >
+                    <RefreshCw className="w-3.5 h-3.5" />
+                    <span>Reintentar Conexión</span>
+                  </button>
+                </div>
+              ) : notasNum.length === 0 ? (
+                <div className="text-center py-12 text-stone-400 italic text-xs">
+                  Sin datos de calificaciones disponibles para este ciclo
+                </div>
+              ) : (
+                <table className="w-full text-left border-collapse font-mono text-[10px] md:text-xs animate-fade-in">
+                  <thead>
+                    <tr className="bg-stone-100 text-stone-700 uppercase">
+                      <th className="p-2 border border-stone-200">Anio</th>
+                      <th className="p-2 border border-stone-200">Estudiante</th>
+                      <th className="p-2 border border-stone-200 bg-blue-50/50">P1 Teoría %</th>
+                      <th className="p-2 border border-stone-200 bg-blue-50/50">P1 Práctica %</th>
+                      <th className="p-2 border border-stone-200 bg-blue-50/50">P1 Result.</th>
+                      <th className="p-2 border border-stone-200 bg-green-50/50">P2 Teoría %</th>
+                      <th className="p-2 border border-stone-200 bg-green-50/50">P2 Práctica %</th>
+                      <th className="p-2 border border-stone-200 bg-green-50/50">P2 Result.</th>
+                      <th className="p-2 border border-stone-200 bg-amber-50/50">Recup. (1P/2P)</th>
+                      <th className="p-2 border border-stone-200 bg-amber-50/50">Rec Teoría %</th>
+                      <th className="p-2 border border-stone-200 bg-amber-50/50">Rec Práctica %</th>
+                      <th className="p-2 border border-stone-200 bg-amber-50/50">Rec Result.</th>
+                      <th className="p-2 border border-stone-200 bg-stone-200 font-bold">Condición Final</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {notasNum
+                      .filter(() => selectedCatedra !== "TECNO_3")
+                      .map((n, idx) => (
+                        <tr key={idx} className={`hover:bg-amber-50/40 ${n.anio !== 2026 ? "bg-stone-50 text-stone-400" : ""}`}>
+                          <td className="p-2 border border-stone-200">{n.anio}</td>
+                          <td className="p-2 border border-stone-200 font-bold">{n.estudiante}</td>
+                          <td className="p-2 border border-stone-200 bg-blue-50/20">{n.p1_teoria}</td>
+                          <td className="p-2 border border-stone-200 bg-blue-50/20">{n.p1_practica}</td>
+                          <td className="p-2 border border-stone-200 bg-blue-50/20 font-semibold">{n.p1_resultado}</td>
+                          <td className="p-2 border border-stone-200 bg-green-50/20">{n.p2_teoria}</td>
+                          <td className="p-2 border border-stone-200 bg-green-50/20">{n.p2_practica}</td>
+                          <td className="p-2 border border-stone-200 bg-green-50/20 font-semibold">{n.p2_resultado}</td>
+                          <td className="p-2 border border-stone-200 bg-amber-50/20 font-bold text-center">{n.recupera}</td>
+                          <td className="p-2 border border-stone-200 bg-amber-50/20">{n.rec_teoria}</td>
+                          <td className="p-2 border border-stone-200 bg-amber-50/20">{n.rec_practica}</td>
+                          <td className="p-2 border border-stone-200 bg-amber-50/20 font-semibold">{n.rec_resultado}</td>
+                          <td className="p-2 border border-stone-200 bg-stone-100 font-bold text-stone-900">
+                            <span className={`px-1.5 py-0.5 rounded-sm ${
+                              n.condicion_final === "Promoción" 
+                                ? "bg-emerald-100 text-emerald-800" 
+                                : n.condicion_final === "Regular" 
+                                  ? "bg-amber-100 text-amber-800" 
+                                  : "bg-rose-150 text-rose-800"
+                            }`}>
+                              {n.condicion_final}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              )}
             </div>
           )}
 
@@ -360,63 +551,105 @@ export default function VisualizerTab() {
                   <strong>⚠️ Alerta de Esquema:</strong> Esta hoja <strong>pertenece a Tecno III</strong>. Biología Molecular y Tecno II usan el esquema de notas numéricas por separado (Hoja 5) porque exigen notas de práctica independientes y un sistema numérico ponderado. Por favor, cambiá el filtro superior a "Tecno III" para ver cómo se alimenta esta tabla.
                 </div>
               )}
-              <div className="mb-4 text-xs text-amber-800 bg-amber-50 border border-amber-200 p-3 rounded-lg flex items-center gap-2">
-                <Info className="w-4 h-4 shrink-0" />
-                <span>
-                  <strong>Requisito 5 (Tecno III) Soportado:</strong> Esquema flexible y descriptivo. Elimina los porcentajes numéricos de práctica en favor de un estado final de "Práctica" general (Aprobado/Pendiente), y reduce la evaluación de teoría a nota (%) y Condición lógica directa.
-                </span>
+              <div className="mb-4 text-xs text-amber-800 bg-amber-50 border border-amber-200 p-3 rounded-lg flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <Info className="w-4 h-4 shrink-0" />
+                  <span>
+                    <strong>Requisito 5 (Tecno III) Soportado:</strong> Esquema cualitativo/status. Elimina los porcentajes de práctica en favor de un estado general de "Práctica" (Aprobado/Pendiente).
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 self-end sm:self-auto">
+                  {isDemoMode.notas ? (
+                    <span className="px-2 py-0.5 text-[9px] font-mono bg-amber-100 text-amber-800 rounded-sm font-bold flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                      MOCK/DEMO
+                    </span>
+                  ) : (
+                    <span className="px-2 py-0.5 text-[9px] font-mono bg-emerald-100 text-emerald-800 rounded-sm font-bold flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                      EN VIVO (SHEETS)
+                    </span>
+                  )}
+                </div>
               </div>
-              <table className="w-full text-left border-collapse font-mono text-xs">
-                <thead>
-                  <tr className="bg-stone-100 text-stone-700 uppercase">
-                    <th className="p-3 border border-stone-200">Anio</th>
-                    <th className="p-3 border border-stone-200">Estudiante</th>
-                    <th className="p-3 border border-stone-200 bg-blue-50/50">P1 Teoría %</th>
-                    <th className="p-3 border border-stone-200 bg-blue-50/50">P1 Condición</th>
-                    <th className="p-3 border border-stone-200 bg-green-50/50">P2 Teoría %</th>
-                    <th className="p-3 border border-stone-200 bg-green-50/50">P2 Condición</th>
-                    <th className="p-3 border border-stone-200 bg-amber-50/50">Recup. Teoría %</th>
-                    <th className="p-3 border border-stone-200 bg-amber-50/50">Recup. Condición</th>
-                    <th className="p-3 border border-stone-200 bg-purple-50/50">Práctica Global</th>
-                    <th className="p-3 border border-stone-200 bg-stone-200 font-bold">Condición Final</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {mockNotasStatus
-                    .filter((n) => selectedCatedra === "TECNO_3")
-                    .map((n, idx) => (
-                      <tr key={idx} className="hover:bg-amber-50/40">
-                        <td className="p-3 border border-stone-200">{n.anio}</td>
-                        <td className="p-3 border border-stone-200 font-bold">{n.estudiante}</td>
-                        <td className="p-3 border border-stone-200 bg-blue-50/20">{n.p1_teoria}</td>
-                        <td className="p-3 border border-stone-200 bg-blue-50/20 font-semibold">{n.p1_condicion}</td>
-                        <td className="p-3 border border-stone-200 bg-green-50/20">{n.p2_teoria}</td>
-                        <td className="p-3 border border-stone-200 bg-green-50/20 font-semibold">{n.p2_condicion}</td>
-                        <td className="p-3 border border-stone-200 bg-amber-50/20">{n.rec_teoria}</td>
-                        <td className="p-3 border border-stone-200 bg-amber-50/20 font-semibold">{n.rec_condicion}</td>
-                        <td className="p-3 border border-stone-200 bg-purple-50/20 font-bold text-stone-800">{n.practica}</td>
-                        <td className="p-3 border border-stone-200 bg-stone-100 font-bold text-stone-900">
-                          <span className={`px-1.5 py-0.5 rounded-sm ${
-                            n.condicion_final === "Promoción" 
-                              ? "bg-emerald-100 text-emerald-800" 
-                              : n.condicion_final === "Regular" 
-                                ? "bg-amber-100 text-amber-800" 
-                                : "bg-rose-100 text-rose-800"
-                          }`}>
-                            {n.condicion_final}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                </tbody>
-              </table>
+
+              {loadingNotas ? (
+                <div className="flex flex-col items-center justify-center py-12 gap-3 text-stone-500">
+                  <Loader2 className="w-8 h-8 animate-spin text-amber-600" />
+                  <p className="text-xs font-mono">Conectando con la API de Google Sheets...</p>
+                </div>
+              ) : errorNotas ? (
+                <div className="bg-rose-50 border border-rose-200 rounded-lg p-6 text-center space-y-3 my-4">
+                  <AlertTriangle className="w-8 h-8 text-rose-600 mx-auto" />
+                  <p className="text-sm font-semibold text-rose-950">No se pudieron cargar las calificaciones de estado</p>
+                  <p className="text-xs text-stone-600 max-w-md mx-auto leading-relaxed">
+                    {errorNotas}. Asegúrate de que los IDs reales en <code className="bg-white px-1 py-0.5 rounded border">src/config/sheets.ts</code> sean correctos y que la planilla esté compartida con permisos de lectura.
+                  </p>
+                  <button
+                    onClick={loadSheetsData}
+                    className="mt-2 inline-flex items-center gap-1.5 bg-stone-900 hover:bg-stone-800 text-white px-3.5 py-1.5 rounded-lg text-xs font-semibold cursor-pointer active:scale-95 transition-all"
+                  >
+                    <RefreshCw className="w-3.5 h-3.5" />
+                    <span>Reintentar Conexión</span>
+                  </button>
+                </div>
+              ) : notasStatus.length === 0 ? (
+                <div className="text-center py-12 text-stone-400 italic text-xs">
+                  Sin datos de calificaciones disponibles para este ciclo
+                </div>
+              ) : (
+                <table className="w-full text-left border-collapse font-mono text-xs animate-fade-in">
+                  <thead>
+                    <tr className="bg-stone-100 text-stone-700 uppercase">
+                      <th className="p-3 border border-stone-200">Anio</th>
+                      <th className="p-3 border border-stone-200">Estudiante</th>
+                      <th className="p-3 border border-stone-200 bg-blue-50/50">P1 Teoría %</th>
+                      <th className="p-3 border border-stone-200 bg-blue-50/50">P1 Condición</th>
+                      <th className="p-3 border border-stone-200 bg-green-50/50">P2 Teoría %</th>
+                      <th className="p-3 border border-stone-200 bg-green-50/50">P2 Condición</th>
+                      <th className="p-3 border border-stone-200 bg-amber-50/50">Recup. Teoría %</th>
+                      <th className="p-3 border border-stone-200 bg-amber-50/50">Recup. Condición</th>
+                      <th className="p-3 border border-stone-200 bg-purple-50/50">Práctica Global</th>
+                      <th className="p-3 border border-stone-200 bg-stone-200 font-bold">Condición Final</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {notasStatus
+                      .filter((n) => selectedCatedra === "TECNO_3")
+                      .map((n, idx) => (
+                        <tr key={idx} className="hover:bg-amber-50/40 animate-fade-in">
+                          <td className="p-3 border border-stone-200">{n.anio}</td>
+                          <td className="p-3 border border-stone-200 font-bold">{n.estudiante}</td>
+                          <td className="p-3 border border-stone-200 bg-blue-50/20">{n.p1_teoria}</td>
+                          <td className="p-3 border border-stone-200 bg-blue-50/20 font-semibold">{n.p1_condicion}</td>
+                          <td className="p-3 border border-stone-200 bg-green-50/20">{n.p2_teoria}</td>
+                          <td className="p-3 border border-stone-200 bg-green-50/20 font-semibold">{n.p2_condicion}</td>
+                          <td className="p-3 border border-stone-200 bg-amber-50/20">{n.rec_teoria}</td>
+                          <td className="p-3 border border-stone-200 bg-amber-50/20 font-semibold">{n.rec_condicion}</td>
+                          <td className="p-3 border border-stone-200 bg-purple-50/20 font-bold text-stone-800">{n.practica}</td>
+                          <td className="p-3 border border-stone-200 bg-stone-100 font-bold text-stone-900">
+                            <span className={`px-1.5 py-0.5 rounded-sm ${
+                              n.condicion_final === "Promoción" 
+                                ? "bg-emerald-100 text-emerald-800" 
+                                : n.condicion_final === "Regular" 
+                                  ? "bg-amber-100 text-amber-800" 
+                                  : "bg-rose-100 text-rose-800"
+                            }`}>
+                              {n.condicion_final}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              )}
             </div>
           )}
         </div>
       </div>
 
       {/* LIVE PREVIEW OF HOW THIS RENDERS FOR STUDENTS */}
-      <div className="bg-[#FAF9F6] border border-stone-200 rounded-xl p-6 shadow-xs">
+      <div className="bg-[#FAF9F6] border border-stone-200 rounded-xl p-6 shadow-xs animate-fade-in">
         <h4 className="font-bold text-stone-950 text-sm uppercase tracking-wider font-mono mb-4 text-stone-500 flex items-center gap-2">
           <Eye className="w-4 h-4 text-amber-600" />
           <span>Simulador del Portal Web (Vista Estudiante)</span>
@@ -430,7 +663,7 @@ export default function VisualizerTab() {
                 {selectedCatedra === "BIO_MOL" ? "Biología Molecular" : "Tecno III"}
               </span>
             </div>
-            <span className="text-xs text-stone-400 font-mono">Cohorte {selectedCatedra === "BIO_MOL" ? "2026 (1er Cuat.)" : "2026 (1er Cuat.)"}</span>
+            <span className="text-xs text-stone-400 font-mono">Cohorte 2026 (1er Cuat.)</span>
           </div>
 
           <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -484,20 +717,47 @@ export default function VisualizerTab() {
                   <span>Rendimiento del Alumno</span>
                 </div>
                 <div className="space-y-3">
-                  <div className="bg-white p-2 rounded-md border border-stone-150">
-                    <div className="flex justify-between text-xs font-semibold mb-1">
-                      <span className="text-stone-500">Estudiante:</span>
-                      <span className="text-stone-900">{selectedCatedra === "BIO_MOL" ? "Pérez, Juan" : "Gómez, Lucas"}</span>
+                  {loadingAsistencia || loadingNotas ? (
+                    <div className="flex flex-col items-center justify-center py-4 gap-2 text-stone-500 text-xs">
+                      <Loader2 className="w-4 h-4 animate-spin text-amber-600" />
+                      <span>Cargando rendimiento...</span>
                     </div>
-                    <div className="flex justify-between text-xs">
-                      <span className="text-stone-500">Asistencia Total:</span>
-                      <span className="text-emerald-600 font-bold">{selectedCatedra === "BIO_MOL" ? "92%" : "80%"}</span>
+                  ) : (selectedCatedra === "TECNO_3" ? notasStatus : notasNum).length > 0 ? (
+                    (() => {
+                      const primerEstudiante = selectedCatedra === "TECNO_3" ? notasStatus[0] : notasNum[0];
+                      const asistEstudiante = asistencia.find(a => a.estudiante.toLowerCase() === primerEstudiante?.estudiante.toLowerCase());
+                      return (
+                        <div className="bg-white p-3 rounded-md border border-stone-150 animate-fade-in space-y-1.5">
+                          <div className="flex justify-between text-xs font-semibold">
+                            <span className="text-stone-500">Estudiante:</span>
+                            <span className="text-stone-900 truncate max-w-[130px]" title={primerEstudiante?.estudiante}>
+                              {primerEstudiante?.estudiante}
+                            </span>
+                          </div>
+                          <div className="flex justify-between text-xs">
+                            <span className="text-stone-500">Asistencia Total:</span>
+                            <span className="text-emerald-600 font-bold">{asistEstudiante?.porcentaje || "-"}</span>
+                          </div>
+                          <div className="flex justify-between text-xs mt-1 pt-1.5 border-t border-stone-100">
+                            <span className="text-stone-500">Condición Final:</span>
+                            <span className={`text-stone-900 font-bold px-1.5 py-0.5 rounded-sm text-[10px] ${
+                              primerEstudiante?.condicion_final === "Promoción"
+                                ? "bg-emerald-50 text-emerald-800"
+                                : primerEstudiante?.condicion_final === "Regular"
+                                  ? "bg-amber-50 text-amber-800"
+                                  : "bg-rose-50 text-rose-800"
+                            }`}>
+                              {primerEstudiante?.condicion_final || "-"}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })()
+                  ) : (
+                    <div className="text-xs text-stone-400 italic py-4 text-center">
+                      Sin datos disponibles
                     </div>
-                    <div className="flex justify-between text-xs mt-1 pt-1.5 border-t border-stone-100">
-                      <span className="text-stone-500">Condición Final:</span>
-                      <span className="text-stone-900 font-bold px-1 bg-emerald-50 text-emerald-800 rounded-sm">Promoción</span>
-                    </div>
-                  </div>
+                  )}
                 </div>
               </div>
               <div className="mt-4 pt-3 border-t border-stone-200 text-[10px] text-stone-400">
