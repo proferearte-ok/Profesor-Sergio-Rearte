@@ -1,0 +1,6 @@
+{
+  "name": "Diseño de Estructura de Datos para Cátedras",
+  "description": "Esquema de datos interactivo y documentación para el reemplazo del sitio de Google Sites por un sistema basado en Google Sheets y React.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
