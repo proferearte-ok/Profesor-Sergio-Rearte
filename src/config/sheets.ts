@@ -13,39 +13,60 @@ export interface CatedraSheets {
   notas: SheetConfig;
 }
 
+const requiredEnvVars = {
+  VITE_SHEET_ID_BIOMOL_ASISTENCIA: import.meta.env.VITE_SHEET_ID_BIOMOL_ASISTENCIA,
+  VITE_SHEET_ID_BIOMOL_NOTAS: import.meta.env.VITE_SHEET_ID_BIOMOL_NOTAS,
+  VITE_SHEET_ID_TECNOII_ASISTENCIA: import.meta.env.VITE_SHEET_ID_TECNOII_ASISTENCIA,
+  VITE_SHEET_ID_TECNOII_NOTAS: import.meta.env.VITE_SHEET_ID_TECNOII_NOTAS,
+  VITE_SHEET_ID_TECNOIII_ASISTENCIA: import.meta.env.VITE_SHEET_ID_TECNOIII_ASISTENCIA,
+  VITE_SHEET_ID_TECNOIII_NOTAS: import.meta.env.VITE_SHEET_ID_TECNOIII_NOTAS,
+};
+
+// Validar en consola si falta alguna variable de entorno
+const missingVars = Object.entries(requiredEnvVars)
+  .filter(([_, value]) => !value || value.startsWith("TU_ID_AQUI"))
+  .map(([key]) => key);
+
+if (missingVars.length > 0) {
+  console.warn(
+    `⚠️ [CONFIGURACIÓN] Faltan configurar o contienen marcadores las siguientes variables de entorno en tu archivo .env.local:\n` +
+    missingVars.map(v => `   - ${v}`).join("\n") +
+    `\nLa aplicación utilizará de forma automática datos mock/de prueba en las pantallas afectadas.`
+  );
+}
+
 /**
  * Configuración de IDs de planillas de Google Sheets por cátedra.
- * Reemplazar "TU_ID_AQUI_..." con los IDs reales de tus planillas de Google Sheets.
- * Asegúrate de que las planillas estén compartidas como "Cualquier persona con el enlace puede ver".
+ * Los valores se cargan desde variables de entorno para mayor seguridad.
  */
 export const SHEETS_CONFIG: Record<string, CatedraSheets> = {
   BIO_MOL: {
     asistencia: {
-      spreadsheetId: "1c88VjGIy4oudX8cFx_fXnKwyOqpsD9eQIEufyfvhRMk",
+      spreadsheetId: import.meta.env.VITE_SHEET_ID_BIOMOL_ASISTENCIA || "TU_ID_AQUI_BIO_MOL_ASISTENCIA",
       sheetName: "Asistencia"
     },
     notas: {
-      spreadsheetId: "1zjHKtxRk6jA81a1t4Jd01I0Yo9Dl64le4mJO4snAmCI",
+      spreadsheetId: import.meta.env.VITE_SHEET_ID_BIOMOL_NOTAS || "TU_ID_AQUI_BIO_MOL_NOTAS",
       sheetName: "Notas"
     }
   },
   TECNO_2: {
     asistencia: {
-      spreadsheetId: "16lzzMVQtUhC9O2OdgJlJ2tnUJdYYbuOrHnX5SwDNfkw",
+      spreadsheetId: import.meta.env.VITE_SHEET_ID_TECNOII_ASISTENCIA || "TU_ID_AQUI_TECNO_2_ASISTENCIA",
       sheetName: "Asistencia"
     },
     notas: {
-      spreadsheetId: "1RLVS6zk6rZatHBWkhKPnWKgWvT5J0Xh5--II_E1r47c",
+      spreadsheetId: import.meta.env.VITE_SHEET_ID_TECNOII_NOTAS || "TU_ID_AQUI_TECNO_2_NOTAS",
       sheetName: "Notas"
     }
   },
   TECNO_3: {
     asistencia: {
-      spreadsheetId: "1WSoB6xofiOm85m_PpOqpde45MccV8eHRgNjwbDBAA18",
+      spreadsheetId: import.meta.env.VITE_SHEET_ID_TECNOIII_ASISTENCIA || "TU_ID_AQUI_TECNO_3_ASISTENCIA",
       sheetName: "Asistencia"
     },
     notas: {
-      spreadsheetId: "1MRHghDMw7_C6VgY1JYZeUKERvhLFFRXjTw5CETHYEOM",
+      spreadsheetId: import.meta.env.VITE_SHEET_ID_TECNOIII_NOTAS || "TU_ID_AQUI_TECNO_3_NOTAS",
       sheetName: "Notas"
     }
   }

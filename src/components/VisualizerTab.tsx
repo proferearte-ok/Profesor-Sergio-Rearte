@@ -63,7 +63,7 @@ export default function VisualizerTab() {
     const currentYear = mockCatedras.find(c => c.id === selectedCatedra)?.anio_vigente || 2026;
 
     // --- CARGA DE ASISTENCIA ---
-    const isAsistenciaDemo = config.asistencia.spreadsheetId.startsWith("TU_ID_AQUI");
+    const isAsistenciaDemo = !config.asistencia.spreadsheetId || config.asistencia.spreadsheetId.startsWith("TU_ID_AQUI");
     if (isAsistenciaDemo) {
       setAsistencia(mockAsistencia.filter(a => a.id_catedra === selectedCatedra));
       setLoadingAsistencia(false);
@@ -89,7 +89,7 @@ export default function VisualizerTab() {
     }
 
     // --- CARGA DE NOTAS ---
-    const isNotasDemo = config.notas.spreadsheetId.startsWith("TU_ID_AQUI");
+    const isNotasDemo = !config.notas.spreadsheetId || config.notas.spreadsheetId.startsWith("TU_ID_AQUI");
     if (isNotasDemo) {
       if (selectedCatedra === "TECNO_3") {
         setNotasStatus(mockNotasStatus.filter(n => n.id_catedra === selectedCatedra));
