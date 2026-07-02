@@ -14,9 +14,10 @@ import {
   Loader2, 
   AlertTriangle, 
   ExternalLink,
-  ChevronRight,
   Info,
   Layers,
+  ChevronRight,
+  TrendingUp,
   FileSpreadsheet
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
@@ -38,13 +39,16 @@ import { Asistencia, NotaNum, NotaStatus } from "../../types";
 import StudentSearch from "./StudentSearch";
 
 export default function PortalView() {
-  // Solo mostramos las cátedras marcadas como activas
   const activeCatedras = mockCatedras.filter(c => c.activa);
   const [selectedCatedra, setSelectedCatedra] = useState<string>(
     activeCatedras.length > 0 ? activeCatedras[0].id : "BIO_MOL"
   );
   
-  const [activeSection, setActiveSection] = useState<string>("Programa");
+  // Navigation tabs for Fintech UI: 'inicio' | 'archivos' | 'cronograma' | 'rendimiento'
+  const [activeTab, setActiveTab] = useState<"inicio" | "archivos" | "cronograma" | "rendimiento">("inicio");
+  
+  // Sub-section filter inside 'archivos'
+  const [activeFileSubSection, setActiveFileSubSection] = useState<"Bibliografia" | "Diapositivas" | "Apuntes_Clase">("Bibliografia");
 
   // Dynamic state for Sheets data
   const [asistencia, setAsistencia] = useState<Asistencia[]>([]);
@@ -71,7 +75,6 @@ export default function PortalView() {
     const isNotasDemo = !config.notas.spreadsheetId || config.notas.spreadsheetId.startsWith("TU_ID_AQUI");
 
     if (isAsistenciaDemo || isNotasDemo) {
-      // Carga Mock
       setAsistencia(mockAsistencia.filter(a => a.id_catedra === selectedCatedra));
       if (selectedCatedra === "TECNO_3") {
         setNotasStatus(mockNotasStatus.filter(n => n.id_catedra === selectedCatedra));
@@ -82,7 +85,6 @@ export default function PortalView() {
       setLoading(false);
       setErrorMsg(null);
     } else {
-      // Carga Real de Sheets
       setLoading(true);
       setErrorMsg(null);
       setIsDemoMode(false);
@@ -117,7 +119,6 @@ export default function PortalView() {
         setErrorMsg(
           err.message || "Error al conectar con las planillas de Google. Por favor intenta de nuevo."
         );
-        // Fallback inmediato a demo para que el sitio siga siendo interactivo
         setAsistencia(mockAsistencia.filter(a => a.id_catedra === selectedCatedra));
         if (selectedCatedra === "TECNO_3") {
           setNotasStatus(mockNotasStatus.filter(n => n.id_catedra === selectedCatedra));
@@ -135,10 +136,8 @@ export default function PortalView() {
     loadCatedraData();
   }, [selectedCatedra]);
 
-  // Secciones disponibles para la cátedra seleccionada
   const seccionesCatedra = mockSecciones.filter(s => s.id_catedra === selectedCatedra);
 
-  // Obtener lista única de alumnos para el buscador de la cátedra
   const getStudentList = (): string[] => {
     const names = new Set<string>();
     asistencia.forEach(a => names.add(a.estudiante));
@@ -152,7 +151,6 @@ export default function PortalView() {
 
   const studentsList = getStudentList();
 
-  // Buscar información de un estudiante seleccionado
   const studentAttendance = asistencia.find(
     a => a.estudiante.toLowerCase() === selectedStudent?.toLowerCase()
   );
@@ -165,27 +163,31 @@ export default function PortalView() {
     n => n.estudiante.toLowerCase() === selectedStudent?.toLowerCase()
   );
 
-  // 8 Secciones del portal
-  const menuSections = [
-    { name: "Programa", icon: BookOpen },
-    { name: "Condiciones de Cursada", icon: Info },
-    { name: "Bibliografía", icon: FileText },
-    { name: "Cronograma", icon: Calendar },
-    { name: "Diapositivas", icon: Layers },
-    { name: "Apuntes de Clase", icon: FileText },
-    { name: "Asistencia", icon: CheckCircle2 },
-    { name: "Notas", icon: Award },
-  ];
+  // Helper to map id to beautiful tickers
+  const getTickerCode = (id: string) => {
+    if (id === "BIO_MOL") return "BIO-MOL";
+    if (id === "TECNO_2") return "TECNO-II";
+    if (id === "TECNO_3") return "TECNO-III";
+    return id.toUpperCase().replace("_", "-");
+  };
 
-  // Renderizador del cronograma
+  // 4 main navigation tabs
+  const navigationItems = [
+    { id: "inicio", label: "Inicio", icon: BookOpen },
+    { id: "archivos", label: "Archivos", icon: FileText },
+    { id: "cronograma", label: "Cronograma", icon: Calendar },
+    { id: "rendimiento", label: "Rendimiento", icon: Award },
+  ] as const;
+
+  // Render text-based, timeline list or embedded calendar
   const renderCronograma = () => {
     if (currentCatedra.tipo_cronograma === "TEXTO_SIMPLE") {
       return (
-        <div className="bg-white border border-stone-200 rounded-xl p-6 shadow-xs animate-fade-in">
-          <h4 className="font-semibold text-stone-900 mb-3 flex items-center gap-2 text-sm uppercase tracking-wider font-mono">
-            <span>Cronograma de Cursada</span>
+        <div className="bg-[#0F1420] border border-[#1E2531] rounded-2xl p-6 shadow-lg animate-fade-in space-y-4">
+          <h4 className="font-bold text-[#EDEFF3] flex items-center gap-2 text-[10px] uppercase tracking-widest font-mono text-[#5B6577]">
+            <span>CRONOGRAMA DE CURSADA</span>
           </h4>
-          <p className="text-stone-600 leading-relaxed text-sm">
+          <p className="text-[#EDEFF3]/90 leading-relaxed text-sm font-sans">
             {currentCatedra.contenido_cronograma}
           </p>
         </div>
@@ -204,18 +206,18 @@ export default function PortalView() {
 
       return (
         <div className="space-y-4 animate-fade-in">
-          <div className="bg-white border border-stone-200 rounded-xl p-6 shadow-xs">
-            <h4 className="font-semibold text-stone-900 mb-4 flex items-center gap-2 text-sm uppercase tracking-wider font-mono">
-              <span>Hitos y Fechas Clave del Cuatrimestre</span>
+          <div className="bg-[#0F1420] border border-[#1E2531] rounded-2xl p-6 shadow-lg">
+            <h4 className="font-bold text-[#EDEFF3] mb-6 flex items-center gap-2 text-[10px] uppercase tracking-widest font-mono text-[#5B6577]">
+              <span>HITOS Y FECHAS CLAVE</span>
             </h4>
-            <div className="relative border-l-2 border-amber-200 pl-6 ml-4 space-y-6">
+            <div className="relative border-l-2 border-[#1E2531] pl-6 ml-4 space-y-8">
               {fechasBio.map((item, idx) => (
                 <div key={idx} className="relative">
-                  <div className="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-amber-500 border-2 border-white shadow-xs"></div>
-                  <span className="font-mono text-xs font-bold text-amber-800 bg-amber-50 px-2.5 py-0.5 rounded border border-amber-200/50">
+                  <div className="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-[#16C784] border-4 border-[#0F1420] shadow-sm animate-pulse"></div>
+                  <span className="font-mono text-[10px] font-bold text-[#16C784] bg-[#16C784]/10 px-2.5 py-1 rounded border border-[#16C784]/20 uppercase tracking-wider">
                     {item.sem}
                   </span>
-                  <p className="text-stone-700 mt-2 text-sm leading-relaxed">{item.desc}</p>
+                  <p className="text-[#EDEFF3]/90 mt-3 text-sm leading-relaxed font-sans">{item.desc}</p>
                 </div>
               ))}
             </div>
@@ -227,25 +229,25 @@ export default function PortalView() {
     if (currentCatedra.tipo_cronograma === "CALENDAR_EMBEBIDO") {
       return (
         <div className="space-y-4 animate-fade-in">
-          <div className="bg-white border border-stone-200 rounded-xl p-5 shadow-xs">
+          <div className="bg-[#0F1420] border border-[#1E2531] rounded-2xl p-5 shadow-lg">
             <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3 mb-4">
-              <h4 className="font-semibold text-stone-900 flex items-center gap-2 text-sm uppercase tracking-wider font-mono">
-                <span>Calendario de Google Integrado</span>
+              <h4 className="font-bold text-[#EDEFF3] flex items-center gap-2 text-[10px] uppercase tracking-widest font-mono text-[#5B6577]">
+                <span>CALENDARIO DE GOOGLE INTEGRADO</span>
               </h4>
               <a
                 href="https://calendar.google.com"
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-1 text-xs text-amber-800 hover:text-amber-900 font-medium underline"
+                className="inline-flex items-center gap-1.5 text-[10px] text-[#16C784] hover:text-[#16C784]/80 font-mono uppercase tracking-wider underline"
               >
-                <span>Abrir en ventana independiente</span>
+                <span>Abrir Ventana</span>
                 <ExternalLink className="w-3.5 h-3.5" />
               </a>
             </div>
-            <div className="aspect-video w-full rounded-lg border border-stone-200 overflow-hidden bg-stone-50 flex items-center justify-center relative min-h-[300px]">
+            <div className="aspect-video w-full rounded-xl border border-[#1E2531] overflow-hidden bg-[#131826] flex items-center justify-center relative min-h-[300px]">
               <iframe
                 src="https://calendar.google.com/calendar/embed?src=es.ar%23holiday%40group.v.calendar.google.com&ctz=America%2FArgentina%2FBuenos_Aires"
-                className="absolute inset-0 w-full h-full border-none"
+                className="absolute inset-0 w-full h-full border-none filter invert contrast-125 opacity-90"
                 title="Calendario Cátedra"
               ></iframe>
             </div>
@@ -257,195 +259,204 @@ export default function PortalView() {
     return null;
   };
 
-  // Renderizador de listas de archivos (Bibliografía, Diapositivas, Apuntes)
+  // Render a clean list of files with download action on the right
   const renderArchivosSection = (tipo: "Bibliografia" | "Diapositivas" | "Apuntes_Clase") => {
-    // Filtramos y ordenamos los archivos
     const archivos = mockArchivos
       .filter(a => a.id_catedra === selectedCatedra && a.tipo_seccion === tipo)
       .sort((a, b) => a.orden - b.orden);
 
-    // Verificar si la sección está inactiva en la configuración
     const seccionConfigName = tipo === "Bibliografia" ? "Bibliografía" : tipo === "Diapositivas" ? "Diapositivas" : "Apuntes de Clase";
     const seccionConfig = seccionesCatedra.find(s => s.seccion === seccionConfigName);
 
     if (seccionConfig?.estado === "Inactiva") {
       return (
-        <div className="bg-stone-50 border border-stone-200 rounded-xl p-8 text-center max-w-lg mx-auto space-y-3 animate-fade-in">
-          <Info className="w-8 h-8 text-stone-400 mx-auto" />
-          <h5 className="font-bold text-stone-900 text-sm">Sección en Preparación</h5>
-          <p className="text-xs text-stone-500 leading-relaxed">
-            {seccionConfig.texto_simple || "Esta sección se encuentra temporalmente inactiva o en proceso de edición por el equipo docente de la cátedra."}
-          </p>
+        <div className="bg-[#0F1420] border border-[#1E2531] rounded-2xl p-8 text-center max-w-lg mx-auto space-y-4 animate-fade-in shadow-xl">
+          <Info className="w-10 h-10 text-[#5B6577] mx-auto" />
+          <div>
+            <h5 className="font-bold text-[#EDEFF3] text-sm uppercase tracking-wider">Sección en Preparación</h5>
+            <p className="text-xs text-[#5B6577] leading-relaxed mt-2 font-sans">
+              {seccionConfig.texto_simple || "Esta sección se encuentra temporalmente inactiva o en proceso de edición por el equipo docente de la cátedra."}
+            </p>
+          </div>
         </div>
       );
     }
 
     if (archivos.length === 0) {
       return (
-        <div className="bg-white border border-stone-200 rounded-xl p-8 text-center max-w-lg mx-auto space-y-3 animate-fade-in">
-          <FileText className="w-8 h-8 text-stone-300 mx-auto animate-pulse" />
-          <h5 className="font-bold text-stone-700 text-sm">Sin archivos disponibles</h5>
-          <p className="text-xs text-stone-500 leading-relaxed">
-            Esta sección todavía no tiene contenido cargado en la planilla. Los apuntes se irán subiendo a medida que avance el cuatrimestre.
-          </p>
+        <div className="bg-[#0F1420] border border-[#1E2531] rounded-2xl p-8 text-center max-w-lg mx-auto space-y-4 animate-fade-in shadow-xl">
+          <FileText className="w-10 h-10 text-[#5B6577] mx-auto animate-pulse" />
+          <div>
+            <h5 className="font-bold text-[#EDEFF3] text-sm uppercase tracking-wider">Sin archivos disponibles</h5>
+            <p className="text-xs text-[#5B6577] leading-relaxed mt-2 font-sans">
+              Esta sección todavía no tiene contenido cargado en la planilla. Los apuntes se irán subiendo a medida que avance el cuatrimestre.
+            </p>
+          </div>
         </div>
       );
     }
 
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-fade-in">
-        {archivos.map((file, idx) => (
-          <div
-            key={idx}
-            className="bg-white border border-stone-200 rounded-xl p-4 flex items-start justify-between gap-4 hover:border-amber-500 hover:shadow-xs transition-all duration-200"
-          >
-            <div className="space-y-1 truncate">
-              <div className="flex items-center gap-2">
-                <span className="w-5 h-5 rounded bg-stone-100 flex items-center justify-center text-[10px] font-mono font-bold text-stone-600">
-                  {file.orden}
-                </span>
-                <h5 className="font-semibold text-stone-950 text-sm truncate" title={file.nombre_archivo}>
-                  {file.nombre_archivo}
-                </h5>
-              </div>
-              <p className="text-[10px] text-stone-400 font-mono">Publicado: {file.fecha_subida}</p>
-            </div>
-            <a
-              href={file.link_drive}
-              target="_blank"
-              rel="noreferrer"
-              className="p-2 bg-stone-50 hover:bg-amber-100 text-stone-600 hover:text-amber-950 rounded-lg shrink-0 transition-colors cursor-pointer active:scale-95"
-              title="Descargar desde Google Drive"
+      <div className="bg-[#0F1420] border border-[#1E2531] rounded-2xl overflow-hidden shadow-lg animate-fade-in">
+        <div className="px-4 py-3 bg-[#131826]/60 border-b border-[#1E2531] flex justify-between items-center text-[10px] font-mono text-[#5B6577] uppercase tracking-wider font-bold">
+          <span>Archivo / Publicación</span>
+          <span>Acción</span>
+        </div>
+        <div className="divide-y divide-[#1E2531]/60">
+          {archivos.map((file, idx) => (
+            <div
+              key={idx}
+              className="p-4 flex items-center justify-between gap-4 hover:bg-[#131826] transition-colors duration-200 min-h-[56px]"
             >
-              <Download className="w-4 h-4" />
-            </a>
-          </div>
-        ))}
+              <div className="flex items-center gap-3.5 truncate max-w-[80%]">
+                <div className="w-9 h-9 rounded-lg bg-[#131826] border border-[#1E2531] flex items-center justify-center shrink-0 text-xs font-mono font-bold text-[#16C784]">
+                  {file.orden.toString().padStart(2, "0")}
+                </div>
+                <div className="space-y-0.5 truncate">
+                  <h5 className="font-semibold text-[#EDEFF3] text-sm truncate font-sans" title={file.nombre_archivo}>
+                    {file.nombre_archivo}
+                  </h5>
+                  <p className="text-[10px] text-[#5B6577] font-mono uppercase tracking-wider">
+                    Publicado: <span className="font-mono">{file.fecha_subida}</span>
+                  </p>
+                </div>
+              </div>
+              <a
+                href={file.link_drive}
+                target="_blank"
+                rel="noreferrer"
+                className="min-h-[44px] min-w-[44px] flex items-center justify-center bg-[#131826] hover:bg-[#1E2531] text-[#EDEFF3] hover:text-[#16C784] border border-[#1E2531] rounded-xl transition-all duration-200 active:scale-95"
+                title="Descargar desde Google Drive"
+              >
+                <Download className="w-4 h-4" />
+              </a>
+            </div>
+          ))}
+        </div>
       </div>
     );
   };
 
   return (
-    <div className="space-y-6">
-      {/* CATEDRA SWITCHER AND SOURCE STATE */}
-      <div className="bg-white border border-stone-200 rounded-2xl p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-xs">
-        <div>
-          <span className="text-xs font-mono text-stone-400 uppercase tracking-widest">Portal Académico Estudiantil</span>
-          <h3 className="text-lg font-bold text-stone-900 tracking-tight">Acceso Público de Lectura de Cátedras</h3>
+    <div className="space-y-6 pb-20 md:pb-6">
+      {/* CATEDRA TICKERS UPPER BAR */}
+      <div className="bg-[#0F1420] border border-[#1E2531] rounded-2xl p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-lg">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-[#16C784] animate-ping"></span>
+            <span className="text-[9px] font-mono text-[#16C784] uppercase tracking-widest font-bold">TERMINAL DE ACCESO DIRECTO</span>
+          </div>
+          <h3 className="text-base font-bold text-[#EDEFF3] tracking-tight">Acceso Público y Conexión de Cátedras</h3>
         </div>
 
-        <div className="flex items-center gap-3 w-full md:w-auto">
-          {/* Cátedras Activas */}
-          <div className="flex gap-1 bg-stone-100 p-1 rounded-xl w-full md:w-auto">
-            {activeCatedras.map(cat => (
-              <button
-                key={cat.id}
-                onClick={() => {
-                  setSelectedCatedra(cat.id);
-                  setActiveSection("Programa");
-                }}
-                className={`px-4 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-all w-full md:w-auto ${
-                  selectedCatedra === cat.id
-                    ? "bg-white text-stone-950 shadow-sm font-bold"
-                    : "text-stone-500 hover:text-stone-800"
-                }`}
-              >
-                {cat.nombre}
-              </button>
-            ))}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
+          {/* Cátedras as "TICKERS" */}
+          <div className="flex flex-wrap gap-1.5 p-1 bg-[#131826] border border-[#1E2531] rounded-xl w-full md:w-auto">
+            {activeCatedras.map(cat => {
+              const isActive = selectedCatedra === cat.id;
+              return (
+                <button
+                  key={cat.id}
+                  onClick={() => {
+                    setSelectedCatedra(cat.id);
+                  }}
+                  className={`px-3.5 py-2 rounded-lg text-xs font-mono font-bold uppercase transition-all duration-150 cursor-pointer flex-1 md:flex-none text-center ${
+                    isActive
+                      ? "bg-[#16C784]/15 text-[#16C784] border border-[#16C784]/25"
+                      : "bg-transparent text-[#5B6577] border border-transparent hover:text-[#EDEFF3] hover:border-[#1E2531]"
+                  }`}
+                >
+                  {getTickerCode(cat.id)}
+                </button>
+              );
+            })}
           </div>
 
-          {/* Banner de origen de datos */}
-          <div className="shrink-0 hidden sm:block">
+          {/* Connection Status Indicator */}
+          <div className="shrink-0 flex items-center justify-center">
             {loading ? (
-              <span className="px-3 py-1 text-[10px] font-mono bg-stone-100 text-stone-500 rounded-full flex items-center gap-1.5">
-                <Loader2 className="w-3 h-3 animate-spin text-amber-600" />
-                <span>Conectando...</span>
+              <span className="px-3 py-1.5 text-[9px] font-mono bg-[#131826] border border-[#1E2531] text-[#5B6577] rounded-full flex items-center gap-1.5">
+                <Loader2 className="w-3 h-3 animate-spin text-[#16C784]" />
+                <span>SINC_DATA...</span>
               </span>
             ) : isDemoMode ? (
-              <span className="px-3 py-1 text-[10px] font-mono bg-amber-50 text-amber-800 border border-amber-200 rounded-full flex items-center gap-1.5 font-bold">
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
-                <span>Modo Demo</span>
+              <span className="px-3 py-1.5 text-[9px] font-mono bg-[#E24B4A]/10 text-[#E24B4A] border border-[#E24B4A]/20 rounded-full flex items-center gap-1.5 font-bold">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#E24B4A] animate-pulse"></span>
+                <span>MODO_OFFLINE</span>
               </span>
             ) : (
-              <span className="px-3 py-1 text-[10px] font-mono bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-full flex items-center gap-1.5 font-bold animate-fade-in">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                <span>Sheets en Vivo</span>
+              <span className="px-3 py-1.5 text-[9px] font-mono bg-[#16C784]/10 text-[#16C784] border border-[#16C784]/25 rounded-full flex items-center gap-1.5 font-bold animate-fade-in">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#16C784]"></span>
+                <span>SHEETS_EN_VIVO</span>
               </span>
             )}
           </div>
         </div>
       </div>
 
-      {/* ERROR BANNER IF SHEETS CONNECTION FAILS AND SAYS DEMO FALLBACK */}
+      {/* ERROR BANNER IF CONNECTIONS LOSE INTEGRITY */}
       {errorMsg && (
-        <div className="bg-rose-50 border border-rose-200 text-rose-900 rounded-xl p-4 flex items-start gap-3 animate-fade-in text-xs max-w-4xl mx-auto">
-          <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+        <div className="bg-[#E24B4A]/10 border border-[#E24B4A]/25 text-[#E24B4A] rounded-xl p-4 flex items-start gap-3 animate-fade-in text-xs max-w-4xl mx-auto">
+          <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
           <div className="space-y-1">
-            <p className="font-semibold">Aviso de sincronización:</p>
-            <p className="text-stone-600 leading-relaxed">
-              No pudimos conectar con las planillas de Google en vivo ({errorMsg}). Para mantener tu experiencia activa, el portal cargó automáticamente la base de datos de simulación segura (modo offline).
+            <p className="font-bold uppercase font-mono tracking-wider text-[10px]">Alerta de Conexión:</p>
+            <p className="text-[#EDEFF3]/80 leading-relaxed font-sans">
+              No se pudo conectar con las planillas en vivo ({errorMsg}). Para mantener tu consulta activa, el sistema cargó la base de datos local y segura en modo offline.
             </p>
           </div>
         </div>
       )}
 
       {/* PORTAL CORE LAYOUT */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* SIDEBAR SECTIONS MENU */}
-        <div className="lg:col-span-1 space-y-2">
-          <div className="bg-white border border-stone-200 rounded-2xl p-4 shadow-xs space-y-1">
-            <p className="px-3 py-1 text-[10px] font-mono text-stone-400 uppercase tracking-widest mb-2 font-bold">
-              Menú de Secciones
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        
+        {/* DESKTOP SIDEBAR NAVIGATION */}
+        <div className="hidden md:block md:col-span-1 space-y-2">
+          <div className="bg-[#0F1420] border border-[#1E2531] rounded-2xl p-4 shadow-lg space-y-1">
+            <p className="px-3 py-1.5 text-[9px] font-mono text-[#5B6577] uppercase tracking-widest mb-2 font-bold">
+              TERMINAL MENU
             </p>
-            {menuSections.map(section => {
-              const Icon = section.icon;
-              const isSectionActiveInConfig = seccionesCatedra.find(s => s.seccion === section.name)?.estado !== "Inactiva";
+            {navigationItems.map(item => {
+              const Icon = item.icon;
+              const isActive = activeTab === item.id;
               
               return (
                 <button
-                  key={section.name}
-                  onClick={() => setActiveSection(section.name)}
-                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium cursor-pointer transition-all ${
-                    activeSection === section.name
-                      ? "bg-amber-50 text-amber-950 font-bold border-l-4 border-amber-600 pl-2.5"
-                      : "text-stone-600 hover:bg-stone-50 hover:text-stone-900"
+                  key={item.id}
+                  onClick={() => setActiveTab(item.id)}
+                  className={`w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-semibold cursor-pointer transition-all ${
+                    isActive
+                      ? "bg-[#16C784]/10 text-[#16C784] border-l-4 border-[#16C784] pl-2.5"
+                      : "text-[#5B6577] hover:bg-[#131826] hover:text-[#EDEFF3]"
                   }`}
                 >
-                  <div className="flex items-center gap-2.5">
-                    <Icon className={`w-4 h-4 ${activeSection === section.name ? "text-amber-600" : "text-stone-400"}`} />
-                    <span>{section.name}</span>
-                  </div>
-                  {!isSectionActiveInConfig && (
-                    <span className="text-[9px] font-mono font-bold bg-stone-100 text-stone-400 px-1.5 py-0.5 rounded">
-                      Pronto
-                    </span>
-                  )}
+                  <Icon className={`w-4.5 h-4.5 ${isActive ? "text-[#16C784]" : "text-[#5B6577]"}`} />
+                  <span className="uppercase tracking-wider font-mono text-[10px] font-bold">{item.label}</span>
                 </button>
               );
             })}
           </div>
 
-          {/* INFORMACIÓN DEL CICLO */}
-          <div className="bg-stone-900 text-stone-300 rounded-2xl p-4 shadow-sm space-y-3 font-mono text-[10px] border border-stone-800">
-            <p className="text-white font-bold tracking-wider uppercase border-b border-stone-800 pb-1 flex items-center gap-2">
-              <Info className="w-3.5 h-3.5 text-amber-400" />
-              <span>INFORMACIÓN DE CURSADA</span>
+          {/* INFORMACIÓN DE LA MATERIA */}
+          <div className="bg-[#0F1420] border border-[#1E2531] rounded-2xl p-4 shadow-lg space-y-3 font-mono text-[10px] text-[#5B6577]">
+            <p className="text-[#EDEFF3] font-bold tracking-wider uppercase border-b border-[#1E2531] pb-1.5 flex items-center gap-2">
+              <Info className="w-3.5 h-3.5 text-[#16C784]" />
+              <span>SISTEMA DE INFO</span>
             </p>
-            <div className="space-y-1.5 text-stone-300">
-              <p><span className="text-stone-500">Materia:</span> {currentCatedra.nombre}</p>
-              <p><span className="text-stone-500">Dictado:</span> {currentCatedra.cuatrimestre}</p>
-              <p><span className="text-stone-500">Cohorte:</span> Ciclo Lectivo {currentYear}</p>
-              <p><span className="text-stone-500">Carácter:</span> Público Sin Login</p>
+            <div className="space-y-1.5">
+              <p><span className="text-[#5B6577]">CÓDIGO:</span> <span className="text-[#EDEFF3] font-mono">{getTickerCode(selectedCatedra)}</span></p>
+              <p><span className="text-[#5B6577]">MATERIA:</span> <span className="text-[#EDEFF3]">{currentCatedra.nombre}</span></p>
+              <p><span className="text-[#5B6577]">DICTADO:</span> <span className="text-[#EDEFF3]">{currentCatedra.cuatrimestre}</span></p>
+              <p><span className="text-[#5B6577]">COHORTE:</span> <span className="text-[#EDEFF3]">{currentYear}</span></p>
             </div>
           </div>
         </div>
 
-        {/* MAIN SECTION CONTENT */}
-        <div className="lg:col-span-3 min-h-[400px]">
+        {/* MAIN SECTION CONTENT AREA */}
+        <div className="col-span-1 md:col-span-3 min-h-[400px]">
           <AnimatePresence mode="wait">
             <motion.div
-              key={`${selectedCatedra}-${activeSection}`}
+              key={`${selectedCatedra}-${activeTab}`}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
@@ -453,58 +464,95 @@ export default function PortalView() {
               className="space-y-4"
             >
               {/* SECTION HEADER CARD */}
-              <div className="bg-stone-900 text-white rounded-2xl p-6 shadow-sm border border-stone-800 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+              <div className="bg-[#0F1420] text-white rounded-2xl p-5 shadow-lg border border-[#1E2531] flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
                   <div className="flex items-center gap-2 mb-1.5">
-                    <span className="text-[10px] font-mono tracking-widest text-amber-400 uppercase font-bold">
-                      {currentCatedra.nombre}
+                    <span className="text-[9px] font-mono tracking-widest text-[#16C784] uppercase font-bold bg-[#16C784]/15 px-2 py-0.5 rounded border border-[#16C784]/20">
+                      {getTickerCode(selectedCatedra)}
                     </span>
-                    <span className="text-[10px] text-stone-500 font-mono">•</span>
-                    <span className="text-[10px] font-mono text-stone-400">Ciclo {currentYear}</span>
+                    <span className="text-[10px] text-[#5B6577] font-mono">•</span>
+                    <span className="text-[10px] font-mono text-[#5B6577] uppercase">COHORTE {currentYear}</span>
                   </div>
-                  <h2 className="text-xl font-bold tracking-tight text-white">{activeSection}</h2>
+                  <h2 className="text-lg font-bold tracking-tight text-[#EDEFF3] uppercase font-mono">{activeTab === "inicio" ? "Cátedra & Programa" : activeTab === "archivos" ? "Descarga de Archivos" : activeTab}</h2>
                 </div>
               </div>
 
-              {/* SECTION BODY CARDS */}
-              {activeSection === "Programa" && (
-                <div className="bg-white border border-stone-200 rounded-2xl p-6 shadow-xs space-y-4 animate-fade-in">
-                  <p className="text-stone-600 leading-relaxed text-sm">
-                    {seccionesCatedra.find(s => s.seccion === "Programa")?.texto_simple || 
-                      "El programa oficial de la asignatura se encuentra actualmente en edición o actualización por los coordinadores académicos."}
-                  </p>
+              {/* SECTION CONTENT SWITCHING */}
+              
+              {/* 1. INICIO (PROGRAMA Y CONDICIONES JUNTOS) */}
+              {activeTab === "inicio" && (
+                <div className="space-y-4 animate-fade-in">
+                  <div className="grid grid-cols-1 gap-4">
+                    <div className="bg-[#0F1420] border border-[#1E2531] rounded-2xl p-6 shadow-lg space-y-4">
+                      <h4 className="font-bold text-[#EDEFF3] flex items-center gap-2 text-[10px] uppercase tracking-widest font-mono text-[#5B6577]">
+                        <span>PROGRAMA GENERAL</span>
+                      </h4>
+                      <p className="text-[#EDEFF3]/90 leading-relaxed text-sm font-sans">
+                        {seccionesCatedra.find(s => s.seccion === "Programa")?.texto_simple || 
+                          "El programa oficial de la asignatura se encuentra actualmente en edición o actualización por los coordinadores académicos."}
+                      </p>
+                    </div>
+
+                    <div className="bg-[#0F1420] border border-[#1E2531] rounded-2xl p-6 shadow-lg space-y-4">
+                      <h4 className="font-bold text-[#EDEFF3] flex items-center gap-2 text-[10px] uppercase tracking-widest font-mono text-[#5B6577]">
+                        <span>CONDICIONES DE CURSADA</span>
+                      </h4>
+                      <p className="text-[#EDEFF3]/90 leading-relaxed text-sm font-sans">
+                        {seccionesCatedra.find(s => s.seccion === "Condiciones de Cursada")?.texto_simple || 
+                          "Las normativas de regularidad, régimen de promoción directa y aprobación del proyecto final se encuentran publicadas en la cartelera física del departamento académico."}
+                      </p>
+                    </div>
+                  </div>
                 </div>
               )}
 
-              {activeSection === "Condiciones de Cursada" && (
-                <div className="bg-white border border-stone-200 rounded-2xl p-6 shadow-xs space-y-4 animate-fade-in">
-                  <p className="text-stone-600 leading-relaxed text-sm">
-                    {seccionesCatedra.find(s => s.seccion === "Condiciones de Cursada")?.texto_simple || 
-                      "Las normativas de regularidad, régimen de promoción directa y aprobación del proyecto final se encuentran publicadas en la cartelera física del departamento académico."}
-                  </p>
+              {/* 2. ARCHIVOS (CON FILTRO INTERNO) */}
+              {activeTab === "archivos" && (
+                <div className="space-y-4 animate-fade-in">
+                  {/* File category switcher - Ticker Style */}
+                  <div className="flex gap-1.5 p-1 bg-[#131826] border border-[#1E2531] rounded-xl overflow-x-auto">
+                    {[
+                      { id: "Bibliografia", label: "Bibliografía" },
+                      { id: "Diapositivas", label: "Diapositivas" },
+                      { id: "Apuntes_Clase", label: "Apuntes" }
+                    ].map(sub => (
+                      <button
+                        key={sub.id}
+                        onClick={() => setActiveFileSubSection(sub.id as any)}
+                        className={`px-4 py-2 rounded-lg text-xs font-mono font-bold uppercase transition-all flex-1 text-center whitespace-nowrap cursor-pointer ${
+                          activeFileSubSection === sub.id
+                            ? "bg-[#1E2531] text-[#EDEFF3] border border-[#232B3D]"
+                            : "text-[#5B6577] hover:text-[#EDEFF3]"
+                        }`}
+                      >
+                        {sub.label}
+                      </button>
+                    ))}
+                  </div>
+
+                  {renderArchivosSection(activeFileSubSection)}
                 </div>
               )}
 
-              {activeSection === "Bibliografía" && renderArchivosSection("Bibliografia")}
-              {activeSection === "Cronograma" && renderCronograma()}
-              {activeSection === "Diapositivas" && renderArchivosSection("Diapositivas")}
-              {activeSection === "Apuntes de Clase" && renderArchivosSection("Apuntes_Clase")}
+              {/* 3. CRONOGRAMA */}
+              {activeTab === "cronograma" && renderCronograma()}
 
-              {/* BUSCADOR DE ASISTENCIA */}
-              {activeSection === "Asistencia" && (
+              {/* 4. RENDIMIENTO (BUSCADOR + BOLETÍN & ASISTENCIA UNIFICADOS EN UN TRADING DASHBOARD) */}
+              {activeTab === "rendimiento" && (
                 <div className="space-y-6">
-                  <div className="bg-white border border-stone-200 rounded-2xl p-6 shadow-xs space-y-4">
+                  {/* Buscador de alumnos */}
+                  <div className="bg-[#0F1420] border border-[#1E2531] rounded-2xl p-6 shadow-lg space-y-4">
                     <div className="max-w-md mx-auto text-center space-y-2 mb-2">
-                      <h4 className="font-bold text-stone-900 text-sm">Porcentaje de Asistencia por Estudiante</h4>
-                      <p className="text-xs text-stone-500 leading-relaxed">
-                        De acuerdo con las reglamentaciones de la cátedra, debes cumplir con el porcentaje mínimo requerido de asistencia a clases prácticas para conservar la regularidad o acceder a la promoción.
+                      <h4 className="font-bold text-[#EDEFF3] text-sm uppercase tracking-wider font-mono">Consola de Rendimiento</h4>
+                      <p className="text-xs text-[#5B6577] leading-relaxed font-sans">
+                        Consulta tu asistencia de clases prácticas y calificaciones de evaluaciones parciales y condiciones finales.
                       </p>
                     </div>
 
                     {loading ? (
-                      <div className="flex flex-col items-center justify-center py-8 gap-2 text-stone-500 text-xs">
-                        <Loader2 className="w-5 h-5 animate-spin text-amber-600" />
-                        <span>Cargando padrón estudiantil...</span>
+                      <div className="flex flex-col items-center justify-center py-8 gap-2 text-[#5B6577] text-xs font-mono">
+                        <Loader2 className="w-5 h-5 animate-spin text-[#16C784]" />
+                        <span>SINC_DATA_BASE...</span>
                       </div>
                     ) : (
                       <StudentSearch
@@ -517,244 +565,260 @@ export default function PortalView() {
                     )}
                   </div>
 
-                  {/* RESULTADO DE ASISTENCIA */}
+                  {/* UNIFIED TRADING PERFORMANCE CARD */}
                   {selectedStudent && (
                     <motion.div
-                      initial={{ opacity: 0, scale: 0.95 }}
+                      initial={{ opacity: 0, scale: 0.98 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      className="bg-white border border-stone-200 rounded-2xl overflow-hidden shadow-xs max-w-lg mx-auto"
+                      className="bg-[#0F1420] border border-[#1E2531] rounded-2xl overflow-hidden shadow-2xl max-w-2xl mx-auto"
                     >
-                      <div className="bg-stone-900 p-4 border-b border-stone-800 text-white flex justify-between items-center">
-                        <div className="space-y-0.5">
-                          <p className="text-[10px] font-mono text-amber-400 font-bold uppercase">Estado Consolidado</p>
-                          <h5 className="font-bold text-sm">{selectedStudent}</h5>
+                      {/* CARD HEADER */}
+                      <div className="bg-[#131826] p-4 border-b border-[#1E2531] text-white flex justify-between items-center">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-[#16C784] flex items-center justify-center font-bold font-mono">
+                            {selectedStudent.split(" ").map(w => w.charAt(0)).join("").substring(0, 2).toUpperCase()}
+                          </div>
+                          <div>
+                            <p className="text-[9px] font-mono text-[#5B6577] uppercase tracking-widest">Padrón / Estudiante</p>
+                            <h5 className="font-bold text-sm text-[#EDEFF3]">{selectedStudent}</h5>
+                          </div>
                         </div>
-                        <span className="text-xs font-mono text-stone-400">Ciclo {currentYear}</span>
-                      </div>
-                      <div className="p-6 text-center space-y-4">
-                        <div className="inline-flex flex-col items-center justify-center bg-stone-50 border border-stone-150 rounded-2xl px-6 py-4">
-                          <p className="text-[10px] font-mono text-stone-400 uppercase font-bold tracking-wider mb-1">Porcentaje de Asistencia</p>
-                          <span className="text-4xl font-extrabold text-stone-900 font-mono tracking-tight">
-                            {studentAttendance?.porcentaje || "0%"}
-                          </span>
-                        </div>
+                        <div className="text-right">
+                          <p className="text-[9px] font-mono text-[#5B6577] uppercase tracking-widest">Estado Final</p>
+                          {(() => {
+                            const finalCond = selectedCatedra !== "TECNO_3" 
+                              ? studentGradesNum?.condicion_final 
+                              : studentGradesStatus?.condicion_final;
 
-                        {studentAttendance ? (
-                          (() => {
-                            const pct = parseInt(studentAttendance.porcentaje.replace("%", ""), 10) || 0;
-                            const req = selectedCatedra === "BIO_MOL" ? 80 : 75; // Biología molecular pide 80%, otros 75%
-                            const cumple = pct >= req;
+                            const isPromocion = finalCond === "Promoción";
+                            const isRegular = finalCond === "Regular";
+                            const colorClass = isPromocion 
+                              ? "text-[#16C784] bg-[#16C784]/15 border-[#16C784]/25" 
+                              : isRegular 
+                                ? "text-[#F0997B] bg-[#F0997B]/15 border-[#F0997B]/25" 
+                                : "text-[#E24B4A] bg-[#E24B4A]/15 border-[#E24B4A]/25";
 
                             return (
-                              <div className={`p-4 rounded-xl border text-xs leading-relaxed max-w-sm mx-auto ${
-                                cumple 
-                                  ? "bg-emerald-50/50 border-emerald-200 text-emerald-900" 
-                                  : "bg-rose-50/50 border-rose-200 text-rose-950"
-                              }`}>
-                                {cumple ? (
-                                  <p>
-                                    <strong>¡Cumple Requisito!</strong> Tu asistencia del <strong>{studentAttendance.porcentaje}</strong> supera el mínimo del {req}% exigido por la asignatura.
-                                  </p>
-                                ) : (
-                                  <p>
-                                    <strong>Requisito Insuficiente:</strong> Tu asistencia actual es del <strong>{studentAttendance.porcentaje}</strong>, estando por debajo del {req}% requerido. Consulta con los docentes auxiliares.
-                                  </p>
-                                )}
-                              </div>
+                              <span className={`px-2.5 py-0.5 rounded text-[10px] font-mono font-bold uppercase border ${colorClass}`}>
+                                {finalCond || "N/A"}
+                              </span>
                             );
-                          })()
-                        ) : (
-                          <p className="text-xs text-stone-400 italic">No se registraron planillas de asistencia para este alumno en este ciclo.</p>
-                        )}
-                      </div>
-                    </motion.div>
-                  )}
-                </div>
-              )}
-
-              {/* BUSCADOR DE NOTAS */}
-              {activeSection === "Notas" && (
-                <div className="space-y-6">
-                  <div className="bg-white border border-stone-200 rounded-2xl p-6 shadow-xs space-y-4">
-                    <div className="max-w-md mx-auto text-center space-y-2 mb-2">
-                      <h4 className="font-bold text-stone-900 text-sm">Calificaciones e Historial de Exámenes</h4>
-                      <p className="text-xs text-stone-500 leading-relaxed">
-                        Accede a las notas de tus evaluaciones parciales teóricas y prácticas, notas de recuperatorio y la condición final calculada según el régimen de la cátedra.
-                      </p>
-                    </div>
-
-                    {loading ? (
-                      <div className="flex flex-col items-center justify-center py-8 gap-2 text-stone-500 text-xs">
-                        <Loader2 className="w-5 h-5 animate-spin text-amber-600" />
-                        <span>Cargando padrón estudiantil...</span>
-                      </div>
-                    ) : (
-                      <StudentSearch
-                        studentNames={studentsList}
-                        placeholder="Escribe tu apellido o nombre para consultar..."
-                        onSelect={setSelectedStudent}
-                        selectedStudent={selectedStudent}
-                        cohortYear={currentYear}
-                      />
-                    )}
-                  </div>
-
-                  {/* RESULTADO DE NOTAS */}
-                  {selectedStudent && (
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.95 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      className="bg-white border border-stone-200 rounded-2xl overflow-hidden shadow-xs max-w-2xl mx-auto"
-                    >
-                      <div className="bg-stone-900 p-4 border-b border-stone-800 text-white flex justify-between items-center">
-                        <div className="space-y-0.5">
-                          <p className="text-[10px] font-mono text-amber-400 font-bold uppercase">Boletín Académico Individual</p>
-                          <h5 className="font-bold text-sm">{selectedStudent}</h5>
+                          })()}
                         </div>
-                        <span className="text-xs font-mono text-stone-400">Ciclo {currentYear}</span>
                       </div>
 
+                      {/* CARD BODY */}
                       <div className="p-5 space-y-6">
-                        {/* CASO: BIOLOGÍA MOLECULAR O TECNO II (ESQUEMA NUMÉRICO) */}
-                        {selectedCatedra !== "TECNO_3" ? (
-                          studentGradesNum ? (
-                            <div className="space-y-6 animate-fade-in">
-                              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <div className="p-3.5 bg-stone-50 border border-stone-150 rounded-xl space-y-1">
-                                  <p className="text-[9px] font-mono text-stone-400 uppercase font-bold">1er Parcial</p>
-                                  <div className="flex justify-between items-baseline">
-                                    <span className="text-xs text-stone-600">Teoría: {studentGradesNum.p1_teoria}</span>
-                                    <span className="text-xs text-stone-600">Práctica: {studentGradesNum.p1_practica}</span>
-                                  </div>
-                                  <p className="text-xs font-semibold text-stone-800 pt-1 border-t border-stone-100 mt-1">
-                                    Resultado: <span className="text-amber-800 font-bold">{studentGradesNum.p1_resultado}</span>
-                                  </p>
-                                </div>
-
-                                <div className="p-3.5 bg-stone-50 border border-stone-150 rounded-xl space-y-1">
-                                  <p className="text-[9px] font-mono text-stone-400 uppercase font-bold">2do Parcial</p>
-                                  <div className="flex justify-between items-baseline">
-                                    <span className="text-xs text-stone-600">Teoría: {studentGradesNum.p2_teoria}</span>
-                                    <span className="text-xs text-stone-600">Práctica: {studentGradesNum.p2_practica}</span>
-                                  </div>
-                                  <p className="text-xs font-semibold text-stone-800 pt-1 border-t border-stone-100 mt-1">
-                                    Resultado: <span className="text-amber-800 font-bold">{studentGradesNum.p2_resultado}</span>
-                                  </p>
-                                </div>
-
-                                <div className="p-3.5 bg-amber-50/40 border border-amber-200/50 rounded-xl space-y-1">
-                                  <p className="text-[9px] font-mono text-amber-800 uppercase font-bold">Recuperatorio ({studentGradesNum.recupera})</p>
-                                  <div className="flex justify-between items-baseline">
-                                    <span className="text-xs text-stone-600">Teoría: {studentGradesNum.rec_teoria}</span>
-                                    <span className="text-xs text-stone-600">Práctica: {studentGradesNum.rec_practica}</span>
-                                  </div>
-                                  <p className="text-xs font-semibold text-amber-900 pt-1 border-t border-amber-100 mt-1">
-                                    Resultado: <span className="text-amber-800 font-bold">{studentGradesNum.rec_resultado}</span>
-                                  </p>
-                                </div>
-                              </div>
-
-                              <div className="bg-stone-50 p-4 rounded-xl border border-stone-150 flex flex-col sm:flex-row justify-between items-center gap-3">
-                                <div className="text-center sm:text-left">
-                                  <p className="text-[10px] font-mono text-stone-400 uppercase font-bold mb-0.5">Condición de Regularidad</p>
-                                  <h4 className="text-xs text-stone-600">Calculada en base a notas y recuperatorios del ciclo</h4>
-                                </div>
-                                <span className={`px-4 py-2 rounded-lg text-xs font-extrabold uppercase font-mono tracking-wider ${
-                                  studentGradesNum.condicion_final === "Promoción" 
-                                    ? "bg-emerald-100 text-emerald-800 border border-emerald-200" 
-                                    : studentGradesNum.condicion_final === "Regular" 
-                                      ? "bg-amber-100 text-amber-800 border border-amber-200" 
-                                      : "bg-rose-100 text-rose-800 border border-rose-200"
-                                }`}>
-                                  {studentGradesNum.condicion_final}
-                                </span>
-                              </div>
+                        
+                        {/* SECTION A: ASISTENCIA (VISUAL VARIATION INDICATOR) */}
+                        <div className="bg-[#131826]/60 border border-[#1E2531]/80 rounded-xl p-4 space-y-3.5">
+                          <div className="flex justify-between items-center">
+                            <div>
+                              <p className="text-[9px] font-mono text-[#5B6577] uppercase tracking-wider font-bold">ASISTENCIA EN CURSADA</p>
+                              <h4 className="text-xs text-[#EDEFF3] font-sans font-medium">Clases Prácticas Requeridas</h4>
                             </div>
+                            <div className="text-right">
+                              <span className="text-2xl font-bold text-[#EDEFF3] font-mono tracking-tight">
+                                {studentAttendance?.porcentaje || "0%"}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Horizontal Price-Variation Progress Bar */}
+                          {studentAttendance ? (
+                            (() => {
+                              const pct = parseInt(studentAttendance.porcentaje.replace("%", ""), 10) || 0;
+                              const req = selectedCatedra === "BIO_MOL" ? 80 : 75;
+                              const cumple = pct >= req;
+                              const colorHex = cumple ? "#16C784" : "#E24B4A";
+                              const textClass = cumple ? "text-[#16C784]" : "text-[#E24B4A]";
+
+                              return (
+                                <div className="space-y-3">
+                                  {/* Progress bar line */}
+                                  <div className="w-full h-1.5 bg-[#1E2531] rounded-full overflow-hidden">
+                                    <div 
+                                      className="h-full rounded-full transition-all duration-500"
+                                      style={{ 
+                                        width: `${pct}%`,
+                                        backgroundColor: colorHex
+                                      }}
+                                    ></div>
+                                  </div>
+
+                                  {/* Compliance Badge / Variation Quote */}
+                                  <div className={`p-3 rounded-lg bg-[#0F1420] border border-[#1E2531] flex justify-between items-center text-xs`}>
+                                    <span className="font-mono text-[9px] text-[#5B6577] uppercase tracking-wider">Cumplimiento Mínimo ({req}%)</span>
+                                    {cumple ? (
+                                      <span className="font-mono font-bold text-[#16C784] flex items-center gap-1 bg-[#16C784]/10 px-2 py-0.5 rounded border border-[#16C784]/20">
+                                        ▲ CUMPLE REQUISITO
+                                      </span>
+                                    ) : (
+                                      <span className="font-mono font-bold text-[#E24B4A] flex items-center gap-1 bg-[#E24B4A]/10 px-2 py-0.5 rounded border border-[#E24B4A]/20 animate-pulse">
+                                        ▼ INSUFICIENTE
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                              );
+                            })()
                           ) : (
-                            <p className="text-xs text-stone-400 italic text-center py-4">No se registraron notas para este estudiante en este ciclo.</p>
-                          )
-                        ) : (
-                          /* CASO: TECNO III (ESQUEMA CUALITATIVO) */
-                          studentGradesStatus ? (
-                            <div className="space-y-6 animate-fade-in">
-                              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <div className="p-3.5 bg-stone-50 border border-stone-150 rounded-xl space-y-1">
-                                  <p className="text-[9px] font-mono text-stone-400 uppercase font-bold">1er Parcial Teoría</p>
-                                  <div className="flex justify-between items-baseline">
-                                    <span className="text-stone-500 text-xs">Calificación:</span>
-                                    <span className="font-semibold text-stone-800 text-xs">{studentGradesStatus.p1_teoria}</span>
+                            <p className="text-xs text-[#5B6577] italic font-sans text-center">No se registraron planillas de asistencia para este alumno.</p>
+                          )}
+                        </div>
+
+                        {/* SECTION B: CALIFICACIONES (TICKS/QUOTES PANEL) */}
+                        <div className="space-y-3">
+                          <p className="text-[9px] font-mono text-[#5B6577] uppercase tracking-wider font-bold">PANEL DE COTIZACIÓN DE NOTAS</p>
+                          
+                          {/* CASO: ESQUEMA NUMÉRICO (BIO_MOL / TECNO II) */}
+                          {selectedCatedra !== "TECNO_3" ? (
+                            studentGradesNum ? (
+                              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                
+                                {/* P1 Card */}
+                                <div className="p-3.5 bg-[#131826]/70 border border-[#1E2531] rounded-xl space-y-2.5">
+                                  <div className="flex justify-between items-start">
+                                    <span className="text-[9px] font-mono text-[#5B6577] uppercase tracking-wider font-bold">1ER PARCIAL</span>
+                                    <span className="text-[10px] font-mono font-bold text-[#16C784] bg-[#16C784]/10 px-1.5 py-0.5 rounded">
+                                      {studentGradesNum.p1_resultado}
+                                    </span>
                                   </div>
-                                  <p className="text-xs font-semibold text-stone-800 pt-1 border-t border-stone-100 mt-1">
-                                    Estado: <span className="text-amber-800 font-bold">{studentGradesStatus.p1_condicion}</span>
-                                  </p>
+                                  <div className="flex justify-between items-baseline pt-1">
+                                    <span className="text-[10px] font-mono text-[#5B6577]">TEO:</span>
+                                    <span className="text-lg font-bold font-mono text-[#EDEFF3]">{studentGradesNum.p1_teoria}</span>
+                                    <span className="text-[10px] font-mono text-[#5B6577] ml-2">PRAC:</span>
+                                    <span className="text-lg font-bold font-mono text-[#EDEFF3]">{studentGradesNum.p1_practica}</span>
+                                  </div>
                                 </div>
 
-                                <div className="p-3.5 bg-stone-50 border border-stone-150 rounded-xl space-y-1">
-                                  <p className="text-[9px] font-mono text-stone-400 uppercase font-bold">2do Parcial Teoría</p>
-                                  <div className="flex justify-between items-baseline">
-                                    <span className="text-stone-500 text-xs">Calificación:</span>
-                                    <span className="font-semibold text-stone-800 text-xs">{studentGradesStatus.p2_teoria}</span>
+                                {/* P2 Card */}
+                                <div className="p-3.5 bg-[#131826]/70 border border-[#1E2531] rounded-xl space-y-2.5">
+                                  <div className="flex justify-between items-start">
+                                    <span className="text-[9px] font-mono text-[#5B6577] uppercase tracking-wider font-bold">2DO PARCIAL</span>
+                                    <span className="text-[10px] font-mono font-bold text-[#16C784] bg-[#16C784]/10 px-1.5 py-0.5 rounded">
+                                      {studentGradesNum.p2_resultado}
+                                    </span>
                                   </div>
-                                  <p className="text-xs font-semibold text-stone-800 pt-1 border-t border-stone-100 mt-1">
-                                    Estado: <span className="text-amber-800 font-bold">{studentGradesStatus.p2_condicion}</span>
-                                  </p>
+                                  <div className="flex justify-between items-baseline pt-1">
+                                    <span className="text-[10px] font-mono text-[#5B6577]">TEO:</span>
+                                    <span className="text-lg font-bold font-mono text-[#EDEFF3]">{studentGradesNum.p2_teoria}</span>
+                                    <span className="text-[10px] font-mono text-[#5B6577] ml-2">PRAC:</span>
+                                    <span className="text-lg font-bold font-mono text-[#EDEFF3]">{studentGradesNum.p2_practica}</span>
+                                  </div>
                                 </div>
 
-                                <div className="p-3.5 bg-amber-50/40 border border-amber-200/50 rounded-xl space-y-1">
-                                  <p className="text-[9px] font-mono text-amber-800 uppercase font-bold">Recuperatorios</p>
-                                  <div className="flex justify-between items-baseline">
-                                    <span className="text-stone-500 text-xs">Calificación:</span>
-                                    <span className="font-semibold text-stone-800 text-xs">{studentGradesStatus.rec_teoria}</span>
+                                {/* Rec Card */}
+                                <div className="p-3.5 bg-[#131826]/70 border border-[#1E2531] rounded-xl space-y-2.5">
+                                  <div className="flex justify-between items-start">
+                                    <span className="text-[9px] font-mono text-[#5B6577] uppercase tracking-wider font-bold">RECUPERATORIO</span>
+                                    <span className="text-[10px] font-mono font-bold text-[#F0997B] bg-[#F0997B]/10 px-1.5 py-0.5 rounded uppercase">
+                                      {studentGradesNum.recupera || "N/C"}
+                                    </span>
                                   </div>
-                                  <p className="text-xs font-semibold text-amber-900 pt-1 border-t border-amber-100 mt-1">
-                                    Estado: <span className="text-amber-800 font-bold">{studentGradesStatus.rec_condicion}</span>
-                                  </p>
+                                  <div className="flex justify-between items-baseline pt-1">
+                                    <span className="text-[10px] font-mono text-[#5B6577]">TEO:</span>
+                                    <span className="text-lg font-bold font-mono text-[#EDEFF3]">{studentGradesNum.rec_teoria || "-"}</span>
+                                    <span className="text-[10px] font-mono text-[#5B6577] ml-2">PRAC:</span>
+                                    <span className="text-lg font-bold font-mono text-[#EDEFF3]">{studentGradesNum.rec_practica || "-"}</span>
+                                  </div>
                                 </div>
+
                               </div>
-
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="p-4 bg-stone-50 border border-stone-150 rounded-xl flex justify-between items-center">
-                                  <div>
-                                    <p className="text-[9px] font-mono text-stone-400 uppercase font-bold mb-0.5">Rendimiento Práctico</p>
-                                    <h5 className="font-semibold text-stone-900 text-xs">Proyecto Troncal Global</h5>
+                            ) : (
+                              <p className="text-xs text-[#5B6577] italic text-center font-sans py-2">No se registraron notas para este alumno.</p>
+                            )
+                          ) : (
+                            /* CASO: ESQUEMA CUALITATIVO (TECNO III) */
+                            studentGradesStatus ? (
+                              <div className="space-y-4">
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                  
+                                  {/* P1 Teorico Card */}
+                                  <div className="p-3.5 bg-[#131826]/70 border border-[#1E2531] rounded-xl space-y-1.5">
+                                    <span className="text-[9px] font-mono text-[#5B6577] uppercase tracking-wider font-bold block">1ER PARCIAL TEO</span>
+                                    <div className="flex justify-between items-baseline pt-1">
+                                      <span className="text-lg font-bold font-mono text-[#EDEFF3]">{studentGradesStatus.p1_teoria}</span>
+                                      <span className="text-[10px] font-mono text-[#16C784] bg-[#16C784]/10 px-1.5 py-0.5 rounded">
+                                        {studentGradesStatus.p1_condicion}
+                                      </span>
+                                    </div>
                                   </div>
-                                  <span className={`px-2.5 py-1 text-xs font-bold rounded ${
-                                    studentGradesStatus.practica === "Aprobado" 
-                                      ? "bg-emerald-50 text-emerald-800 border border-emerald-100" 
-                                      : "bg-amber-50 text-amber-800 border border-amber-100"
+
+                                  {/* P2 Teorico Card */}
+                                  <div className="p-3.5 bg-[#131826]/70 border border-[#1E2531] rounded-xl space-y-1.5">
+                                    <span className="text-[9px] font-mono text-[#5B6577] uppercase tracking-wider font-bold block">2DO PARCIAL TEO</span>
+                                    <div className="flex justify-between items-baseline pt-1">
+                                      <span className="text-lg font-bold font-mono text-[#EDEFF3]">{studentGradesStatus.p2_teoria}</span>
+                                      <span className="text-[10px] font-mono text-[#16C784] bg-[#16C784]/10 px-1.5 py-0.5 rounded">
+                                        {studentGradesStatus.p2_condicion}
+                                      </span>
+                                    </div>
+                                  </div>
+
+                                  {/* Recuperatorio Card */}
+                                  <div className="p-3.5 bg-[#131826]/70 border border-[#1E2531] rounded-xl space-y-1.5">
+                                    <span className="text-[9px] font-mono text-[#5B6577] uppercase tracking-wider font-bold block">RECUPERATORIOS</span>
+                                    <div className="flex justify-between items-baseline pt-1">
+                                      <span className="text-lg font-bold font-mono text-[#EDEFF3]">{studentGradesStatus.rec_teoria || "-"}</span>
+                                      <span className="text-[10px] font-mono text-[#F0997B] bg-[#F0997B]/10 px-1.5 py-0.5 rounded">
+                                        {studentGradesStatus.rec_condicion || "N/A"}
+                                      </span>
+                                    </div>
+                                  </div>
+
+                                </div>
+
+                                <div className="p-4 bg-[#131826]/70 border border-[#1E2531] rounded-xl flex justify-between items-center">
+                                  <div>
+                                    <p className="text-[9px] font-mono text-[#5B6577] uppercase tracking-wider font-bold">RENDIMIENTO PRÁCTICO</p>
+                                    <h5 className="font-semibold text-[#EDEFF3] text-xs font-sans">Proyecto Global Troncal</h5>
+                                  </div>
+                                  <span className={`px-3 py-1 rounded text-xs font-mono font-bold border ${
+                                    studentGradesStatus.practica === "Aprobado"
+                                      ? "text-[#16C784] bg-[#16C784]/15 border-[#16C784]/20"
+                                      : "text-[#F0997B] bg-[#F0997B]/15 border-[#F0997B]/20"
                                   }`}>
                                     {studentGradesStatus.practica}
                                   </span>
                                 </div>
-
-                                <div className="p-4 bg-stone-50 border border-stone-150 rounded-xl flex justify-between items-center">
-                                  <div>
-                                    <p className="text-[9px] font-mono text-stone-400 uppercase font-bold mb-0.5">Condición Cursada</p>
-                                    <h5 className="font-semibold text-stone-900 text-xs">Resultado final del cuatrimestre</h5>
-                                  </div>
-                                  <span className={`px-3 py-1.5 rounded-lg text-xs font-extrabold uppercase font-mono tracking-wider ${
-                                    studentGradesStatus.condicion_final === "Promoción" 
-                                      ? "bg-emerald-100 text-emerald-800 border border-emerald-200" 
-                                      : studentGradesStatus.condicion_final === "Regular" 
-                                        ? "bg-amber-100 text-amber-800 border border-amber-200" 
-                                        : "bg-rose-100 text-rose-800 border border-rose-200"
-                                  }`}>
-                                    {studentGradesStatus.condicion_final}
-                                  </span>
-                                </div>
                               </div>
-                            </div>
-                          ) : (
-                            <p className="text-xs text-stone-400 italic text-center py-4">No se registraron notas para este estudiante en este ciclo.</p>
-                          )
-                        )}
+                            ) : (
+                              <p className="text-xs text-[#5B6577] italic text-center font-sans py-2">No se registraron notas para este alumno.</p>
+                            )
+                          )}
+                        </div>
+
                       </div>
                     </motion.div>
                   )}
                 </div>
               )}
+              
             </motion.div>
           </AnimatePresence>
+        </div>
+      </div>
+
+      {/* PERSISTENT BOTTOM NAVIGATION BAR FOR MOBILE (THUMBS-FRIENDLY ACCESSIBILITY) */}
+      <div className="fixed bottom-0 left-0 right-0 z-40 bg-[#0F1420]/95 backdrop-blur-md border-t border-[#1E2531] md:hidden shadow-2xl">
+        <div className="flex justify-around items-center h-16">
+          {navigationItems.map(item => {
+            const Icon = item.icon;
+            const isActive = activeTab === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => setActiveTab(item.id)}
+                className={`flex flex-col items-center justify-center w-full h-full transition-all active:scale-95 duration-100 ${
+                  isActive ? "text-[#16C784] font-bold" : "text-[#5B6577] hover:text-[#EDEFF3]"
+                }`}
+              >
+                <Icon className="w-5 h-5 mb-1 shrink-0" />
+                <span className="text-[9px] font-mono uppercase tracking-wider">{item.label}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
     </div>

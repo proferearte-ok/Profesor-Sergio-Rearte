@@ -44,50 +44,70 @@ export default function App() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const isStudent = viewMode === "estudiante";
+
   return (
-    <div className="min-h-screen bg-[#FAF9F6] text-stone-800 font-sans selection:bg-amber-200 selection:text-amber-900">
+    <div className={`min-h-screen font-sans transition-colors duration-300 ${
+      isStudent 
+        ? "bg-[#0A0E17] text-[#EDEFF3] selection:bg-emerald-500/20 selection:text-[#16C784]" 
+        : "bg-[#FAF9F6] text-stone-800 selection:bg-amber-200 selection:text-amber-900"
+    }`}>
       {/* HEADER SECTION */}
-      <header className="border-b border-stone-200 bg-white sticky top-0 z-50 shadow-xs">
+      <header className={`sticky top-0 z-50 border-b transition-colors duration-300 ${
+        isStudent 
+          ? "bg-[#0F1420]/90 backdrop-blur-md border-[#1E2531] shadow-md shadow-black/10" 
+          : "border-stone-200 bg-white shadow-xs"
+      }`}>
         <div className="max-w-7xl mx-auto px-6 py-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-stone-900 text-white rounded-lg shadow-sm">
+            <div className={`p-2 rounded-lg shadow-sm transition-colors duration-300 ${
+              isStudent ? "bg-emerald-500/10 text-[#16C784]" : "bg-stone-900 text-white"
+            }`}>
               <Database className="w-6 h-6" id="logo-icon" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-xs tracking-widest uppercase font-mono px-2 py-0.5 bg-amber-100 text-amber-800 rounded-sm font-semibold">
-                  Portal de Cátedras
+                <span className={`text-[10px] tracking-widest uppercase font-mono px-2 py-0.5 rounded-sm font-bold transition-colors duration-300 ${
+                  isStudent ? "bg-emerald-500/10 text-[#16C784]" : "bg-amber-100 text-amber-800"
+                }`}>
+                  {isStudent ? "Terminal Académica" : "Portal de Cátedras"}
                 </span>
-                <span className="text-xs text-stone-400 font-mono">v2.0.0</span>
+                <span className="text-xs text-[#5B6577] font-mono">v2.1.0</span>
               </div>
-              <h1 className="text-xl font-semibold text-stone-900 tracking-tight" id="app-title">
-                Portal Universitario Interactiva & Arquitectura
+              <h1 className={`text-lg font-bold tracking-tight transition-colors duration-300 ${
+                isStudent ? "text-white" : "text-stone-900"
+              }`} id="app-title">
+                {isStudent ? "Portal Estudiantil de Cátedras" : "Portal Universitario Interactiva & Arquitectura"}
               </h1>
             </div>
           </div>
 
           {/* VIEW MODE SELECTOR */}
-          <div className="flex items-center gap-1.5 bg-stone-100 p-1.5 rounded-xl self-stretch md:self-auto shadow-xs border border-stone-200/55">
+          <div className={`flex items-center gap-1.5 p-1.5 rounded-xl self-stretch md:self-auto border transition-colors duration-300 ${
+            isStudent 
+              ? "bg-[#131826] border-[#1E2531]" 
+              : "bg-stone-100 border-stone-200/55 shadow-xs"
+          }`}>
             <button
               onClick={() => setViewMode("estudiante")}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-all ${
-                viewMode === "estudiante"
-                  ? "bg-white text-stone-950 shadow-sm font-bold"
+                isStudent
+                  ? "bg-[#1E2531] text-white font-bold"
                   : "text-stone-500 hover:text-stone-800"
               }`}
             >
-              <GraduationCap className="w-4 h-4 text-amber-600" />
+              <GraduationCap className={`w-4 h-4 ${isStudent ? "text-[#16C784]" : "text-amber-600"}`} />
               <span>Vista Estudiante</span>
             </button>
             <button
               onClick={() => setViewMode("docente")}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-all ${
-                viewMode === "docente"
+                !isStudent
                   ? "bg-white text-stone-950 shadow-sm font-bold"
-                  : "text-stone-500 hover:text-stone-800"
+                  : "text-[#5B6577] hover:text-[#EDEFF3]"
               }`}
             >
-              <Wrench className="w-4 h-4 text-amber-600" />
+              <Wrench className={`w-4 h-4 ${!isStudent ? "text-amber-600" : "text-stone-400"}`} />
               <span>Especificación Docente</span>
             </button>
           </div>
@@ -95,7 +115,7 @@ export default function App() {
       </header>
 
       {/* CORE INFO SUMMARY - ONLY SHOW IN TEACHER MODE TO AVOID CLUTTERING STUDENT VIEW */}
-      {viewMode === "docente" && (
+      {!isStudent && (
         <section className="bg-gradient-to-r from-stone-900 via-stone-850 to-stone-900 text-stone-100 py-10 px-6 shadow-md animate-fade-in">
           <div className="max-w-7xl mx-auto">
             <div className="flex flex-col lg:flex-row gap-8 items-start lg:items-center justify-between">
@@ -139,8 +159,8 @@ export default function App() {
       )}
 
       {/* CORE WRAPPER */}
-      <main className="max-w-7xl mx-auto px-6 py-8">
-        {viewMode === "estudiante" ? (
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 md:py-8">
+        {isStudent ? (
           /* PORTAL DE ESTUDIANTES FINAL */
           <div className="space-y-6">
             <PortalView />
@@ -232,10 +252,14 @@ export default function App() {
       </main>
 
       {/* FOOTER */}
-      <footer className="bg-stone-100 border-t border-stone-200 py-12 mt-16 text-center text-xs text-stone-500 font-mono">
+      <footer className={`border-t py-12 mt-16 text-center text-xs font-mono transition-colors duration-300 ${
+        isStudent 
+          ? "bg-[#0F1420] border-[#1E2531] text-[#5B6577]" 
+          : "bg-stone-100 border-stone-200 text-stone-500"
+      }`}>
         <div className="max-w-7xl mx-auto px-6 space-y-2">
-          <p>Portal Universitario de Cátedras & Arquitectura de Datos Académicas</p>
-          <p className="text-stone-400">Sincronizado dinámicamente mediante Google Sheets API en Google AI Studio</p>
+          <p className={isStudent ? "text-[#EDEFF3]/80" : ""}>Portal Universitario de Cátedras &amp; Arquitectura de Datos Académicas</p>
+          <p className={isStudent ? "text-[#5B6577]" : "text-stone-400"}>Sincronizado dinámicamente mediante Google Sheets API en Google AI Studio</p>
         </div>
       </footer>
     </div>
