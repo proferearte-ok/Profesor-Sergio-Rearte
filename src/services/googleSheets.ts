@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Asistencia, NotaNum, NotaStatus } from "../types";
+import { Asistencia, NotaNum, NotaStatus, Catedra, SeccionEstado, Archivo } from "../types";
 
 /**
  * Consulta la API de Visualización de Google para una planilla y pestaña dada y extrae la tabla de filas.
@@ -333,3 +333,206 @@ export async function getNotasStatusFromSheet(
     throw error;
   }
 }
+
+/**
+ * Obtiene y mapea el listado de cátedras desde la pestaña "Catedras".
+ */
+export async function getCatedrasFromSheet(spreadsheetId: string): Promise<Catedra[]> {
+  try {
+    const table = await fetchGoogleSheetRows(spreadsheetId, "Catedras");
+    const cols = table.cols;
+    const rows = table.rows;
+
+    let idxId = -1;
+    let idxNombre = -1;
+    let idxCuatrimestre = -1;
+    let idxActiva = -1;
+    let idxAnioVigente = -1;
+
+    cols.forEach((col: any, index: number) => {
+      const label = (col.label || "").toLowerCase().trim();
+      if (label.includes("id_catedra") || label.includes("id") || label.includes("catedra")) {
+        idxId = index;
+      } else if (label.includes("nombre")) {
+        idxNombre = index;
+      } else if (label.includes("cuatrimestre") || label.includes("cuatri")) {
+        idxCuatrimestre = index;
+      } else if (label.includes("activa")) {
+        idxActiva = index;
+      } else if (label.includes("anio_vigente") || label.includes("año") || label.includes("vigente")) {
+        idxAnioVigente = index;
+      }
+    });
+
+    if (idxId === -1) idxId = 0;
+
+    const getVal = (c: any[], idx: number): string => {
+      if (idx === -1 || !c[idx] || c[idx].v === null || c[idx].v === undefined) return "";
+      return String(c[idx].v).trim();
+    };
+
+    return rows.map((row: any) => {
+      const c = row.c || [];
+      const id = getVal(c, idxId);
+      if (!id) return null;
+
+      const activaVal = getVal(c, idxActiva).toLowerCase();
+      const activa = activaVal === "true" || activaVal === "si" || activaVal === "sí" || activaVal === "1" || activaVal === "yes" || activaVal === "active";
+
+      const anioVal = Number(getVal(c, idxAnioVigente));
+
+      return {
+        id,
+        nombre: getVal(c, idxNombre) || id,
+        cuatrimestre: getVal(c, idxCuatrimestre) || "1er Cuatrimestre",
+        activa,
+        anio_vigente: isNaN(anioVal) || anioVal === 0 ? 2026 : anioVal,
+        tipo_cronograma: "TEXTO_SIMPLE",
+        contenido_cronograma: ""
+      };
+    }).filter(Boolean) as Catedra[];
+  } catch (error) {
+    console.error("Error en getCatedrasFromSheet:", error);
+    throw error;
+  }
+}
+
+/**
+ * Obtiene y mapea el estado de activación de las secciones desde la pestaña "Secciones".
+ */
+export async function getSeccionesFromSheet(spreadsheetId: string): Promise<any[]> {
+  try {
+    const table = await fetchGoogleSheetRows(spreadsheetId, "Secciones");
+    const cols = table.cols;
+    const rows = table.rows;
+
+    let idxCatedra = -1;
+    let idxSeccion = -1;
+    let idxEstado = -1;
+    let idxTextoSimple = -1;
+    let idxTipoCronograma = -1;
+    let idxContenidoCronograma = -1;
+
+    cols.forEach((col: any, index: number) => {
+      const label = (col.label || "").toLowerCase().trim();
+      if (label.includes("id_catedra") || label.includes("id") || label.includes("catedra")) {
+        idxCatedra = index;
+      } else if (label.includes("seccion") || label.includes("sección")) {
+        idxSeccion = index;
+      } else if (label.includes("estado")) {
+        idxEstado = index;
+      } else if (label.includes("texto_simple") || label.includes("texto") || label.includes("contenido")) {
+        idxTextoSimple = index;
+      } else if (label.includes("tipo_cronograma") || label.includes("tipo_crono") || label.includes("tipo cronograma")) {
+        idxTipoCronograma = index;
+      } else if (label.includes("contenido_cronograma") || label.includes("contenido_crono") || label.includes("contenido cronograma")) {
+        idxContenidoCronograma = index;
+      }
+    });
+
+    if (idxCatedra === -1) idxCatedra = 0;
+    if (idxSeccion === -1) idxSeccion = 1;
+
+    const getVal = (c: any[], idx: number): string => {
+      if (idx === -1 || !c[idx] || c[idx].v === null || c[idx].v === undefined) return "";
+      return String(c[idx].v).trim();
+    };
+
+    return rows.map((row: any) => {
+      const c = row.c || [];
+      const id_catedra = getVal(c, idxCatedra);
+      const seccion = getVal(c, idxSeccion);
+      if (!id_catedra || !seccion) return null;
+
+      const estadoVal = getVal(c, idxEstado).toLowerCase();
+      const estado: "Activa" | "Inactiva" = (estadoVal === "activa" || estadoVal === "true" || estadoVal === "si" || estadoVal === "sí" || estadoVal === "1" || estadoVal === "active") ? "Activa" : "Inactiva";
+
+      return {
+        id_catedra,
+        seccion,
+        estado,
+        texto_simple: getVal(c, idxTextoSimple),
+        tipo_cronograma: getVal(c, idxTipoCronograma),
+        contenido_cronograma: getVal(c, idxContenidoCronograma)
+      };
+    }).filter(Boolean);
+  } catch (error) {
+    console.error("Error en getSeccionesFromSheet:", error);
+    throw error;
+  }
+}
+
+/**
+ * Obtiene y mapea el listado de archivos compartidos desde la pestaña "Archivos".
+ */
+export async function getArchivosFromSheet(spreadsheetId: string): Promise<Archivo[]> {
+  try {
+    const table = await fetchGoogleSheetRows(spreadsheetId, "Archivos");
+    const cols = table.cols;
+    const rows = table.rows;
+
+    let idxCatedra = -1;
+    let idxTipoSeccion = -1;
+    let idxNombreArchivo = -1;
+    let idxLinkDrive = -1;
+    let idxOrden = -1;
+    let idxFechaSubida = -1;
+
+    cols.forEach((col: any, index: number) => {
+      const label = (col.label || "").toLowerCase().trim();
+      if (label.includes("id_catedra") || label.includes("id") || label.includes("catedra")) {
+        idxCatedra = index;
+      } else if (label.includes("tipo_seccion") || label.includes("tipo") || label.includes("seccion")) {
+        idxTipoSeccion = index;
+      } else if (label.includes("nombre_archivo") || label.includes("nombre") || label.includes("archivo") || label.includes("titulo")) {
+        idxNombreArchivo = index;
+      } else if (label.includes("link_drive") || label.includes("link") || label.includes("drive") || label.includes("url")) {
+        idxLinkDrive = index;
+      } else if (label.includes("orden")) {
+        idxOrden = index;
+      } else if (label.includes("fecha_subida") || label.includes("fecha") || label.includes("subida")) {
+        idxFechaSubida = index;
+      }
+    });
+
+    if (idxCatedra === -1) idxCatedra = 0;
+
+    const getVal = (c: any[], idx: number): string => {
+      if (idx === -1 || !c[idx] || c[idx].v === null || c[idx].v === undefined) return "";
+      return String(c[idx].v).trim();
+    };
+
+    return rows.map((row: any) => {
+      const c = row.c || [];
+      const id_catedra = getVal(c, idxCatedra);
+      if (!id_catedra) return null;
+
+      const rawTipo = getVal(c, idxTipoSeccion);
+      let tipo_seccion: "Bibliografia" | "Diapositivas" | "Apuntes_Clase" = "Bibliografia";
+      
+      const rawTipoLower = rawTipo.toLowerCase();
+      if (rawTipoLower.includes("diapo") || rawTipoLower.includes("filminas") || rawTipoLower.includes("presentacion")) {
+        tipo_seccion = "Diapositivas";
+      } else if (rawTipoLower.includes("apunte") || rawTipoLower.includes("clase") || rawTipoLower.includes("guia") || rawTipoLower.includes("guía") || rawTipoLower.includes("practico") || rawTipoLower.includes("práctico")) {
+        tipo_seccion = "Apuntes_Clase";
+      } else {
+        tipo_seccion = "Bibliografia";
+      }
+
+      const ordenVal = Number(getVal(c, idxOrden));
+
+      return {
+        id_catedra,
+        tipo_seccion,
+        nombre_archivo: getVal(c, idxNombreArchivo) || "Archivo sin título",
+        link_drive: getVal(c, idxLinkDrive) || "#",
+        orden: isNaN(ordenVal) || ordenVal === 0 ? 1 : ordenVal,
+        fecha_subida: getVal(c, idxFechaSubida) || new Date().toLocaleDateString("es-AR")
+      };
+    }).filter(Boolean) as Archivo[];
+  } catch (error) {
+    console.error("Error en getArchivosFromSheet:", error);
+    throw error;
+  }
+}
+

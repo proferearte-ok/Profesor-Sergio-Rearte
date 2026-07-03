@@ -43,3 +43,40 @@ Sigue estos sencillos pasos para configurar tus planillas localmente:
 
 - **Consola de Desarrollo:** Al iniciar la aplicación, si falta definir alguna de estas variables o si continúan con el valor por defecto de plantilla, verás una advertencia clara en la consola indicando cuáles faltan por configurar.
 - **Modo Demo Automático:** Para prevenir pantallas en blanco o fallas catastróficas, las cátedras que no cuenten con un ID de planilla real configurado mostrarán automáticamente datos ficticios (datos de prueba/mock), permitiendo probar la interfaz de usuario de forma fluida.
+
+## Configuración de Panel Docente Unificado (Parte A y B)
+
+Además de las planillas de Notas y Asistencia por materia, ahora puedes externalizar los datos fijos de Cátedras, Secciones y Archivos en una planilla unificada llamada conceptualmente **Panel_Docente_Config**:
+
+1. **ID de la Planilla de Configuración:**
+   Configura la siguiente variable de entorno en tu archivo `.env.local`:
+   ```env
+   VITE_SHEET_ID_PANEL_CONFIG="TU_ID_DE_PLANILLA_CONFIG_AQUI"
+   ```
+
+2. **Estructura de la Planilla Unificada (3 Pestañas):**
+   Crea un archivo de Google Sheets y configúralo como de libre lectura pública ("Cualquier persona con el enlace"). Añade las siguientes tres pestañas con sus columnas exactas:
+
+   - **Pestaña `Catedras`:**
+     - **Columnas:** `id_catedra` | `nombre` | `cuatrimestre` | `activa` (TRUE/FALSE) | `anio_vigente`
+     - **Ejemplo:** `BIO_MOL` | `Biología Molecular` | `1er Cuatrimestre` | `TRUE` | `2026`
+
+   - **Pestaña `Secciones`:**
+     - **Columnas:** `id_catedra` | `seccion` | `estado` (Activa/Inactiva) | `texto_simple` | `tipo_cronograma` | `contenido_cronograma`
+     - **Ejemplo:** `BIO_MOL` | `Programa` | `Activa` | `Introducción a la genética...` | |
+     - **Nota:** En la fila donde `seccion` sea `Cronograma`, puedes definir `tipo_cronograma` (`LISTA_FECHAS`, `TEXTO_SIMPLE` o `CALENDAR_EMBEBIDO`) y el respectivo `contenido_cronograma`.
+
+   - **Pestaña `Archivos`:**
+     - **Columnas:** `id_catedra` | `tipo_seccion` (Bibliografia/Diapositivas/Apuntes_Clase) | `nombre_archivo` | `link_drive` | `orden` | `fecha_subida`
+     - **Ejemplo:** `BIO_MOL` | `Diapositivas` | `Clase 01 - Estructura de ADN` | `https://drive.google.com/...` | `1` | `10/03/2026`
+
+## Seguridad de la Vista Docente
+
+Para proteger la vista de especificaciones y diagnóstico de cambios no autorizados:
+
+1. **Configurar Contraseña Docente:**
+   Agrega la variable `VITE_DOCENTE_PASSWORD` en tu archivo `.env.local`:
+   ```env
+   VITE_DOCENTE_PASSWORD="tu_clave_segura"
+   ```
+2. Si no se define esta variable de entorno, el sistema utilizará un valor de demostración por defecto (`docente123`).

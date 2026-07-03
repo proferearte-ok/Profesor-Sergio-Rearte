@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState } from "react";
+import { useState, FormEvent } from "react";
 import { 
   Database, 
   FileSpreadsheet, 
@@ -15,7 +15,9 @@ import {
   Clock,
   Sparkles,
   GraduationCap,
-  Wrench
+  Wrench,
+  Lock,
+  AlertTriangle
 } from "lucide-react";
 
 // Import core data
@@ -37,6 +39,20 @@ export default function App() {
   const [viewMode, setViewMode] = useState<"estudiante" | "docente">("estudiante");
   const [activeTab, setActiveTab] = useState<"visualizer" | "recommendation" | "versioning" | "markdown">("visualizer");
   const [copied, setCopied] = useState<boolean>(false);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [passwordInput, setPasswordInput] = useState<string>("");
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+
+  const handlePasswordSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    const correctPassword = import.meta.env.VITE_DOCENTE_PASSWORD || "docente123";
+    if (passwordInput === correctPassword) {
+      setIsAuthenticated(true);
+      setPasswordError(null);
+    } else {
+      setPasswordError("Clave incorrecta. Por favor intenta de nuevo.");
+    }
+  };
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(markdownText);
@@ -115,7 +131,7 @@ export default function App() {
       </header>
 
       {/* CORE INFO SUMMARY - ONLY SHOW IN TEACHER MODE TO AVOID CLUTTERING STUDENT VIEW */}
-      {!isStudent && (
+      {!isStudent && isAuthenticated && (
         <section className="bg-gradient-to-r from-stone-900 via-stone-850 to-stone-900 text-stone-100 py-10 px-6 shadow-md animate-fade-in">
           <div className="max-w-7xl mx-auto">
             <div className="flex flex-col lg:flex-row gap-8 items-start lg:items-center justify-between">
@@ -164,6 +180,60 @@ export default function App() {
           /* PORTAL DE ESTUDIANTES FINAL */
           <div className="space-y-6">
             <PortalView />
+          </div>
+        ) : !isAuthenticated ? (
+          /* PANTALLA DE CONTRASEÑA DOCENTE PROTEGIDA */
+          <div className="max-w-md mx-auto my-12 p-8 bg-white border border-stone-200 rounded-2xl shadow-xl space-y-6 animate-fade-in text-stone-800">
+            <div className="text-center space-y-2">
+              <div className="w-12 h-12 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center mx-auto border border-amber-100">
+                <Lock className="w-6 h-6" />
+              </div>
+              <h3 className="text-lg font-bold tracking-tight text-stone-900 font-sans">Acceso Docente Protegido</h3>
+              <p className="text-xs text-stone-500 leading-relaxed font-sans">
+                Para ingresar a las especificaciones técnicas y panel de diagnóstico, introduce la contraseña de la cátedra.
+              </p>
+            </div>
+
+            <form onSubmit={handlePasswordSubmit} className="space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-mono uppercase tracking-wider text-stone-400 block font-bold">Contraseña Docente</label>
+                <input
+                  type="password"
+                  value={passwordInput}
+                  onChange={(e) => setPasswordInput(e.target.value)}
+                  placeholder="Introduce la contraseña..."
+                  className="w-full px-4 py-3 rounded-xl border border-stone-200 text-stone-900 placeholder-stone-400 text-sm focus:outline-hidden focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all font-mono"
+                  autoFocus
+                />
+              </div>
+
+              {passwordError && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded-xl flex items-start gap-2.5 text-xs text-red-600 animate-fade-in">
+                  <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-red-500" />
+                  <span className="font-sans font-medium">{passwordError}</span>
+                </div>
+              )}
+
+              <div className="pt-2 flex flex-col gap-2">
+                <button
+                  type="submit"
+                  className="w-full py-3 px-4 bg-stone-900 hover:bg-stone-800 text-white rounded-xl text-xs font-bold font-mono tracking-wider uppercase transition-all duration-150 active:scale-98 cursor-pointer shadow-sm text-center"
+                >
+                  Confirmar Clave
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setViewMode("estudiante");
+                    setPasswordInput("");
+                    setPasswordError(null);
+                  }}
+                  className="w-full py-3 px-4 bg-stone-100 hover:bg-stone-200 text-stone-600 rounded-xl text-xs font-semibold font-mono tracking-wider uppercase transition-all duration-150 active:scale-98 cursor-pointer text-center"
+                >
+                  Volver al Portal Estudiantil
+                </button>
+              </div>
+            </form>
           </div>
         ) : (
           /* TAB DE ESPECIFICACIONES Y DIAGNÓSTICO DOCENTE */

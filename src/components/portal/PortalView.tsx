@@ -39,7 +39,12 @@ import { Asistencia, NotaNum, NotaStatus } from "../../types";
 import StudentSearch from "./StudentSearch";
 
 export default function PortalView() {
-  const activeCatedras = mockCatedras.filter(c => c.activa);
+  const [catedras, setCatedras] = useState<any[]>(mockCatedras);
+  const [secciones, setSecciones] = useState<any[]>(mockSecciones);
+  const [archivosList, setArchivosList] = useState<any[]>(mockArchivos);
+
+  const activeCatedras = catedras.filter(c => c.activa);
+  
   const [selectedCatedra, setSelectedCatedra] = useState<string>(
     activeCatedras.length > 0 ? activeCatedras[0].id : "BIO_MOL"
   );
@@ -56,14 +61,64 @@ export default function PortalView() {
   const [notasStatus, setNotasStatus] = useState<NotaStatus[]>([]);
 
   const [loading, setLoading] = useState<boolean>(false);
+  const [configLoading, setConfigLoading] = useState<boolean>(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isDemoMode, setIsDemoMode] = useState<boolean>(true);
 
   // Alumno seleccionado por el buscador
   const [selectedStudent, setSelectedStudent] = useState<string | null>(null);
 
-  const currentCatedra = mockCatedras.find(c => c.id === selectedCatedra) || activeCatedras[0];
+  const currentCatedra = catedras.find(c => c.id === selectedCatedra) || activeCatedras[0] || mockCatedras[0];
   const currentYear = currentCatedra?.anio_vigente || 2026;
+
+  // Carga de configuración dinámica desde la planilla del Panel Docente si está definida
+  useEffect(() => {
+    const loadPanelConfig = async () => {
+      const panelConfigId = import.meta.env.VITE_SHEET_ID_PANEL_CONFIG;
+      if (!panelConfigId || panelConfigId.startsWith("TU_ID_AQUI") || panelConfigId.trim() === "") {
+        console.info("ℹ️ [CONFIG] Usando datos de cátedras, secciones y archivos locales (Modo Demo/Fijo).");
+        return;
+      }
+
+      try {
+        setConfigLoading(true);
+        const { getCatedrasFromSheet, getSeccionesFromSheet, getArchivosFromSheet } = await import("../../services/googleSheets");
+        
+        console.info("⚡ [CONFIG] Conectando con planilla unificada del Panel Docente...");
+        const fetchedCatedras = await getCatedrasFromSheet(panelConfigId);
+        const fetchedSecciones = await getSeccionesFromSheet(panelConfigId);
+        const fetchedArchivos = await getArchivosFromSheet(panelConfigId);
+
+        // Enriquecer cátedras con la información de cronograma de la hoja Secciones
+        const enrichedCatedras = fetchedCatedras.map(cat => {
+          const cronoSec = fetchedSecciones.find(s => s.id_catedra === cat.id && s.seccion === "Cronograma");
+          return {
+            ...cat,
+            tipo_cronograma: cronoSec?.tipo_cronograma || "TEXTO_SIMPLE",
+            contenido_cronograma: cronoSec?.contenido_cronograma || ""
+          };
+        });
+
+        setCatedras(enrichedCatedras);
+        setSecciones(fetchedSecciones);
+        setArchivosList(fetchedArchivos);
+
+        // Si la cátedra seleccionada ya no existe o no está activa, cambiar a la primera activa
+        const activeCats = enrichedCatedras.filter(c => c.activa);
+        if (activeCats.length > 0 && !activeCats.some(c => c.id === selectedCatedra)) {
+          setSelectedCatedra(activeCats[0].id);
+        }
+        console.info("✅ [CONFIG] Configuración del panel docente cargada en vivo con éxito.");
+      } catch (err: any) {
+        console.error("❌ [CONFIG] Error al cargar configuración en vivo desde el panel docente:", err);
+        // Error no bloquea el sistema: se mantienen los mocks por defecto
+      } finally {
+        setConfigLoading(false);
+      }
+    };
+
+    loadPanelConfig();
+  }, []);
 
   // Carga de datos de la cátedra seleccionada
   const loadCatedraData = async () => {
@@ -136,7 +191,7 @@ export default function PortalView() {
     loadCatedraData();
   }, [selectedCatedra]);
 
-  const seccionesCatedra = mockSecciones.filter(s => s.id_catedra === selectedCatedra);
+  const seccionesCatedra = secciones.filter(s => s.id_catedra === selectedCatedra);
 
   const getStudentList = (): string[] => {
     const names = new Set<string>();
@@ -261,7 +316,7 @@ export default function PortalView() {
 
   // Render a clean list of files with download action on the right
   const renderArchivosSection = (tipo: "Bibliografia" | "Diapositivas" | "Apuntes_Clase") => {
-    const archivos = mockArchivos
+    const archivos = archivosList
       .filter(a => a.id_catedra === selectedCatedra && a.tipo_seccion === tipo)
       .sort((a, b) => a.orden - b.orden);
 
