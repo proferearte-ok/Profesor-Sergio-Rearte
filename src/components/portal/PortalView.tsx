@@ -53,7 +53,7 @@ export default function PortalView() {
   const [activeTab, setActiveTab] = useState<"inicio" | "archivos" | "cronograma" | "rendimiento">("inicio");
   
   // Sub-section filter inside 'archivos'
-  const [activeFileSubSection, setActiveFileSubSection] = useState<"Bibliografia" | "Diapositivas" | "Apuntes_Clase">("Bibliografia");
+  const [activeFileSubSection, setActiveFileSubSection] = useState<"Bibliografia" | "Diapositivas" | "Apuntes_Clase" | "Programa" | "Condiciones_Cronograma">("Bibliografia");
 
   // Dynamic state for Sheets data
   const [asistencia, setAsistencia] = useState<Asistencia[]>([]);
@@ -315,12 +315,16 @@ export default function PortalView() {
   };
 
   // Render a clean list of files with download action on the right
-  const renderArchivosSection = (tipo: "Bibliografia" | "Diapositivas" | "Apuntes_Clase") => {
+  const renderArchivosSection = (tipo: "Bibliografia" | "Diapositivas" | "Apuntes_Clase" | "Programa" | "Condiciones_Cronograma") => {
     const archivos = archivosList
       .filter(a => a.id_catedra === selectedCatedra && a.tipo_seccion === tipo)
       .sort((a, b) => a.orden - b.orden);
 
-    const seccionConfigName = tipo === "Bibliografia" ? "Bibliografía" : tipo === "Diapositivas" ? "Diapositivas" : "Apuntes de Clase";
+    const seccionConfigName = 
+      tipo === "Bibliografia" ? "Bibliografía" : 
+      tipo === "Diapositivas" ? "Diapositivas" : 
+      tipo === "Apuntes_Clase" ? "Apuntes de Clase" :
+      tipo === "Programa" ? "Programa" : "Condiciones de Cursada";
     const seccionConfig = seccionesCatedra.find(s => s.seccion === seccionConfigName);
 
     if (seccionConfig?.estado === "Inactiva") {
@@ -384,6 +388,53 @@ export default function PortalView() {
                 title="Descargar desde Google Drive"
               >
                 <Download className="w-4 h-4" />
+              </a>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  // Renders a list of files inline within a section card
+  const renderFileListOnly = (tipo: "Bibliografia" | "Diapositivas" | "Apuntes_Clase" | "Programa" | "Condiciones_Cronograma") => {
+    const archivos = archivosList
+      .filter(a => a.id_catedra === selectedCatedra && a.tipo_seccion === tipo)
+      .sort((a, b) => a.orden - b.orden);
+
+    if (archivos.length === 0) return null;
+
+    return (
+      <div className="mt-4 bg-[#131826]/40 border border-[#1E2531] rounded-xl overflow-hidden animate-fade-in">
+        <div className="px-3.5 py-2 bg-[#131826]/80 border-b border-[#1E2531] flex justify-between items-center text-[9px] font-mono text-[#5B6577] uppercase tracking-wider font-bold">
+          <span>Archivos Adjuntos ({archivos.length})</span>
+          <span>Descargar</span>
+        </div>
+        <div className="divide-y divide-[#1E2531]/40">
+          {archivos.map((file, idx) => (
+            <div
+              key={idx}
+              className="p-3.5 flex items-center justify-between gap-3 hover:bg-[#131826]/60 transition-colors duration-150"
+            >
+              <div className="flex items-center gap-3 truncate max-w-[80%]">
+                <FileText className="w-4 h-4 text-[#16C784] shrink-0" />
+                <div className="space-y-0.5 truncate">
+                  <h5 className="font-semibold text-[#EDEFF3] text-xs truncate font-sans" title={file.nombre_archivo}>
+                    {file.nombre_archivo}
+                  </h5>
+                  <p className="text-[9px] text-[#5B6577] font-mono uppercase">
+                    Publicado: <span>{file.fecha_subida}</span>
+                  </p>
+                </div>
+              </div>
+              <a
+                href={file.link_drive}
+                target="_blank"
+                rel="noreferrer"
+                className="w-9 h-9 flex items-center justify-center bg-[#0F1420] hover:bg-[#1E2531] text-[#EDEFF3] hover:text-[#16C784] border border-[#1E2531] rounded-lg transition-all duration-150 active:scale-95 shrink-0"
+                title="Descargar desde Google Drive"
+              >
+                <Download className="w-3.5 h-3.5" />
               </a>
             </div>
           ))}
@@ -532,9 +583,7 @@ export default function PortalView() {
                 </div>
               </div>
 
-              {/* SECTION CONTENT SWITCHING */}
-              
-              {/* 1. INICIO (PROGRAMA Y CONDICIONES JUNTOS) */}
+                {/* 1. INICIO (PROGRAMA Y CONDICIONES JUNTOS) */}
               {activeTab === "inicio" && (
                 <div className="space-y-4 animate-fade-in">
                   <div className="grid grid-cols-1 gap-4">
@@ -542,31 +591,71 @@ export default function PortalView() {
                       <h4 className="font-bold text-[#EDEFF3] flex items-center gap-2 text-[10px] uppercase tracking-widest font-mono text-[#5B6577]">
                         <span>PROGRAMA GENERAL</span>
                       </h4>
-                      <p className="text-[#EDEFF3]/90 leading-relaxed text-sm font-sans">
-                        {seccionesCatedra.find(s => s.seccion === "Programa")?.texto_simple || 
-                          "El programa oficial de la asignatura se encuentra actualmente en edición o actualización por los coordinadores académicos."}
-                      </p>
-                    </div>
+                      {(() => {
+                        const text = seccionesCatedra.find(s => s.seccion === "Programa")?.texto_simple;
+                        const hasFiles = archivosList.some(a => a.id_catedra === selectedCatedra && a.tipo_seccion === "Programa");
 
+                        if (!text && !hasFiles) {
+                          return (
+                            <p className="text-[#EDEFF3]/90 leading-relaxed text-sm font-sans">
+                              El programa oficial de la asignatura se encuentra actualmente en edición o actualización por los coordinadores académicos.
+                            </p>
+                          );
+                        }
+
+                        return (
+                          <>
+                            {text && (
+                              <p className="text-[#EDEFF3]/90 leading-relaxed text-sm font-sans">
+                                {text}
+                              </p>
+                            )}
+                            {hasFiles && renderFileListOnly("Programa")}
+                          </>
+                        );
+                      })()}
+                    </div>
+ 
                     <div className="bg-[#0F1420] border border-[#1E2531] rounded-2xl p-6 shadow-lg space-y-4">
                       <h4 className="font-bold text-[#EDEFF3] flex items-center gap-2 text-[10px] uppercase tracking-widest font-mono text-[#5B6577]">
                         <span>CONDICIONES DE CURSADA</span>
                       </h4>
-                      <p className="text-[#EDEFF3]/90 leading-relaxed text-sm font-sans">
-                        {seccionesCatedra.find(s => s.seccion === "Condiciones de Cursada")?.texto_simple || 
-                          "Las normativas de regularidad, régimen de promoción directa y aprobación del proyecto final se encuentran publicadas en la cartelera física del departamento académico."}
-                      </p>
+                      {(() => {
+                        const text = seccionesCatedra.find(s => s.seccion === "Condiciones de Cursada")?.texto_simple;
+                        const hasFiles = archivosList.some(a => a.id_catedra === selectedCatedra && a.tipo_seccion === "Condiciones_Cronograma");
+
+                        if (!text && !hasFiles) {
+                          return (
+                            <p className="text-[#EDEFF3]/90 leading-relaxed text-sm font-sans">
+                              Las normativas de regularidad, régimen de promoción directa y aprobación del proyecto final se encuentran publicadas en la cartelera física del departamento académico.
+                            </p>
+                          );
+                        }
+
+                        return (
+                          <>
+                            {text && (
+                              <p className="text-[#EDEFF3]/90 leading-relaxed text-sm font-sans">
+                                {text}
+                              </p>
+                            )}
+                            {hasFiles && renderFileListOnly("Condiciones_Cronograma")}
+                          </>
+                        );
+                      })()}
                     </div>
                   </div>
                 </div>
               )}
-
+ 
               {/* 2. ARCHIVOS (CON FILTRO INTERNO) */}
               {activeTab === "archivos" && (
                 <div className="space-y-4 animate-fade-in">
                   {/* File category switcher - Ticker Style */}
                   <div className="flex gap-1.5 p-1 bg-[#131826] border border-[#1E2531] rounded-xl overflow-x-auto">
                     {[
+                      { id: "Programa", label: "Programa" },
+                      { id: "Condiciones_Cronograma", label: "Condiciones" },
                       { id: "Bibliografia", label: "Bibliografía" },
                       { id: "Diapositivas", label: "Diapositivas" },
                       { id: "Apuntes_Clase", label: "Apuntes" }
@@ -584,7 +673,7 @@ export default function PortalView() {
                       </button>
                     ))}
                   </div>
-
+ 
                   {renderArchivosSection(activeFileSubSection)}
                 </div>
               )}

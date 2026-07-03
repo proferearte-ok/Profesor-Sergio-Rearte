@@ -45,7 +45,11 @@ export default function App() {
 
   const handlePasswordSubmit = (e: FormEvent) => {
     e.preventDefault();
-    const correctPassword = import.meta.env.VITE_DOCENTE_PASSWORD || "docente123";
+    const correctPassword = import.meta.env.VITE_DOCENTE_PASSWORD;
+    if (!correctPassword || correctPassword.trim() === "" || correctPassword.startsWith("TU_CLAVE")) {
+      setPasswordError("Contraseña no configurada, contactá al administrador.");
+      return;
+    }
     if (passwordInput === correctPassword) {
       setIsAuthenticated(true);
       setPasswordError(null);
@@ -194,33 +198,15 @@ export default function App() {
               </p>
             </div>
 
-            <form onSubmit={handlePasswordSubmit} className="space-y-4">
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-mono uppercase tracking-wider text-stone-400 block font-bold">Contraseña Docente</label>
-                <input
-                  type="password"
-                  value={passwordInput}
-                  onChange={(e) => setPasswordInput(e.target.value)}
-                  placeholder="Introduce la contraseña..."
-                  className="w-full px-4 py-3 rounded-xl border border-stone-200 text-stone-900 placeholder-stone-400 text-sm focus:outline-hidden focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all font-mono"
-                  autoFocus
-                />
-              </div>
-
-              {passwordError && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-xl flex items-start gap-2.5 text-xs text-red-600 animate-fade-in">
-                  <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-red-500" />
-                  <span className="font-sans font-medium">{passwordError}</span>
+            {(!import.meta.env.VITE_DOCENTE_PASSWORD || import.meta.env.VITE_DOCENTE_PASSWORD.trim() === "" || import.meta.env.VITE_DOCENTE_PASSWORD.startsWith("TU_CLAVE")) ? (
+              <div className="space-y-4">
+                <div className="p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-2.5 text-xs text-red-600 font-sans animate-fade-in">
+                  <AlertTriangle className="w-5 h-5 shrink-0 text-red-500 mt-0.5" />
+                  <div className="space-y-1">
+                    <p className="font-bold">Acceso Denegado</p>
+                    <p className="leading-relaxed font-medium">Contraseña no configurada, contactá al administrador.</p>
+                  </div>
                 </div>
-              )}
-
-              <div className="pt-2 flex flex-col gap-2">
-                <button
-                  type="submit"
-                  className="w-full py-3 px-4 bg-stone-900 hover:bg-stone-800 text-white rounded-xl text-xs font-bold font-mono tracking-wider uppercase transition-all duration-150 active:scale-98 cursor-pointer shadow-sm text-center"
-                >
-                  Confirmar Clave
-                </button>
                 <button
                   type="button"
                   onClick={() => {
@@ -233,7 +219,48 @@ export default function App() {
                   Volver al Portal Estudiantil
                 </button>
               </div>
-            </form>
+            ) : (
+              <form onSubmit={handlePasswordSubmit} className="space-y-4">
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-mono uppercase tracking-wider text-stone-400 block font-bold">Contraseña Docente</label>
+                  <input
+                    type="password"
+                    value={passwordInput}
+                    onChange={(e) => setPasswordInput(e.target.value)}
+                    placeholder="Introduce la contraseña..."
+                    className="w-full px-4 py-3 rounded-xl border border-stone-200 text-stone-900 placeholder-stone-400 text-sm focus:outline-hidden focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all font-mono"
+                    autoFocus
+                  />
+                </div>
+
+                {passwordError && (
+                  <div className="p-3 bg-red-50 border border-red-200 rounded-xl flex items-start gap-2.5 text-xs text-red-600 animate-fade-in">
+                    <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-red-500" />
+                    <span className="font-sans font-medium">{passwordError}</span>
+                  </div>
+                )}
+
+                <div className="pt-2 flex flex-col gap-2">
+                  <button
+                    type="submit"
+                    className="w-full py-3 px-4 bg-stone-900 hover:bg-stone-800 text-white rounded-xl text-xs font-bold font-mono tracking-wider uppercase transition-all duration-150 active:scale-98 cursor-pointer shadow-sm text-center"
+                  >
+                    Confirmar Clave
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setViewMode("estudiante");
+                      setPasswordInput("");
+                      setPasswordError(null);
+                    }}
+                    className="w-full py-3 px-4 bg-stone-100 hover:bg-stone-200 text-stone-600 rounded-xl text-xs font-semibold font-mono tracking-wider uppercase transition-all duration-150 active:scale-98 cursor-pointer text-center"
+                  >
+                    Volver al Portal Estudiantil
+                  </button>
+                </div>
+              </form>
+            )}
           </div>
         ) : (
           /* TAB DE ESPECIFICACIONES Y DIAGNÓSTICO DOCENTE */

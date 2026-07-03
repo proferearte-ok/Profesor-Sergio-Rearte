@@ -18,16 +18,16 @@ Sigue estos sencillos pasos para configurar tus planillas localmente:
    Ejemplo de contenido para `.env.local`:
    ```env
    # --- BIOLOGÍA MOLECULAR ---
-   VITE_SHEET_ID_BIOMOL_ASISTENCIA="1c88VjGIy4oudX8cFx_fXnKwyOqpsD9eQIEufyfvhRMk"
-   VITE_SHEET_ID_BIOMOL_NOTAS="1zjHKtxRk6jA81a1t4Jd01I0Yo9Dl64le4mJO4snAmCI"
+   VITE_SHEET_ID_BIOMOL_ASISTENCIA="1a2b3c4d5e6f7g8h9i0jK_biomol_asistencia_placeholder"
+   VITE_SHEET_ID_BIOMOL_NOTAS="1a2b3c4d5e6f7g8h9i0jK_biomol_notas_placeholder"
 
    # --- TECNO II ---
-   VITE_SHEET_ID_TECNOII_ASISTENCIA="16lzzMVQtUhC9O2OdgJlJ2tnUJdYYbuOrHnX5SwDNfkw"
-   VITE_SHEET_ID_TECNOII_NOTAS="1RLVS6zk6rZatHBWkhKPnWKgWvT5J0Xh5--II_E1r47c"
+   VITE_SHEET_ID_TECNOII_ASISTENCIA="1a2b3c4d5e6f7g8h9i0jK_tecno2_asistencia_placeholder"
+   VITE_SHEET_ID_TECNOII_NOTAS="1a2b3c4d5e6f7g8h9i0jK_tecno2_notas_placeholder"
 
    # --- TECNO III ---
-   VITE_SHEET_ID_TECNOIII_ASISTENCIA="1WSoB6xofiOm85m_PpOqpde45MccV8eHRgNjwbDBAA18"
-   VITE_SHEET_ID_TECNOIII_NOTAS="1MRHghDMw7_C6VgY1JYZeUKERvhLFFRXjTw5CETHYEOM"
+   VITE_SHEET_ID_TECNOIII_ASISTENCIA="1a2b3c4d5e6f7g8h9i0jK_tecno3_asistencia_placeholder"
+   VITE_SHEET_ID_TECNOIII_NOTAS="1a2b3c4d5e6f7g8h9i0jK_tecno3_notas_placeholder"
    ```
 
 3. **Compartir las planillas:**
@@ -67,7 +67,7 @@ Además de las planillas de Notas y Asistencia por materia, ahora puedes externa
      - **Nota:** En la fila donde `seccion` sea `Cronograma`, puedes definir `tipo_cronograma` (`LISTA_FECHAS`, `TEXTO_SIMPLE` o `CALENDAR_EMBEBIDO`) y el respectivo `contenido_cronograma`.
 
    - **Pestaña `Archivos`:**
-     - **Columnas:** `id_catedra` | `tipo_seccion` (Bibliografia/Diapositivas/Apuntes_Clase) | `nombre_archivo` | `link_drive` | `orden` | `fecha_subida`
+     - **Columnas:** `id_catedra` | `tipo_seccion` (Programa/Condiciones_Cronograma/Bibliografia/Diapositivas/Apuntes_Clase) | `nombre_archivo` | `link_drive` | `orden` | `fecha_subida`
      - **Ejemplo:** `BIO_MOL` | `Diapositivas` | `Clase 01 - Estructura de ADN` | `https://drive.google.com/...` | `1` | `10/03/2026`
 
 ## Seguridad de la Vista Docente
@@ -79,4 +79,4 @@ Para proteger la vista de especificaciones y diagnóstico de cambios no autoriza
    ```env
    VITE_DOCENTE_PASSWORD="tu_clave_segura"
    ```
-2. Si no se define esta variable de entorno, el sistema utilizará un valor de demostración por defecto (`docente123`).
+2. Si no se define esta variable de entorno, por motivos de seguridad la vista docente permanecerá inaccesible (mostrando un mensaje de aviso para contactar al administrador).

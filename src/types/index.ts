@@ -31,7 +31,7 @@ export interface SeccionEstado {
  */
 export interface Archivo {
   id_catedra: string;
-  tipo_seccion: "Bibliografia" | "Diapositivas" | "Apuntes_Clase";
+  tipo_seccion: "Bibliografia" | "Diapositivas" | "Apuntes_Clase" | "Programa" | "Condiciones_Cronograma";
   nombre_archivo: string;
   link_drive: string;
   orden: number;

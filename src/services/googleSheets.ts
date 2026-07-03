@@ -508,10 +508,14 @@ export async function getArchivosFromSheet(spreadsheetId: string): Promise<Archi
       if (!id_catedra) return null;
 
       const rawTipo = getVal(c, idxTipoSeccion);
-      let tipo_seccion: "Bibliografia" | "Diapositivas" | "Apuntes_Clase" = "Bibliografia";
+      let tipo_seccion: "Bibliografia" | "Diapositivas" | "Apuntes_Clase" | "Programa" | "Condiciones_Cronograma" = "Bibliografia";
       
       const rawTipoLower = rawTipo.toLowerCase();
-      if (rawTipoLower.includes("diapo") || rawTipoLower.includes("filminas") || rawTipoLower.includes("presentacion")) {
+      if (rawTipoLower.includes("programa")) {
+        tipo_seccion = "Programa";
+      } else if (rawTipoLower.includes("condic") || rawTipoLower.includes("crono")) {
+        tipo_seccion = "Condiciones_Cronograma";
+      } else if (rawTipoLower.includes("diapo") || rawTipoLower.includes("filminas") || rawTipoLower.includes("presentacion")) {
         tipo_seccion = "Diapositivas";
       } else if (rawTipoLower.includes("apunte") || rawTipoLower.includes("clase") || rawTipoLower.includes("guia") || rawTipoLower.includes("guía") || rawTipoLower.includes("practico") || rawTipoLower.includes("práctico")) {
         tipo_seccion = "Apuntes_Clase";
