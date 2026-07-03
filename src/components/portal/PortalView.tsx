@@ -81,8 +81,20 @@ export default function PortalView() {
   useEffect(() => {
     const loadPanelConfig = async () => {
       const panelConfigId = import.meta.env.VITE_SHEET_ID_PANEL_CONFIG;
-      if (!panelConfigId || panelConfigId.startsWith("TU_ID_AQUI") || panelConfigId.trim() === "") {
-        console.info("ℹ️ [CONFIG] Usando datos de cátedras, secciones y archivos locales (Modo Demo/Fijo).");
+      
+      const isValidGoogleSheetId = (id: string | undefined): boolean => {
+        if (!id) return false;
+        const trimmed = id.trim();
+        if (trimmed.startsWith("TU_ID_AQUI") || trimmed === "") return false;
+        // Si coincide con la contraseña del docente, es un error de configuración
+        const pwd = import.meta.env.VITE_DOCENTE_PASSWORD || "catedras2026";
+        if (trimmed === pwd.trim()) return false;
+        if (trimmed.length < 25) return false;
+        return /^[a-zA-Z0-9-_]+$/.test(trimmed);
+      };
+
+      if (!isValidGoogleSheetId(panelConfigId)) {
+        console.info("ℹ️ [CONFIG] El ID 'VITE_SHEET_ID_PANEL_CONFIG' no está configurado o es inválido (ej: coincide con la contraseña). Usando datos locales por defecto.");
         return;
       }
 
@@ -96,10 +108,10 @@ export default function PortalView() {
         } = await import("../../services/googleSheets");
         
         console.info("⚡ [CONFIG] Conectando con planilla unificada del Panel Docente...");
-        const fetchedCatedras = await getCatedrasFromSheet(panelConfigId);
-        const fetchedSecciones = await getSeccionesFromSheet(panelConfigId);
-        const fetchedArchivos = await getArchivosFromSheet(panelConfigId);
-        const fetchedCarpetasDrive = await getCarpetasDriveFromSheet(panelConfigId);
+        const fetchedCatedras = await getCatedrasFromSheet(panelConfigId!);
+        const fetchedSecciones = await getSeccionesFromSheet(panelConfigId!);
+        const fetchedArchivos = await getArchivosFromSheet(panelConfigId!);
+        const fetchedCarpetasDrive = await getCarpetasDriveFromSheet(panelConfigId!);
 
         // Enriquecer cátedras con la información de cronograma de la hoja Secciones
         const enrichedCatedras = fetchedCatedras.map(cat => {
@@ -123,7 +135,7 @@ export default function PortalView() {
         }
         console.info("✅ [CONFIG] Configuración del panel docente cargada en vivo con éxito.");
       } catch (err: any) {
-        console.error("❌ [CONFIG] Error al cargar configuración en vivo desde el panel docente:", err);
+        console.warn("⚠️ [CONFIG] No se pudo cargar configuración en vivo desde el panel docente:", err);
         // Error no bloquea el sistema: se mantienen los mocks por defecto
       } finally {
         setConfigLoading(false);
