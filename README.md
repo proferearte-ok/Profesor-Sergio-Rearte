@@ -80,3 +80,76 @@ Para proteger la vista de especificaciones y diagnóstico de cambios no autoriza
    VITE_DOCENTE_PASSWORD="tu_clave_segura"
    ```
 2. Si no se define esta variable de entorno, por motivos de seguridad la vista docente permanecerá inaccesible (mostrando un mensaje de aviso para contactar al administrador).
+
+
+## Integración Dinámica con Google Drive
+
+La aplicación soporta un **modo dinámico** para listar archivos automáticamente desde carpetas públicas de Google Drive en las secciones **Bibliografía**, **Diapositivas** y **Apuntes de Clase**. En lugar de tener que cargar individualmente cada archivo con su título y enlace en la pestaña `Archivos`, el sistema leerá los archivos de la carpeta en vivo.
+
+### 1. Nueva Pestaña en la Planilla de Configuración
+
+Para habilitar este modo, debes agregar una pestaña nueva en tu archivo de Google Sheets de configuración (**Panel_Docente_Config**):
+
+- **Pestaña `CarpetasDrive`:**
+  - **Columnas obligatorias:** `id_catedra` | `tipo_seccion` | `folder_id_drive`
+  - **Valores posibles para `tipo_seccion`:** `Bibliografia`, `Diapositivas` o `Apuntes_Clase`.
+  - **Ejemplo:**
+    | id_catedra | tipo_seccion | folder_id_drive |
+    | :--- | :--- | :--- |
+    | `BIO_MOL` | `Bibliografia` | `1aBcDeFgHiJkLmNoPqRsTuVwXyZ12345` |
+    | `BIO_MOL` | `Diapositivas` | `1XyZ987654321_abc_def_ghi_jkl_mn` |
+
+*Nota: Si una sección+cátedra específica tiene una carpeta configurada en `CarpetasDrive`, el portal utilizará el listado dinámico. Si la celda de `folder_id_drive` está vacía o si la pestaña no se encuentra, el portal automáticamente hará un "fallback" y seguirá mostrando los archivos fijos cargados manualmente en la pestaña `Archivos`.*
+
+---
+
+### 2. Configuración de la API Key en Google Cloud Console
+
+Para que el portal pueda conectarse con Google Drive, necesitas generar una API Key y cargarla en tus variables de entorno como:
+```env
+VITE_GOOGLE_DRIVE_API_KEY="TU_API_KEY_DE_GOOGLE_DRIVE_AQUI"
+```
+
+#### Paso a Paso para generar la API Key (para usuarios no técnicos):
+
+1. **Accede a la Consola de Google Cloud:**
+   Ve a [Google Cloud Console](https://console.cloud.google.com/) e inicia sesión con tu cuenta de Google.
+
+2. **Crea o selecciona un Proyecto:**
+   - En la barra superior, haz clic en el selector de proyectos.
+   - Haz clic en **"Proyecto nuevo"**, asígnale un nombre (por ejemplo, `Portal-Catedras`) y presiona **"Crear"**. Asegúrate de que el proyecto esté seleccionado una vez creado.
+
+3. **Habilita la API de Google Drive:**
+   - Haz clic en el botón de menú lateral (tres líneas horizontales en la esquina superior izquierda).
+   - Ve a **APIs y servicios** > **Biblioteca**.
+   - En la barra de búsqueda superior, escribe **"Google Drive API"**.
+   - Selecciona la opción **Google Drive API** de la lista y haz clic en el botón azul **"Habilitar"**.
+
+4. **Genera la Credencial (API Key):**
+   - Una vez habilitada la API, ve al menú lateral izquierdo y selecciona **APIs y servicios** > **Credenciales**.
+   - En la barra superior, haz clic en **"+ CREAR CREDENCIALES"** y elige la opción **"Clave de API"**.
+   - Se abrirá un cuadro emergente mostrando tu nueva Clave de API. **Copia esta clave**, ya que es la que debes colocar en la variable `VITE_GOOGLE_DRIVE_API_KEY`.
+
+5. **Restringe la API Key (Altamente Recomendado por Seguridad):**
+   - En la misma ventana de la clave creada, haz clic en **"Restringir clave"** (o ve a la lista de claves de API y haz clic en editar en la clave que acabas de crear).
+   - **Restricciones de API:**
+     - En la sección inferior llamada **Restricciones de API**, selecciona **"Restringir clave"**.
+     - En el menú desplegable que aparece, busca y marca únicamente la casilla de **Google Drive API**. Presiona **"Aceptar"**. Esto evita que la API Key sea usada para otros servicios de Google.
+   - **Restricciones de Aplicación (Protección contra uso externo):**
+     - En la sección **Restricciones del cliente**, selecciona **"Sitios web (referenciadores HTTP)"**.
+     - Haz clic en **"+ AGREGAR"** en la sección de sitios web permitidos e ingresa tu dominio de producción. Por ejemplo:
+       - `https://rearte-catedras.onrender.com/*`
+       - Puedes agregar también `http://localhost:3000/*` o el dominio de desarrollo local si necesitas probarlo en vivo.
+   - Haz clic en **"Guardar"** en la parte inferior para aplicar todos los cambios de seguridad.
+
+---
+
+### 3. Requisito Fundamental para las Carpetas de Google Drive
+
+Para que la aplicación pueda consultar los archivos de manera pública, cada carpeta que agregues en la pestaña `CarpetasDrive` de la planilla debe estar compartida públicamente:
+
+1. Entra a tu Google Drive, haz clic derecho sobre la carpeta que deseas listar.
+2. Selecciona **Compartir** > **Compartir**.
+3. En la sección de **Acceso general**, cambia de *"Restringido"* a **"Cualquier persona con el enlace"** con el rol de **Lector**.
+4. ¡Listo! Copia el ID de la carpeta desde el enlace de la carpeta (es la cadena larga de números y letras que aparece en la URL después de `/folders/`) y pégalo en la columna `folder_id_drive`.
+

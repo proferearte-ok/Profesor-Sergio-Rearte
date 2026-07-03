@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Asistencia, NotaNum, NotaStatus, Catedra, SeccionEstado, Archivo } from "../types";
+import { Asistencia, NotaNum, NotaStatus, Catedra, SeccionEstado, Archivo, CarpetaDrive } from "../types";
 
 /**
  * Consulta la API de Visualización de Google para una planilla y pestaña dada y extrae la tabla de filas.
@@ -539,4 +539,67 @@ export async function getArchivosFromSheet(spreadsheetId: string): Promise<Archi
     throw error;
   }
 }
+
+/**
+ * Obtiene y mapea las configuraciones de carpetas de Google Drive para listado dinámico.
+ */
+export async function getCarpetasDriveFromSheet(spreadsheetId: string): Promise<CarpetaDrive[]> {
+  try {
+    const table = await fetchGoogleSheetRows(spreadsheetId, "CarpetasDrive");
+    const cols = table.cols;
+    const rows = table.rows;
+
+    let idxCatedra = -1;
+    let idxTipoSeccion = -1;
+    let idxFolderIdDrive = -1;
+
+    cols.forEach((col: any, index: number) => {
+      const label = (col.label || "").toLowerCase().trim();
+      if (label.includes("id_catedra") || label.includes("id") || label.includes("catedra")) {
+        idxCatedra = index;
+      } else if (label.includes("tipo_seccion") || label.includes("tipo_sección") || label.includes("seccion") || label.includes("sección") || label.includes("tipo")) {
+        idxTipoSeccion = index;
+      } else if (label.includes("folder_id_drive") || label.includes("folder") || label.includes("id_drive") || label.includes("drive")) {
+        idxFolderIdDrive = index;
+      }
+    });
+
+    if (idxCatedra === -1) idxCatedra = 0;
+    if (idxTipoSeccion === -1) idxTipoSeccion = 1;
+    if (idxFolderIdDrive === -1) idxFolderIdDrive = 2;
+
+    const getVal = (c: any[], idx: number): string => {
+      if (idx === -1 || !c[idx] || c[idx].v === null || c[idx].v === undefined) return "";
+      return String(c[idx].v).trim();
+    };
+
+    return rows.map((row: any) => {
+      const c = row.c || [];
+      const id_catedra = getVal(c, idxCatedra);
+      if (!id_catedra) return null;
+
+      const rawTipo = getVal(c, idxTipoSeccion);
+      let tipo_seccion: "Bibliografia" | "Diapositivas" | "Apuntes_Clase" = "Bibliografia";
+      
+      const rawTipoLower = rawTipo.toLowerCase();
+      if (rawTipoLower.includes("diapo") || rawTipoLower.includes("filminas") || rawTipoLower.includes("presentacion")) {
+        tipo_seccion = "Diapositivas";
+      } else if (rawTipoLower.includes("apunte") || rawTipoLower.includes("clase") || rawTipoLower.includes("guia") || rawTipoLower.includes("guía") || rawTipoLower.includes("practico") || rawTipoLower.includes("práctico")) {
+        tipo_seccion = "Apuntes_Clase";
+      } else {
+        tipo_seccion = "Bibliografia";
+      }
+
+      return {
+        id_catedra,
+        tipo_seccion,
+        folder_id_drive: getVal(c, idxFolderIdDrive)
+      };
+    }).filter(Boolean) as CarpetaDrive[];
+  } catch (error) {
+    console.warn("ℹ️ [DRIVE_CONFIG] No se pudo cargar la pestaña 'CarpetasDrive' o no existe. Usando fallback local.", error);
+    return [];
+  }
+}
+
 

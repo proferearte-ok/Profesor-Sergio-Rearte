@@ -60,6 +60,12 @@ export default function PortalView() {
   const [notasNum, setNotasNum] = useState<NotaNum[]>([]);
   const [notasStatus, setNotasStatus] = useState<NotaStatus[]>([]);
 
+  // States for dynamic Google Drive listing
+  const [carpetasDrive, setCarpetasDrive] = useState<any[]>([]);
+  const [driveFiles, setDriveFiles] = useState<any[]>([]);
+  const [driveLoading, setDriveLoading] = useState<boolean>(false);
+  const [driveError, setDriveError] = useState<string | null>(null);
+
   const [loading, setLoading] = useState<boolean>(false);
   const [configLoading, setConfigLoading] = useState<boolean>(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -82,12 +88,18 @@ export default function PortalView() {
 
       try {
         setConfigLoading(true);
-        const { getCatedrasFromSheet, getSeccionesFromSheet, getArchivosFromSheet } = await import("../../services/googleSheets");
+        const { 
+          getCatedrasFromSheet, 
+          getSeccionesFromSheet, 
+          getArchivosFromSheet,
+          getCarpetasDriveFromSheet 
+        } = await import("../../services/googleSheets");
         
         console.info("⚡ [CONFIG] Conectando con planilla unificada del Panel Docente...");
         const fetchedCatedras = await getCatedrasFromSheet(panelConfigId);
         const fetchedSecciones = await getSeccionesFromSheet(panelConfigId);
         const fetchedArchivos = await getArchivosFromSheet(panelConfigId);
+        const fetchedCarpetasDrive = await getCarpetasDriveFromSheet(panelConfigId);
 
         // Enriquecer cátedras con la información de cronograma de la hoja Secciones
         const enrichedCatedras = fetchedCatedras.map(cat => {
@@ -102,6 +114,7 @@ export default function PortalView() {
         setCatedras(enrichedCatedras);
         setSecciones(fetchedSecciones);
         setArchivosList(fetchedArchivos);
+        setCarpetasDrive(fetchedCarpetasDrive);
 
         // Si la cátedra seleccionada ya no existe o no está activa, cambiar a la primera activa
         const activeCats = enrichedCatedras.filter(c => c.activa);
@@ -190,6 +203,59 @@ export default function PortalView() {
   useEffect(() => {
     loadCatedraData();
   }, [selectedCatedra]);
+
+  // Hook to fetch Google Drive folder files dynamically when folder_id_drive is configured
+  useEffect(() => {
+    if (
+      activeFileSubSection !== "Bibliografia" &&
+      activeFileSubSection !== "Diapositivas" &&
+      activeFileSubSection !== "Apuntes_Clase"
+    ) {
+      setDriveFiles([]);
+      setDriveError(null);
+      return;
+    }
+
+    const matchedFolder = carpetasDrive.find(
+      c => c.id_catedra === selectedCatedra && c.tipo_seccion === activeFileSubSection
+    );
+
+    if (!matchedFolder || !matchedFolder.folder_id_drive || matchedFolder.folder_id_drive.trim() === "") {
+      setDriveFiles([]);
+      setDriveError(null);
+      return;
+    }
+
+    let isMounted = true;
+    const fetchDriveFiles = async () => {
+      try {
+        setDriveLoading(true);
+        setDriveError(null);
+        
+        const { listDriveFolderFiles } = await import("../../services/googleDrive");
+        const files = await listDriveFolderFiles(matchedFolder.folder_id_drive);
+        
+        if (isMounted) {
+          setDriveFiles(files);
+        }
+      } catch (err: any) {
+        console.error("Error cargando archivos de Drive:", err);
+        if (isMounted) {
+          setDriveError(err.message || "Error al obtener archivos de Google Drive.");
+        }
+      } finally {
+        if (isMounted) {
+          setDriveLoading(false);
+        }
+      }
+    };
+
+    fetchDriveFiles();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [selectedCatedra, activeFileSubSection, carpetasDrive]);
 
   const seccionesCatedra = secciones.filter(s => s.id_catedra === selectedCatedra);
 
@@ -316,10 +382,6 @@ export default function PortalView() {
 
   // Render a clean list of files with download action on the right
   const renderArchivosSection = (tipo: "Bibliografia" | "Diapositivas" | "Apuntes_Clase" | "Programa" | "Condiciones_Cronograma") => {
-    const archivos = archivosList
-      .filter(a => a.id_catedra === selectedCatedra && a.tipo_seccion === tipo)
-      .sort((a, b) => a.orden - b.orden);
-
     const seccionConfigName = 
       tipo === "Bibliografia" ? "Bibliografía" : 
       tipo === "Diapositivas" ? "Diapositivas" : 
@@ -340,6 +402,97 @@ export default function PortalView() {
         </div>
       );
     }
+
+    // Verificar si es sección dinámica de Google Drive
+    const isDynamicSection = tipo === "Bibliografia" || tipo === "Diapositivas" || tipo === "Apuntes_Clase";
+    const matchedFolder = isDynamicSection 
+      ? carpetasDrive.find(c => c.id_catedra === selectedCatedra && c.tipo_seccion === tipo)
+      : null;
+    const hasDriveFolder = !!(matchedFolder?.folder_id_drive && matchedFolder.folder_id_drive.trim() !== "");
+
+    if (isDynamicSection && hasDriveFolder) {
+      if (driveLoading) {
+        return (
+          <div className="bg-[#0F1420] border border-[#1E2531] rounded-2xl p-12 text-center max-w-lg mx-auto space-y-4 animate-fade-in shadow-xl">
+            <Loader2 className="w-8 h-8 text-[#16C784] mx-auto animate-spin" />
+            <p className="text-xs text-[#5B6577] font-mono uppercase tracking-wider">Cargando archivos desde Google Drive...</p>
+          </div>
+        );
+      }
+
+      if (driveError) {
+        return (
+          <div className="bg-[#E24B4A]/10 border border-[#E24B4A]/25 rounded-2xl p-6 text-center max-w-lg mx-auto space-y-4 animate-fade-in">
+            <AlertTriangle className="w-8 h-8 text-[#E24B4A] mx-auto" />
+            <div>
+              <h5 className="font-bold text-[#E24B4A] text-xs uppercase tracking-wider font-mono">Error de Sincronización</h5>
+              <p className="text-xs text-[#5B6577] mt-2 font-sans leading-relaxed">
+                {driveError}
+              </p>
+            </div>
+          </div>
+        );
+      }
+
+      if (driveFiles.length === 0) {
+        return (
+          <div className="bg-[#0F1420] border border-[#1E2531] rounded-2xl p-8 text-center max-w-lg mx-auto space-y-4 animate-fade-in shadow-xl">
+            <FileText className="w-10 h-10 text-[#5B6577] mx-auto animate-pulse" />
+            <div>
+              <h5 className="font-bold text-[#EDEFF3] text-sm uppercase tracking-wider">Carpeta vacía</h5>
+              <p className="text-xs text-[#5B6577] leading-relaxed mt-2 font-sans">
+                No se encontraron archivos en la carpeta de Google Drive configurada para esta sección.
+              </p>
+            </div>
+          </div>
+        );
+      }
+
+      return (
+        <div className="bg-[#0F1420] border border-[#1E2531] rounded-2xl overflow-hidden shadow-lg animate-fade-in">
+          <div className="px-4 py-3 bg-[#131826]/60 border-b border-[#1E2531] flex justify-between items-center text-[10px] font-mono text-[#5B6577] uppercase tracking-wider font-bold">
+            <span>Archivo / Publicación (En Vivo)</span>
+            <span>Acción</span>
+          </div>
+          <div className="divide-y divide-[#1E2531]/60">
+            {driveFiles.map((file, idx) => (
+              <div
+                key={file.id || idx}
+                className="p-4 flex items-center justify-between gap-4 hover:bg-[#131826] transition-colors duration-200 min-h-[56px]"
+              >
+                <div className="flex items-center gap-3.5 truncate max-w-[80%]">
+                  <div className="w-9 h-9 rounded-lg bg-[#131826] border border-[#1E2531] flex items-center justify-center shrink-0 text-xs font-mono font-bold text-[#16C784]">
+                    {(idx + 1).toString().padStart(2, "0")}
+                  </div>
+                  <div className="space-y-0.5 truncate">
+                    <h5 className="font-semibold text-[#EDEFF3] text-sm truncate font-sans" title={file.nombre_archivo}>
+                      {file.nombre_archivo}
+                    </h5>
+                    <p className="text-[10px] text-[#5B6577] font-mono uppercase tracking-wider">
+                      Publicado: <span className="font-mono">{file.fecha_subida}</span>
+                    </p>
+                  </div>
+                </div>
+                <a
+                  href={file.link_drive}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="min-h-[44px] min-w-[44px] flex items-center justify-center bg-[#131826] hover:bg-[#1E2531] text-[#EDEFF3] hover:text-[#16C784] border border-[#1E2531] rounded-xl transition-all duration-200 active:scale-95"
+                  title="Descargar desde Google Drive"
+                >
+                  <Download className="w-4 h-4" />
+                </a>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    // Fallback: listado manual desde la pestaña Archivos de la planilla
+    const archivos = archivosList
+      .filter(a => a.id_catedra === selectedCatedra && a.tipo_seccion === tipo)
+      .sort((a, b) => a.orden - b.orden);
 
     if (archivos.length === 0) {
       return (

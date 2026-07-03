@@ -39,8 +39,14 @@ export interface Archivo {
 }
 
 /**
- * Registro de porcentaje de asistencia de un estudiante para un año determinado.
+ * Registro de mapeo de Carpetas de Google Drive para listado dinámico de archivos.
  */
+export interface CarpetaDrive {
+  id_catedra: string;
+  tipo_seccion: "Bibliografia" | "Diapositivas" | "Apuntes_Clase";
+  folder_id_drive: string;
+}
+
 export interface Asistencia {
   id_catedra: string;
   anio: number;
