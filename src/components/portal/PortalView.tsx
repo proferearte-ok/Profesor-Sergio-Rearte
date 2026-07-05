@@ -893,14 +893,16 @@ export default function PortalView() {
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className="text-[9px] font-mono text-[#5B6577] uppercase tracking-widest">Estado Final</p>
+                          <p className="text-[9px] font-mono text-[#5B6577] uppercase tracking-widest mb-1">Estado Final</p>
                           {(() => {
                             const finalCond = selectedCatedra !== "TECNO_3" 
                               ? studentGradesNum?.condicion_final 
                               : studentGradesStatus?.condicion_final;
 
-                            const isPromocion = finalCond === "Promoción";
-                            const isRegular = finalCond === "Regular";
+                            const cleanCond = (finalCond || "").toUpperCase().trim();
+                            const isPromocion = cleanCond === "PROMOCIÓN" || cleanCond === "PROMOCION";
+                            const isRegular = cleanCond === "REGULAR";
+                            
                             const colorClass = isPromocion 
                               ? "text-[#16C784] bg-[#16C784]/15 border-[#16C784]/25" 
                               : isRegular 
@@ -908,7 +910,7 @@ export default function PortalView() {
                                 : "text-[#E24B4A] bg-[#E24B4A]/15 border-[#E24B4A]/25";
 
                             return (
-                              <span className={`px-2.5 py-0.5 rounded text-[10px] font-mono font-bold uppercase border ${colorClass}`}>
+                              <span className={`px-3.5 py-1 rounded-md text-base font-mono font-bold uppercase border inline-block ${colorClass}`}>
                                 {finalCond || "N/A"}
                               </span>
                             );
