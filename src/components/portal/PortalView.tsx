@@ -921,59 +921,78 @@ export default function PortalView() {
                         
                         {/* SECTION A: ASISTENCIA (VISUAL VARIATION INDICATOR) */}
                         <div className="bg-[#131826]/60 border border-[#1E2531]/80 rounded-xl p-4 space-y-3.5">
-                          <div className="flex justify-between items-center">
-                            <div>
-                              <p className="text-[9px] font-mono text-[#5B6577] uppercase tracking-wider font-bold">ASISTENCIA EN CURSADA</p>
-                              <h4 className="text-xs text-[#EDEFF3] font-sans font-medium">Clases Prácticas Requeridas</h4>
-                            </div>
-                            <div className="text-right">
-                              <span className="text-2xl font-bold text-[#EDEFF3] font-mono tracking-tight">
-                                {studentAttendance?.porcentaje || "0%"}
-                              </span>
-                            </div>
-                          </div>
+                          {(() => {
+                            const currentCatedraObj = (catedras || []).find(c => c.id === selectedCatedra);
+                            const totalClases = currentCatedraObj?.total_clases ?? 10;
+                            const pct = studentAttendance 
+                              ? Math.round((studentAttendance.presentes / totalClases) * 100)
+                              : 0;
+                            const formattedPct = `${pct}%`;
 
-                          {/* Horizontal Price-Variation Progress Bar */}
-                          {studentAttendance ? (
-                            (() => {
-                              const pct = parseInt(studentAttendance.porcentaje.replace("%", ""), 10) || 0;
-                              const req = selectedCatedra === "BIO_MOL" ? 80 : 75;
-                              const cumple = pct >= req;
-                              const colorHex = cumple ? "#16C784" : "#E24B4A";
-                              const textClass = cumple ? "text-[#16C784]" : "text-[#E24B4A]";
-
-                              return (
-                                <div className="space-y-3">
-                                  {/* Progress bar line */}
-                                  <div className="w-full h-1.5 bg-[#1E2531] rounded-full overflow-hidden">
-                                    <div 
-                                      className="h-full rounded-full transition-all duration-500"
-                                      style={{ 
-                                        width: `${pct}%`,
-                                        backgroundColor: colorHex
-                                      }}
-                                    ></div>
+                            return (
+                              <>
+                                <div className="flex justify-between items-center">
+                                  <div>
+                                    <p className="text-[9px] font-mono text-[#5B6577] uppercase tracking-wider font-bold">ASISTENCIA EN CURSADA</p>
+                                    <h4 className="text-xs text-[#EDEFF3] font-sans font-medium">Clases Prácticas Requeridas</h4>
                                   </div>
-
-                                  {/* Compliance Badge / Variation Quote */}
-                                  <div className={`p-3 rounded-lg bg-[#0F1420] border border-[#1E2531] flex justify-between items-center text-xs`}>
-                                    <span className="font-mono text-[9px] text-[#5B6577] uppercase tracking-wider">Cumplimiento Mínimo ({req}%)</span>
-                                    {cumple ? (
-                                      <span className="font-mono font-bold text-[#16C784] flex items-center gap-1 bg-[#16C784]/10 px-2 py-0.5 rounded border border-[#16C784]/20">
-                                        ▲ CUMPLE REQUISITO
-                                      </span>
-                                    ) : (
-                                      <span className="font-mono font-bold text-[#E24B4A] flex items-center gap-1 bg-[#E24B4A]/10 px-2 py-0.5 rounded border border-[#E24B4A]/20 animate-pulse">
-                                        ▼ INSUFICIENTE
-                                      </span>
-                                    )}
+                                  <div className="text-right">
+                                    <span className="text-2xl font-bold text-[#EDEFF3] font-mono tracking-tight">
+                                      {studentAttendance ? formattedPct : "0%"}
+                                    </span>
                                   </div>
                                 </div>
-                              );
-                            })()
-                          ) : (
-                            <p className="text-xs text-[#5B6577] italic font-sans text-center">No se registraron planillas de asistencia para este alumno.</p>
-                          )}
+
+                                {/* Horizontal Price-Variation Progress Bar */}
+                                {studentAttendance ? (
+                                  (() => {
+                                    const req = selectedCatedra === "BIO_MOL" ? 80 : 75;
+                                    const cumple = pct >= req;
+                                    const colorHex = cumple ? "#16C784" : "#E24B4A";
+
+                                    return (
+                                      <div className="space-y-3">
+                                        {/* Progress bar line */}
+                                        <div className="w-full h-1.5 bg-[#1E2531] rounded-full overflow-hidden">
+                                          <div 
+                                            className="h-full rounded-full transition-all duration-500"
+                                            style={{ 
+                                              width: `${pct}%`,
+                                              backgroundColor: colorHex
+                                            }}
+                                          ></div>
+                                        </div>
+
+                                        {/* Sub-text indicating detail of attendance */}
+                                        <div className="flex justify-between items-center text-[10px] font-mono text-[#5B6577]">
+                                          <span>Detalle de asistencias:</span>
+                                          <span className="font-semibold text-[#EDEFF3]">
+                                            {studentAttendance.presentes} de {totalClases} clases
+                                          </span>
+                                        </div>
+
+                                        {/* Compliance Badge / Variation Quote */}
+                                        <div className={`p-3 rounded-lg bg-[#0F1420] border border-[#1E2531] flex justify-between items-center text-xs`}>
+                                          <span className="font-mono text-[9px] text-[#5B6577] uppercase tracking-wider">Cumplimiento Mínimo ({req}%)</span>
+                                          {cumple ? (
+                                            <span className="font-mono font-bold text-[#16C784] flex items-center gap-1 bg-[#16C784]/10 px-2 py-0.5 rounded border border-[#16C784]/20">
+                                              ▲ CUMPLE REQUISITO
+                                            </span>
+                                          ) : (
+                                            <span className="font-mono font-bold text-[#E24B4A] flex items-center gap-1 bg-[#E24B4A]/10 px-2 py-0.5 rounded border border-[#E24B4A]/20 animate-pulse">
+                                              ▼ INSUFICIENTE
+                                            </span>
+                                          )}
+                                        </div>
+                                      </div>
+                                    );
+                                  })()
+                                ) : (
+                                  <p className="text-xs text-[#5B6577] italic font-sans text-center">No se registraron planillas de asistencia para este alumno.</p>
+                                )}
+                              </>
+                            );
+                          })()}
                         </div>
 
                         {/* SECTION B: CALIFICACIONES (TICKS/QUOTES PANEL) */}

@@ -115,18 +115,31 @@ export async function getAsistenciaFromSheet(
       }
       
       // Formatear asistencia de forma robusta
-      let valAsistencia = "0%";
+      let valAsistencia = "0";
+      let presentes = 0;
       const cellAsistencia = c[colIndexAsistencia];
       if (cellAsistencia) {
         if (cellAsistencia.f) {
           valAsistencia = cellAsistencia.f;
+          const cleanVal = valAsistencia.replace("%", "").trim();
+          const parsed = Number(cleanVal);
+          if (!isNaN(parsed)) {
+            presentes = parsed;
+          }
         } else if (typeof cellAsistencia.v === "number") {
-          const pctVal = cellAsistencia.v <= 1 ? cellAsistencia.v * 100 : cellAsistencia.v;
-          valAsistencia = `${Math.round(pctVal)}%`;
+          presentes = cellAsistencia.v;
+          if (cellAsistencia.v <= 1) {
+            valAsistencia = `${Math.round(cellAsistencia.v * 100)}%`;
+          } else {
+            valAsistencia = String(cellAsistencia.v);
+          }
         } else if (cellAsistencia.v !== null && cellAsistencia.v !== undefined) {
-          valAsistencia = String(cellAsistencia.v);
-          if (!valAsistencia.includes("%") && !isNaN(Number(valAsistencia))) {
-            valAsistencia = `${valAsistencia}%`;
+          const strVal = String(cellAsistencia.v).trim();
+          valAsistencia = strVal;
+          const cleanVal = strVal.replace("%", "").trim();
+          const parsed = Number(cleanVal);
+          if (!isNaN(parsed)) {
+            presentes = parsed;
           }
         }
       }
@@ -137,7 +150,8 @@ export async function getAsistenciaFromSheet(
         id_catedra: idCatedra,
         anio: isNaN(valAnio) ? anioVigente : valAnio,
         estudiante: String(valEstudiante).trim(),
-        porcentaje: valAsistencia
+        porcentaje: valAsistencia,
+        presentes
       };
     }).filter(Boolean) as Asistencia[];
   } catch (error) {
@@ -348,6 +362,7 @@ export async function getCatedrasFromSheet(spreadsheetId: string): Promise<Cated
     let idxCuatrimestre = -1;
     let idxActiva = -1;
     let idxAnioVigente = -1;
+    let idxTotalClases = -1;
 
     cols.forEach((col: any, index: number) => {
       const label = (col.label || "").toLowerCase().trim();
@@ -361,6 +376,8 @@ export async function getCatedrasFromSheet(spreadsheetId: string): Promise<Cated
         idxActiva = index;
       } else if (label.includes("anio_vigente") || label.includes("año") || label.includes("vigente")) {
         idxAnioVigente = index;
+      } else if (label.includes("total_clases") || label.includes("total clases") || label.includes("clases") || label.includes("clase")) {
+        idxTotalClases = index;
       }
     });
 
@@ -381,6 +398,15 @@ export async function getCatedrasFromSheet(spreadsheetId: string): Promise<Cated
 
       const anioVal = Number(getVal(c, idxAnioVigente));
 
+      const totalClasesStr = getVal(c, idxTotalClases);
+      let total_clases = 10;
+      if (totalClasesStr !== "") {
+        const parsed = Number(totalClasesStr);
+        if (!isNaN(parsed) && parsed > 0) {
+          total_clases = parsed;
+        }
+      }
+
       return {
         id,
         nombre: getVal(c, idxNombre) || id,
@@ -388,7 +414,8 @@ export async function getCatedrasFromSheet(spreadsheetId: string): Promise<Cated
         activa,
         anio_vigente: isNaN(anioVal) || anioVal === 0 ? 2026 : anioVal,
         tipo_cronograma: "TEXTO_SIMPLE",
-        contenido_cronograma: ""
+        contenido_cronograma: "",
+        total_clases
       };
     }).filter(Boolean) as Catedra[];
   } catch (error) {

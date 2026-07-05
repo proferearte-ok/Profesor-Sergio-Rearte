@@ -67,14 +67,14 @@ export const mockArchivos: Archivo[] = [
 ];
 
 export const mockAsistencia: Asistencia[] = [
-  { id_catedra: "BIO_MOL", anio: 2026, estudiante: "Pérez, Juan", porcentaje: "92%" },
-  { id_catedra: "BIO_MOL", anio: 2026, estudiante: "Rodríguez, María", porcentaje: "68%" },
-  { id_catedra: "BIO_MOL", anio: 2026, estudiante: "García, Sofia", porcentaje: "85%" },
-  { id_catedra: "BIO_MOL", anio: 2025, estudiante: "Alvarez, Pedro (Histórico)", porcentaje: "90%" },
+  { id_catedra: "BIO_MOL", anio: 2026, estudiante: "Pérez, Juan", porcentaje: "92%", presentes: 9 },
+  { id_catedra: "BIO_MOL", anio: 2026, estudiante: "Rodríguez, María", porcentaje: "68%", presentes: 7 },
+  { id_catedra: "BIO_MOL", anio: 2026, estudiante: "García, Sofia", porcentaje: "85%", presentes: 8 },
+  { id_catedra: "BIO_MOL", anio: 2025, estudiante: "Alvarez, Pedro (Histórico)", porcentaje: "90%", presentes: 9 },
   
-  { id_catedra: "TECNO_3", anio: 2026, estudiante: "Gómez, Lucas", porcentaje: "80%" },
-  { id_catedra: "TECNO_3", anio: 2026, estudiante: "Martínez, Ana", porcentaje: "95%" },
-  { id_catedra: "TECNO_3", anio: 2026, estudiante: "Sánchez, Diego", porcentaje: "75%" },
+  { id_catedra: "TECNO_3", anio: 2026, estudiante: "Gómez, Lucas", porcentaje: "80%", presentes: 8 },
+  { id_catedra: "TECNO_3", anio: 2026, estudiante: "Martínez, Ana", porcentaje: "95%", presentes: 9 },
+  { id_catedra: "TECNO_3", anio: 2026, estudiante: "Sánchez, Diego", porcentaje: "75%", presentes: 7 },
 ];
 
 export const mockNotasNum: NotaNum[] = [

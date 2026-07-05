@@ -14,6 +14,7 @@ export interface Catedra {
   anio_vigente: number;
   tipo_cronograma: string;
   contenido_cronograma: string;
+  total_clases?: number;
 }
 
 /**
@@ -52,6 +53,7 @@ export interface Asistencia {
   anio: number;
   estudiante: string;
   porcentaje: string;
+  presentes: number;
 }
 
 /**
