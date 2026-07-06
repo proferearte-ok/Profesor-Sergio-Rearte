@@ -360,6 +360,9 @@ export default function PortalView() {
     }
 
     if (currentCatedra.tipo_cronograma === "CALENDAR_EMBEBIDO") {
+      const calendarUrl = currentCatedra.contenido_cronograma || "";
+      const isGoogleCalendarUrl = calendarUrl.toLowerCase().includes("calendar.google.com");
+
       return (
         <div className="space-y-4 animate-fade-in">
           <div className="bg-[#0F1420] border border-[#1E2531] rounded-2xl p-5 shadow-lg">
@@ -367,22 +370,33 @@ export default function PortalView() {
               <h4 className="font-bold text-[#EDEFF3] flex items-center gap-2 text-[10px] uppercase tracking-widest font-mono text-[#5B6577]">
                 <span>CALENDARIO DE GOOGLE INTEGRADO</span>
               </h4>
-              <a
-                href="https://calendar.google.com"
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-1.5 text-[10px] text-[#16C784] hover:text-[#16C784]/80 font-mono uppercase tracking-wider underline"
-              >
-                <span>Abrir Ventana</span>
-                <ExternalLink className="w-3.5 h-3.5" />
-              </a>
+              {isGoogleCalendarUrl && (
+                <a
+                  href={calendarUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1.5 text-[10px] text-[#16C784] hover:text-[#16C784]/80 font-mono uppercase tracking-wider underline"
+                >
+                  <span>Abrir Ventana</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </a>
+              )}
             </div>
             <div className="aspect-video w-full rounded-xl border border-[#1E2531] overflow-hidden bg-[#131826] flex items-center justify-center relative min-h-[300px]">
-              <iframe
-                src="https://calendar.google.com/calendar/embed?src=es.ar%23holiday%40group.v.calendar.google.com&ctz=America%2FArgentina%2FBuenos_Aires"
-                className="absolute inset-0 w-full h-full border-none filter invert contrast-125 opacity-90"
-                title="Calendario Cátedra"
-              ></iframe>
+              {isGoogleCalendarUrl ? (
+                <iframe
+                  src={calendarUrl}
+                  className="absolute inset-0 w-full h-full border-none filter invert contrast-125 opacity-90"
+                  title="Calendario Cátedra"
+                ></iframe>
+              ) : (
+                <div className="text-center p-6 space-y-2">
+                  <Calendar className="w-8 h-8 text-[#5B6577] mx-auto opacity-40" />
+                  <p className="text-xs text-[#5B6577] italic font-sans">
+                    El cronograma en calendario todavía no fue configurado para esta cátedra.
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>

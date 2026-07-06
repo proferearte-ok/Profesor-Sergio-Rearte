@@ -164,6 +164,20 @@ export default function VisualizerTab() {
             Biología Molecular (Numérico)
           </button>
           <button
+            id="catedra-tecno2"
+            onClick={() => {
+              setSelectedCatedra("TECNO_2");
+              if (selectedSheet === "notas_status") setSelectedSheet("notas_num");
+            }}
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+              selectedCatedra === "TECNO_2"
+                ? "bg-stone-900 text-white"
+                : "bg-stone-100 text-stone-600 hover:bg-stone-200"
+            }`}
+          >
+            Tecno II (Numérico)
+          </button>
+          <button
             id="catedra-tecno3"
             onClick={() => {
               setSelectedCatedra("TECNO_3");
