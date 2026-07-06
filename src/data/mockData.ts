@@ -13,7 +13,8 @@ export const mockCatedras: Catedra[] = [
     activa: true,
     anio_vigente: 2026,
     tipo_cronograma: "LISTA_FECHAS",
-    contenido_cronograma: "Cronograma basado en fechas clave y entregas de laboratorios."
+    contenido_cronograma: "Cronograma basado en fechas clave y entregas de laboratorios.",
+    total_clases: 10
   },
   {
     id: "TECNO_2",
@@ -22,7 +23,8 @@ export const mockCatedras: Catedra[] = [
     activa: false,
     anio_vigente: 2026,
     tipo_cronograma: "TEXTO_SIMPLE",
-    contenido_cronograma: "Cronograma flexible de clases teóricas y talleres de desarrollo."
+    contenido_cronograma: "Cronograma flexible de clases teóricas y talleres de desarrollo.",
+    total_clases: 10
   },
   {
     id: "TECNO_3",
@@ -31,7 +33,8 @@ export const mockCatedras: Catedra[] = [
     activa: true,
     anio_vigente: 2026,
     tipo_cronograma: "CALENDAR_EMBEBIDO",
-    contenido_cronograma: "https://calendar.google.com/calendar/embed?src=catedra_tecno3..."
+    contenido_cronograma: "https://calendar.google.com/calendar/embed?src=catedra_tecno3...",
+    total_clases: 10
   }
 ];
 

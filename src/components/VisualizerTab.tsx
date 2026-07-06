@@ -251,36 +251,47 @@ export default function VisualizerTab() {
         {/* SHEET CONTAINER & MOCK TABLE DISPLAY */}
         <div className="p-6 overflow-x-auto">
           {selectedSheet === "catedras" && (
-            <table className="w-full text-left border-collapse font-mono text-xs">
-              <thead>
-                <tr className="bg-stone-100 text-stone-700 uppercase">
-                  <th className="p-3 border border-stone-200">ID_Catedra (PK)</th>
-                  <th className="p-3 border border-stone-200">Nombre</th>
-                  <th className="p-3 border border-stone-200">Cuatrimestre</th>
-                  <th className="p-3 border border-stone-200">Activa (Vigencia)</th>
-                  <th className="p-3 border border-stone-200">Anio_Vigente</th>
-                  <th className="p-3 border border-stone-200">Tipo_Cronograma</th>
-                  <th className="p-3 border border-stone-200">Contenido_Cronograma</th>
-                </tr>
-              </thead>
-              <tbody>
-                {mockCatedras.map((c) => (
-                  <tr key={c.id} className={`hover:bg-amber-50/40 ${selectedCatedra === c.id ? "bg-amber-50/50 font-semibold" : ""}`}>
-                    <td className="p-3 border border-stone-200 font-bold text-amber-800">{c.id}</td>
-                    <td className="p-3 border border-stone-200">{c.nombre}</td>
-                    <td className="p-3 border border-stone-200">{c.cuatrimestre}</td>
-                    <td className="p-3 border border-stone-200">
-                      <span className={`px-2 py-0.5 rounded-sm text-[10px] font-bold ${c.activa ? "bg-emerald-100 text-emerald-800" : "bg-stone-100 text-stone-400"}`}>
-                        {c.activa ? "SI (Activo)" : "NO (Inactivo)"}
-                      </span>
-                    </td>
-                    <td className="p-3 border border-stone-200">{c.anio_vigente}</td>
-                    <td className="p-3 border border-stone-200 text-blue-800 font-bold">{c.tipo_cronograma}</td>
-                    <td className="p-3 border border-stone-200 truncate max-w-xs" title={c.contenido_cronograma}>{c.contenido_cronograma}</td>
+            <div className="space-y-4">
+              <table className="w-full text-left border-collapse font-mono text-xs">
+                <thead>
+                  <tr className="bg-stone-100 text-stone-700 uppercase">
+                    <th className="p-3 border border-stone-200">ID_Catedra (PK)</th>
+                    <th className="p-3 border border-stone-200">Nombre</th>
+                    <th className="p-3 border border-stone-200">Cuatrimestre</th>
+                    <th className="p-3 border border-stone-200">Activa (Vigencia)</th>
+                    <th className="p-3 border border-stone-200">Anio_Vigente</th>
+                    <th className="p-3 border border-stone-200">Tipo_Cronograma</th>
+                    <th className="p-3 border border-stone-200">Contenido_Cronograma</th>
+                    <th className="p-3 border border-stone-200">Total_Clases</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {mockCatedras.map((c) => (
+                    <tr key={c.id} className={`hover:bg-amber-50/40 ${selectedCatedra === c.id ? "bg-amber-50/50 font-semibold" : ""}`}>
+                      <td className="p-3 border border-stone-200 font-bold text-amber-800">{c.id}</td>
+                      <td className="p-3 border border-stone-200">{c.nombre}</td>
+                      <td className="p-3 border border-stone-200">{c.cuatrimestre}</td>
+                      <td className="p-3 border border-stone-200">
+                        <span className={`px-2 py-0.5 rounded-sm text-[10px] font-bold ${c.activa ? "bg-emerald-100 text-emerald-800" : "bg-stone-100 text-stone-400"}`}>
+                          {c.activa ? "SI (Activo)" : "NO (Inactivo)"}
+                        </span>
+                      </td>
+                      <td className="p-3 border border-stone-200">{c.anio_vigente}</td>
+                      <td className="p-3 border border-stone-200 text-blue-800 font-bold">{c.tipo_cronograma}</td>
+                      <td className="p-3 border border-stone-200 truncate max-w-xs" title={c.contenido_cronograma}>{c.contenido_cronograma}</td>
+                      <td className="p-3 border border-stone-200 font-bold text-center">{c.total_clases ?? 10}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+
+              <div className="text-xs text-amber-800 bg-amber-50 border border-amber-200 p-3 rounded-lg flex items-start gap-2">
+                <Info className="w-4 h-4 shrink-0 mt-0.5" />
+                <span>
+                  Para cambiar el total de clases del cuatrimestre (por ejemplo, si se suspende una clase), editá la celda correspondiente en la columna 'total_clases' de la pestaña 'Catedras' dentro de tu planilla Panel_Docente_Config en Google Sheets. Este dato NO se edita desde este sitio — el cambio en la planilla se refleja automáticamente en el porcentaje de asistencia que ven los estudiantes.
+                </span>
+              </div>
+            </div>
           )}
 
           {selectedSheet === "secciones" && (
