@@ -6,6 +6,19 @@
 import { Asistencia, NotaNum, NotaStatus, Catedra, SeccionEstado, Archivo, CarpetaDrive } from "../types";
 
 /**
+ * Normaliza un texto para búsqueda tolerante de columnas: todo en minúsculas, sin tildes/diacríticos,
+ * y sin símbolos especiales como "°" o "º".
+ */
+export function normalizarTexto(label: string): string {
+  return (label || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "") // Remueve acentos/diacríticos
+    .replace(/[°º]/g, "")             // Remueve símbolos de grado u ordinal
+    .trim();
+}
+
+/**
  * Consulta la API de Visualización de Google para una planilla y pestaña dada y extrae la tabla de filas.
  * Soporta de manera transparente el formato JSONP devuelto por la API.
  */
@@ -93,13 +106,14 @@ export async function getAsistenciaFromSheet(
     let colIndexAnio = -1;
 
     cols.forEach((col: any, index: number) => {
-      const label = (col.label || "").toLowerCase().trim();
-      if (label.includes("estudiante") || label.includes("apellido") || label.includes("nombre") || label.includes("alumno")) {
-        colIndexEstudiante = index;
-      } else if (label.includes("asistencia") || label.includes("%") || label.includes("total")) {
-        colIndexAsistencia = index;
-      } else if (label.includes("anio") || label.includes("año")) {
-        colIndexAnio = index;
+      const label = col.label || "";
+      const norm = normalizarTexto(label);
+      if (norm.includes("estudiante") || norm.includes("apellido") || norm.includes("nombre") || norm.includes("alumno")) {
+        if (colIndexEstudiante === -1) colIndexEstudiante = index;
+      } else if (norm.includes("asistencia") || norm.includes("%") || norm.includes("total")) {
+        if (colIndexAsistencia === -1) colIndexAsistencia = index;
+      } else if (norm.includes("anio") || norm.includes("ano")) {
+        if (colIndexAnio === -1) colIndexAnio = index;
       }
     });
 
@@ -189,28 +203,49 @@ export async function getNotasNumFromSheet(
     let idxAnio = -1;
 
     cols.forEach((col: any, index: number) => {
-      const label = (col.label || "").toLowerCase().trim();
+      const label = col.label || "";
+      const norm = normalizarTexto(label);
       
-      if (label.includes("estudiante") || label.includes("apellido") || label.includes("nombre") || label.includes("alumno")) {
-        idxEstudiante = index;
-      } else if (label.includes("p1") || label.includes("primer parcial") || label.includes("1er parcial") || label.includes("parcial 1") || label.includes("parcial1")) {
-        if (label.includes("teor")) idxP1Teoria = index;
-        else if (label.includes("pract") || label.includes("práct")) idxP1Practica = index;
-        else if (label.includes("res") || label.includes("condic") || label.includes("estado")) idxP1Resultado = index;
-      } else if (label.includes("p2") || label.includes("segundo parcial") || label.includes("2do parcial") || label.includes("parcial 2") || label.includes("parcial2")) {
-        if (label.includes("teor")) idxP2Teoria = index;
-        else if (label.includes("pract") || label.includes("práct")) idxP2Practica = index;
-        else if (label.includes("res") || label.includes("condic") || label.includes("estado")) idxP2Resultado = index;
-      } else if (label.includes("recupera") && !label.includes("teor") && !label.includes("pract") && !label.includes("res")) {
-        idxRecupera = index;
-      } else if (label.includes("rec") || label.includes("recup")) {
-        if (label.includes("teor")) idxRecTeoria = index;
-        else if (label.includes("pract") || label.includes("práct")) idxRecPractica = index;
-        else if (label.includes("res") || label.includes("condic") || label.includes("estado")) idxRecResultado = index;
-      } else if (label.includes("condición final") || label.includes("condicion final") || label.includes("final")) {
-        idxCondicionFinal = index;
-      } else if (label.includes("anio") || label.includes("año")) {
-        idxAnio = index;
+      if (norm.includes("estudiante") || norm.includes("apellido") || norm.includes("nombre") || norm.includes("alumno")) {
+        if (idxEstudiante === -1) idxEstudiante = index;
+      } else if (((norm.includes("1") || norm.includes("primer")) && norm.includes("parcial")) || norm.includes("1p")) {
+        if (norm.includes("teor") || norm.includes("nota") || norm.includes("%)")) {
+          if (idxP1Teoria === -1) idxP1Teoria = index;
+        } else if (norm.includes("pract") || norm.includes("practico")) {
+          if (idxP1Practica === -1) idxP1Practica = index;
+        } else if (norm.includes("res") || norm.includes("condic") || norm.includes("estado") || norm.includes("resultado")) {
+          if (idxP1Resultado === -1) idxP1Resultado = index;
+        } else {
+          if (idxP1Teoria === -1) idxP1Teoria = index;
+        }
+      } else if (((norm.includes("2") || norm.includes("segundo")) && norm.includes("parcial")) || norm.includes("2p")) {
+        if (norm.includes("teor") || norm.includes("nota") || norm.includes("%)")) {
+          if (idxP2Teoria === -1) idxP2Teoria = index;
+        } else if (norm.includes("pract") || norm.includes("practico")) {
+          if (idxP2Practica === -1) idxP2Practica = index;
+        } else if (norm.includes("res") || norm.includes("condic") || norm.includes("estado") || norm.includes("resultado")) {
+          if (idxP2Resultado === -1) idxP2Resultado = index;
+        } else {
+          if (idxP2Teoria === -1) idxP2Teoria = index;
+        }
+      } else if (norm.includes("recupera") && !norm.includes("teor") && !norm.includes("pract") && !norm.includes("res") && !norm.includes("condic")) {
+        if (idxRecupera === -1) idxRecupera = index;
+      } else if (norm.includes("rec") || norm.includes("recup")) {
+        if (norm.includes("teor") || norm.includes("nota")) {
+          if (idxRecTeoria === -1) idxRecTeoria = index;
+        } else if (norm.includes("pract") || norm.includes("practico")) {
+          if (idxRecPractica === -1) idxRecPractica = index;
+        } else if (norm.includes("res") || norm.includes("condic") || norm.includes("estado") || norm.includes("resultado")) {
+          if (idxRecResultado === -1) idxRecResultado = index;
+        } else {
+          if (idxRecTeoria === -1) idxRecTeoria = index;
+        }
+      } else if (norm.includes("condicion final") || norm.includes("condicion") || norm.includes("final")) {
+        if (idxCondicionFinal === -1) idxCondicionFinal = index;
+      } else if (norm.includes("anio") || norm.includes("ano")) {
+        if (idxAnio === -1) idxAnio = index;
+      } else if ((norm.includes("resultado") || norm.includes("condic") || norm.includes("estado")) && !norm.includes("final")) {
+        if (idxRecResultado === -1) idxRecResultado = index;
       }
     });
 
@@ -285,25 +320,43 @@ export async function getNotasStatusFromSheet(
     let idxAnio = -1;
 
     cols.forEach((col: any, index: number) => {
-      const label = (col.label || "").toLowerCase().trim();
+      const label = col.label || "";
+      const norm = normalizarTexto(label);
 
-      if (label.includes("estudiante") || label.includes("apellido") || label.includes("nombre") || label.includes("alumno")) {
-        idxEstudiante = index;
-      } else if (label.includes("p1") || label.includes("primer parcial") || label.includes("1er parcial") || label.includes("parcial 1") || label.includes("parcial1")) {
-        if (label.includes("teor")) idxP1Teoria = index;
-        else if (label.includes("condic") || label.includes("estado") || label.includes("result") || label.includes("resultado")) idxP1Condicion = index;
-      } else if (label.includes("p2") || label.includes("segundo parcial") || label.includes("2do parcial") || label.includes("parcial 2") || label.includes("parcial2")) {
-        if (label.includes("teor")) idxP2Teoria = index;
-        else if (label.includes("condic") || label.includes("estado") || label.includes("result") || label.includes("resultado")) idxP2Condicion = index;
-      } else if (label.includes("recupera") || label.includes("recup")) {
-        if (label.includes("teor")) idxRecTeoria = index;
-        else if (label.includes("condic") || label.includes("estado") || label.includes("result") || label.includes("resultado")) idxRecCondicion = index;
-      } else if (label.includes("práctica") || label.includes("practica") || label.includes("proyecto") || label.includes("entregas")) {
-        idxPractica = index;
-      } else if (label.includes("condición final") || label.includes("condicion final") || label.includes("final")) {
-        idxCondicionFinal = index;
-      } else if (label.includes("anio") || label.includes("año")) {
-        idxAnio = index;
+      if (norm.includes("estudiante") || norm.includes("apellido") || norm.includes("nombre") || norm.includes("alumno")) {
+        if (idxEstudiante === -1) idxEstudiante = index;
+      } else if (((norm.includes("1") || norm.includes("primer")) && norm.includes("parcial")) || norm.includes("1p")) {
+        if (norm.includes("teor") || norm.includes("nota") || norm.includes("%)")) {
+          if (idxP1Teoria === -1) idxP1Teoria = index;
+        } else if (norm.includes("condic") || norm.includes("estado") || norm.includes("result") || norm.includes("resultado")) {
+          if (idxP1Condicion === -1) idxP1Condicion = index;
+        } else {
+          if (idxP1Teoria === -1) idxP1Teoria = index;
+        }
+      } else if (((norm.includes("2") || norm.includes("segundo")) && norm.includes("parcial")) || norm.includes("2p")) {
+        if (norm.includes("teor") || norm.includes("nota") || norm.includes("%)")) {
+          if (idxP2Teoria === -1) idxP2Teoria = index;
+        } else if (norm.includes("condic") || norm.includes("estado") || norm.includes("result") || norm.includes("resultado")) {
+          if (idxP2Condicion === -1) idxP2Condicion = index;
+        } else {
+          if (idxP2Teoria === -1) idxP2Teoria = index;
+        }
+      } else if (norm.includes("rec") || norm.includes("recup") || norm.includes("recupera")) {
+        if (norm.includes("teor") || norm.includes("nota")) {
+          if (idxRecTeoria === -1) idxRecTeoria = index;
+        } else if (norm.includes("condic") || norm.includes("estado") || norm.includes("result") || norm.includes("resultado")) {
+          if (idxRecCondicion === -1) idxRecCondicion = index;
+        } else {
+          if (idxRecTeoria === -1) idxRecTeoria = index;
+        }
+      } else if (norm.includes("practica") || norm.includes("proyecto") || norm.includes("entregas")) {
+        if (idxPractica === -1) idxPractica = index;
+      } else if (norm.includes("condicion final") || norm.includes("condicion") || norm.includes("final")) {
+        if (idxCondicionFinal === -1) idxCondicionFinal = index;
+      } else if (norm.includes("anio") || norm.includes("ano")) {
+        if (idxAnio === -1) idxAnio = index;
+      } else if ((norm.includes("resultado") || norm.includes("condic") || norm.includes("estado")) && !norm.includes("final")) {
+        if (idxRecCondicion === -1) idxRecCondicion = index;
       }
     });
 
@@ -365,19 +418,20 @@ export async function getCatedrasFromSheet(spreadsheetId: string): Promise<Cated
     let idxTotalClases = -1;
 
     cols.forEach((col: any, index: number) => {
-      const label = (col.label || "").toLowerCase().trim();
-      if (label.includes("id_catedra") || label.includes("id") || label.includes("catedra")) {
-        idxId = index;
-      } else if (label.includes("nombre")) {
-        idxNombre = index;
-      } else if (label.includes("cuatrimestre") || label.includes("cuatri")) {
-        idxCuatrimestre = index;
-      } else if (label.includes("activa")) {
-        idxActiva = index;
-      } else if (label.includes("anio_vigente") || label.includes("año") || label.includes("vigente")) {
-        idxAnioVigente = index;
-      } else if (label.includes("total_clases") || label.includes("total clases") || label.includes("clases") || label.includes("clase")) {
-        idxTotalClases = index;
+      const label = col.label || "";
+      const norm = normalizarTexto(label);
+      if (norm.includes("id_catedra") || norm.includes("id") || norm.includes("catedra")) {
+        if (idxId === -1) idxId = index;
+      } else if (norm.includes("nombre")) {
+        if (idxNombre === -1) idxNombre = index;
+      } else if (norm.includes("cuatrimestre") || norm.includes("cuatri")) {
+        if (idxCuatrimestre === -1) idxCuatrimestre = index;
+      } else if (norm.includes("activa")) {
+        if (idxActiva === -1) idxActiva = index;
+      } else if (norm.includes("anio_vigente") || norm.includes("anio") || norm.includes("ano") || norm.includes("vigente")) {
+        if (idxAnioVigente === -1) idxAnioVigente = index;
+      } else if (norm.includes("total_clases") || norm.includes("total clases") || norm.includes("clases") || norm.includes("clase")) {
+        if (idxTotalClases === -1) idxTotalClases = index;
       }
     });
 
@@ -441,19 +495,20 @@ export async function getSeccionesFromSheet(spreadsheetId: string): Promise<any[
     let idxContenidoCronograma = -1;
 
     cols.forEach((col: any, index: number) => {
-      const label = (col.label || "").toLowerCase().trim();
-      if (label.includes("id_catedra") || label.includes("id") || label.includes("catedra")) {
-        idxCatedra = index;
-      } else if (label.includes("seccion") || label.includes("sección")) {
-        idxSeccion = index;
-      } else if (label.includes("estado")) {
-        idxEstado = index;
-      } else if (label.includes("texto_simple") || label.includes("texto") || label.includes("contenido")) {
-        idxTextoSimple = index;
-      } else if (label.includes("tipo_cronograma") || label.includes("tipo_crono") || label.includes("tipo cronograma")) {
-        idxTipoCronograma = index;
-      } else if (label.includes("contenido_cronograma") || label.includes("contenido_crono") || label.includes("contenido cronograma")) {
-        idxContenidoCronograma = index;
+      const label = col.label || "";
+      const norm = normalizarTexto(label);
+      if (norm.includes("id_catedra") || norm.includes("id") || norm.includes("catedra")) {
+        if (idxCatedra === -1) idxCatedra = index;
+      } else if (norm.includes("seccion")) {
+        if (idxSeccion === -1) idxSeccion = index;
+      } else if (norm.includes("estado")) {
+        if (idxEstado === -1) idxEstado = index;
+      } else if (norm.includes("texto_simple") || norm.includes("texto") || norm.includes("contenido")) {
+        if (idxTextoSimple === -1) idxTextoSimple = index;
+      } else if (norm.includes("tipo_cronograma") || norm.includes("tipo_crono") || norm.includes("tipo cronograma")) {
+        if (idxTipoCronograma === -1) idxTipoCronograma = index;
+      } else if (norm.includes("contenido_cronograma") || norm.includes("contenido_crono") || norm.includes("contenido cronograma")) {
+        if (idxContenidoCronograma === -1) idxContenidoCronograma = index;
       }
     });
 
@@ -506,19 +561,20 @@ export async function getArchivosFromSheet(spreadsheetId: string): Promise<Archi
     let idxFechaSubida = -1;
 
     cols.forEach((col: any, index: number) => {
-      const label = (col.label || "").toLowerCase().trim();
-      if (label.includes("id_catedra") || label.includes("id") || label.includes("catedra")) {
-        idxCatedra = index;
-      } else if (label.includes("tipo_seccion") || label.includes("tipo") || label.includes("seccion")) {
-        idxTipoSeccion = index;
-      } else if (label.includes("nombre_archivo") || label.includes("nombre") || label.includes("archivo") || label.includes("titulo")) {
-        idxNombreArchivo = index;
-      } else if (label.includes("link_drive") || label.includes("link") || label.includes("drive") || label.includes("url")) {
-        idxLinkDrive = index;
-      } else if (label.includes("orden")) {
-        idxOrden = index;
-      } else if (label.includes("fecha_subida") || label.includes("fecha") || label.includes("subida")) {
-        idxFechaSubida = index;
+      const label = col.label || "";
+      const norm = normalizarTexto(label);
+      if (norm.includes("id_catedra") || norm.includes("id") || norm.includes("catedra")) {
+        if (idxCatedra === -1) idxCatedra = index;
+      } else if (norm.includes("tipo_seccion") || norm.includes("tipo") || norm.includes("seccion")) {
+        if (idxTipoSeccion === -1) idxTipoSeccion = index;
+      } else if (norm.includes("nombre_archivo") || norm.includes("nombre") || norm.includes("archivo") || norm.includes("titulo")) {
+        if (idxNombreArchivo === -1) idxNombreArchivo = index;
+      } else if (norm.includes("link_drive") || norm.includes("link") || norm.includes("drive") || norm.includes("url")) {
+        if (idxLinkDrive === -1) idxLinkDrive = index;
+      } else if (norm.includes("orden")) {
+        if (idxOrden === -1) idxOrden = index;
+      } else if (norm.includes("fecha_subida") || norm.includes("fecha") || norm.includes("subida")) {
+        if (idxFechaSubida === -1) idxFechaSubida = index;
       }
     });
 
@@ -581,13 +637,14 @@ export async function getCarpetasDriveFromSheet(spreadsheetId: string): Promise<
     let idxFolderIdDrive = -1;
 
     cols.forEach((col: any, index: number) => {
-      const label = (col.label || "").toLowerCase().trim();
-      if (label.includes("id_catedra") || label.includes("id") || label.includes("catedra")) {
-        idxCatedra = index;
-      } else if (label.includes("tipo_seccion") || label.includes("tipo_sección") || label.includes("seccion") || label.includes("sección") || label.includes("tipo")) {
-        idxTipoSeccion = index;
-      } else if (label.includes("folder_id_drive") || label.includes("folder") || label.includes("id_drive") || label.includes("drive")) {
-        idxFolderIdDrive = index;
+      const label = col.label || "";
+      const norm = normalizarTexto(label);
+      if (norm.includes("id_catedra") || norm.includes("id") || norm.includes("catedra")) {
+        if (idxCatedra === -1) idxCatedra = index;
+      } else if (norm.includes("tipo_seccion") || norm.includes("seccion") || norm.includes("tipo")) {
+        if (idxTipoSeccion === -1) idxTipoSeccion = index;
+      } else if (norm.includes("folder_id_drive") || norm.includes("folder") || norm.includes("id_drive") || norm.includes("drive")) {
+        if (idxFolderIdDrive === -1) idxFolderIdDrive = index;
       }
     });
 
