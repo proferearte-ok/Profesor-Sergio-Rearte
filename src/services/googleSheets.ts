@@ -420,18 +420,18 @@ export async function getCatedrasFromSheet(spreadsheetId: string): Promise<Cated
     cols.forEach((col: any, index: number) => {
       const label = col.label || "";
       const norm = normalizarTexto(label);
-      if (norm.includes("id_catedra") || norm.includes("id") || norm.includes("catedra")) {
-        if (idxId === -1) idxId = index;
-      } else if (norm.includes("nombre")) {
-        if (idxNombre === -1) idxNombre = index;
+      if (norm.includes("total_clases") || norm.includes("total clases") || norm.includes("clases") || norm.includes("clase")) {
+        if (idxTotalClases === -1) idxTotalClases = index;
+      } else if (norm.includes("anio_vigente") || norm.includes("anio") || norm.includes("ano") || norm.includes("vigente")) {
+        if (idxAnioVigente === -1) idxAnioVigente = index;
       } else if (norm.includes("cuatrimestre") || norm.includes("cuatri")) {
         if (idxCuatrimestre === -1) idxCuatrimestre = index;
       } else if (norm.includes("activa")) {
         if (idxActiva === -1) idxActiva = index;
-      } else if (norm.includes("anio_vigente") || norm.includes("anio") || norm.includes("ano") || norm.includes("vigente")) {
-        if (idxAnioVigente === -1) idxAnioVigente = index;
-      } else if (norm.includes("total_clases") || norm.includes("total clases") || norm.includes("clases") || norm.includes("clase")) {
-        if (idxTotalClases === -1) idxTotalClases = index;
+      } else if (norm.includes("nombre")) {
+        if (idxNombre === -1) idxNombre = index;
+      } else if (norm.includes("id_catedra") || norm.includes("id") || norm.includes("catedra")) {
+        if (idxId === -1) idxId = index;
       }
     });
 
@@ -503,12 +503,12 @@ export async function getSeccionesFromSheet(spreadsheetId: string): Promise<any[
         if (idxSeccion === -1) idxSeccion = index;
       } else if (norm.includes("estado")) {
         if (idxEstado === -1) idxEstado = index;
-      } else if (norm.includes("texto_simple") || norm.includes("texto") || norm.includes("contenido")) {
-        if (idxTextoSimple === -1) idxTextoSimple = index;
       } else if (norm.includes("tipo_cronograma") || norm.includes("tipo_crono") || norm.includes("tipo cronograma")) {
         if (idxTipoCronograma === -1) idxTipoCronograma = index;
       } else if (norm.includes("contenido_cronograma") || norm.includes("contenido_crono") || norm.includes("contenido cronograma")) {
         if (idxContenidoCronograma === -1) idxContenidoCronograma = index;
+      } else if ((norm.includes("texto_simple") || norm.includes("texto") || norm.includes("contenido")) && !norm.includes("cronograma")) {
+        if (idxTextoSimple === -1) idxTextoSimple = index;
       }
     });
 
@@ -563,18 +563,18 @@ export async function getArchivosFromSheet(spreadsheetId: string): Promise<Archi
     cols.forEach((col: any, index: number) => {
       const label = col.label || "";
       const norm = normalizarTexto(label);
-      if (norm.includes("id_catedra") || norm.includes("id") || norm.includes("catedra")) {
-        if (idxCatedra === -1) idxCatedra = index;
-      } else if (norm.includes("tipo_seccion") || norm.includes("tipo") || norm.includes("seccion")) {
-        if (idxTipoSeccion === -1) idxTipoSeccion = index;
-      } else if (norm.includes("nombre_archivo") || norm.includes("nombre") || norm.includes("archivo") || norm.includes("titulo")) {
+      if (norm.includes("nombre_archivo") || norm.includes("nombre") || norm.includes("archivo") || norm.includes("titulo")) {
         if (idxNombreArchivo === -1) idxNombreArchivo = index;
       } else if (norm.includes("link_drive") || norm.includes("link") || norm.includes("drive") || norm.includes("url")) {
         if (idxLinkDrive === -1) idxLinkDrive = index;
-      } else if (norm.includes("orden")) {
-        if (idxOrden === -1) idxOrden = index;
+      } else if (norm.includes("tipo_seccion") || norm.includes("tipo") || norm.includes("seccion")) {
+        if (idxTipoSeccion === -1) idxTipoSeccion = index;
       } else if (norm.includes("fecha_subida") || norm.includes("fecha") || norm.includes("subida")) {
         if (idxFechaSubida === -1) idxFechaSubida = index;
+      } else if (norm.includes("orden")) {
+        if (idxOrden === -1) idxOrden = index;
+      } else if (norm.includes("id_catedra") || norm.includes("id") || norm.includes("catedra")) {
+        if (idxCatedra === -1) idxCatedra = index;
       }
     });
 
@@ -639,12 +639,12 @@ export async function getCarpetasDriveFromSheet(spreadsheetId: string): Promise<
     cols.forEach((col: any, index: number) => {
       const label = col.label || "";
       const norm = normalizarTexto(label);
-      if (norm.includes("id_catedra") || norm.includes("id") || norm.includes("catedra")) {
-        if (idxCatedra === -1) idxCatedra = index;
+      if (norm.includes("folder_id_drive") || norm.includes("folder") || norm.includes("id_drive") || norm.includes("drive")) {
+        if (idxFolderIdDrive === -1) idxFolderIdDrive = index;
       } else if (norm.includes("tipo_seccion") || norm.includes("seccion") || norm.includes("tipo")) {
         if (idxTipoSeccion === -1) idxTipoSeccion = index;
-      } else if (norm.includes("folder_id_drive") || norm.includes("folder") || norm.includes("id_drive") || norm.includes("drive")) {
-        if (idxFolderIdDrive === -1) idxFolderIdDrive = index;
+      } else if (norm.includes("id_catedra") || norm.includes("id") || norm.includes("catedra")) {
+        if (idxCatedra === -1) idxCatedra = index;
       }
     });
 
