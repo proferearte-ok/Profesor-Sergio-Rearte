@@ -83,7 +83,23 @@ async function fetchGoogleSheetRows(spreadsheetId: string, sheetName: string): P
     throw new Error("La planilla no contiene una tabla de datos válida o está vacía.");
   }
   
-  return json.table;
+  const table = json.table;
+  const parsedHeaders = table.parsedNumHeaders;
+  if ((parsedHeaders === 0 || parsedHeaders === undefined) &&
+      table.cols.every((col: any) => !col.label || col.label.trim() === "") &&
+      table.rows.length > 0) {
+    const firstRow = table.rows[0];
+    if (firstRow && firstRow.c) {
+      table.cols.forEach((col: any, i: number) => {
+        const cell = firstRow.c[i];
+        const val = cell && cell.v !== null && cell.v !== undefined ? String(cell.v) : "";
+        col.label = val;
+      });
+      table.rows.shift();
+    }
+  }
+  
+  return table;
 }
 
 /**
