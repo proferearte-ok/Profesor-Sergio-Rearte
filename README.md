@@ -153,3 +153,23 @@ Para que la aplicación pueda consultar los archivos de manera pública, cada ca
 3. En la sección de **Acceso general**, cambia de *"Restringido"* a **"Cualquier persona con el enlace"** con el rol de **Lector**.
 4. ¡Listo! Copia el ID de la carpeta desde el enlace de la carpeta (es la cadena larga de números y letras que aparece en la URL después de `/folders/`) y pégalo en la columna `folder_id_drive`.
 
+---
+
+## Integración de Cronogramas por Lista de Clases (LISTA_CLASES)
+
+Para utilizar el tipo de cronograma `LISTA_CLASES`, debes configurar una planilla de Google Sheets dedicada:
+
+1. **Configurar ID de la Planilla de Cronogramas:**
+   Agrega la variable `VITE_SHEET_ID_CRONOGRAMAS` en tu archivo `.env.local`:
+   ```env
+   VITE_SHEET_ID_CRONOGRAMAS="TU_ID_DE_PLANILLA_CRONOGRAMAS_AQUI"
+   ```
+
+2. **Estructura de la Planilla de Cronogramas:**
+   Crea un archivo de Google Sheets y configúralo como de libre lectura pública ("Cualquier persona con el enlace"). Debe contener una pestaña por cada cátedra (ej. `BIO_MOL`, `TECNO_2`, `TECNO_3`). Cada pestaña debe incluir las siguientes columnas:
+   - **fecha**: Columna con formato de fecha de Google Sheets (ej. `15/03/2026`).
+   - **horario**: Texto con el horario (ej. `8:30 a 12:00`).
+   - **aula**: Texto indicando el aula (ej. `Aula 402` o `A designar`).
+   - **tema**: Texto descriptivo del tema o contenido de la clase.
+   - **tipo**: Texto para clasificar el tipo de clase. Vacío o `Normal` para clases regulares, `Feriado` para días sin clase, o `Extra` para clases extraordinarias.
+

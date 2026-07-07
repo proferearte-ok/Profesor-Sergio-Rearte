@@ -29,13 +29,14 @@ import {
   mockNotasNum, 
   mockNotasStatus 
 } from "../../data/mockData";
-import { SHEETS_CONFIG } from "../../config/sheets";
+import { SHEETS_CONFIG, CRONOGRAMAS_SHEET_ID } from "../../config/sheets";
 import { 
   getAsistenciaFromSheet, 
   getNotasNumFromSheet, 
-  getNotasStatusFromSheet 
+  getNotasStatusFromSheet,
+  getCronogramaClasesFromSheet
 } from "../../services/googleSheets";
-import { Asistencia, NotaNum, NotaStatus } from "../../types";
+import { Asistencia, NotaNum, NotaStatus, ClaseCronograma } from "../../types";
 import StudentSearch from "./StudentSearch";
 
 export default function PortalView() {
@@ -65,6 +66,11 @@ export default function PortalView() {
   const [driveFiles, setDriveFiles] = useState<any[]>([]);
   const [driveLoading, setDriveLoading] = useState<boolean>(false);
   const [driveError, setDriveError] = useState<string | null>(null);
+
+  // States for LISTA_CLASES cronograma
+  const [clasesCronograma, setClasesCronograma] = useState<ClaseCronograma[]>([]);
+  const [cronogramaLoading, setCronogramaLoading] = useState<boolean>(false);
+  const [cronogramaError, setCronogramaError] = useState<string | null>(null);
 
   const [loading, setLoading] = useState<boolean>(false);
   const [configLoading, setConfigLoading] = useState<boolean>(false);
@@ -215,6 +221,94 @@ export default function PortalView() {
   useEffect(() => {
     loadCatedraData();
   }, [selectedCatedra]);
+
+  // Load LISTA_CLASES cronograma when active and selectedCatedra changes
+  useEffect(() => {
+    let active = true;
+    const fetchCronograma = async () => {
+      if (currentCatedra?.tipo_cronograma !== "LISTA_CLASES") {
+        setClasesCronograma([]);
+        return;
+      }
+
+      setCronogramaLoading(true);
+      setCronogramaError(null);
+      try {
+        const spreadsheetId = CRONOGRAMAS_SHEET_ID;
+        const sheetName = currentCatedra.id; // e.g., "BIO_MOL", "TECNO_2", "TECNO_3"
+        
+        if (!spreadsheetId || spreadsheetId.startsWith("TU_ID_AQUI")) {
+          // If no spreadsheet is set, let's load a mock list of classes for demonstration
+          console.warn("⚠️ VITE_SHEET_ID_CRONOGRAMAS no está configurado. Usando mock data para LISTA_CLASES.");
+          const mockClases: ClaseCronograma[] = [
+            {
+              fecha: new Date(2026, 2, 10),
+              fechaTexto: "10 de Marzo",
+              horario: "8:30 a 12:00",
+              aula: "Aula 102",
+              tema: "Clase 1: Introducción a la materia y presentación del programa de estudios.",
+              tipo: "Normal"
+            },
+            {
+              fecha: new Date(2026, 2, 17),
+              fechaTexto: "17 de Marzo",
+              horario: "8:30 a 12:00",
+              aula: "Aula 102",
+              tema: "Clase 2: Estructura del ADN y replicación celular.",
+              tipo: "Normal"
+            },
+            {
+              fecha: new Date(2026, 2, 24),
+              fechaTexto: "24 de Marzo",
+              horario: "",
+              aula: "",
+              tema: "",
+              tipo: "Feriado"
+            },
+            {
+              fecha: new Date(2026, 2, 31),
+              fechaTexto: "31 de Marzo",
+              horario: "8:30 a 12:00",
+              aula: "Aula 102",
+              tema: "Clase 3: Transcripción del ARN y síntesis proteica.",
+              tipo: "Normal"
+            },
+            {
+              fecha: new Date(2026, 3, 4),
+              fechaTexto: "4 de Abril",
+              horario: "14:00 a 16:00",
+              aula: "Laboratorio B",
+              tema: "Clase Extra: Consulta y resolución de dudas pre-examen.",
+              tipo: "Extra"
+            }
+          ];
+          if (active) {
+            setClasesCronograma(mockClases);
+          }
+        } else {
+          const data = await getCronogramaClasesFromSheet(spreadsheetId, sheetName);
+          if (active) {
+            setClasesCronograma(data);
+          }
+        }
+      } catch (err: any) {
+        console.error("Error al cargar el cronograma de clases:", err);
+        if (active) {
+          setCronogramaError("No se pudo cargar el cronograma de clases desde Google Sheets.");
+        }
+      } finally {
+        if (active) {
+          setCronogramaLoading(false);
+        }
+      }
+    };
+
+    fetchCronograma();
+
+    return () => {
+      active = false;
+    };
+  }, [selectedCatedra, currentCatedra?.tipo_cronograma]);
 
   // Hook to fetch Google Drive folder files dynamically when folder_id_drive is configured
   useEffect(() => {
@@ -397,6 +491,105 @@ export default function PortalView() {
                   </p>
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    if (currentCatedra.tipo_cronograma === "LISTA_CLASES") {
+      if (cronogramaLoading) {
+        return (
+          <div className="bg-[#0F1420] border border-[#1E2531] rounded-2xl p-12 text-center shadow-lg animate-fade-in flex flex-col items-center justify-center gap-3">
+            <Loader2 className="w-8 h-8 text-[#16C784] animate-spin" />
+            <p className="text-xs text-[#5B6577] font-mono uppercase tracking-wider">Cargando cronograma de clases...</p>
+          </div>
+        );
+      }
+
+      if (cronogramaError) {
+        return (
+          <div className="bg-[#0F1420] border border-red-900/30 rounded-2xl p-8 text-center shadow-lg animate-fade-in space-y-3">
+            <AlertTriangle className="w-8 h-8 text-red-500 mx-auto" />
+            <p className="text-sm text-red-400 font-sans">{cronogramaError}</p>
+          </div>
+        );
+      }
+
+      if (!clasesCronograma || clasesCronograma.length === 0) {
+        return (
+          <div className="bg-[#0F1420] border border-[#1E2531] rounded-2xl p-12 text-center shadow-lg animate-fade-in space-y-2">
+            <Calendar className="w-8 h-8 text-[#5B6577] mx-auto opacity-40" />
+            <p className="text-xs text-[#5B6577] font-sans italic">
+              Cronograma todavía no cargado para esta cátedra.
+            </p>
+          </div>
+        );
+      }
+
+      return (
+        <div className="space-y-4 animate-fade-in">
+          <div className="bg-[#0F1420] border border-[#1E2531] rounded-2xl p-6 shadow-lg">
+            <h4 className="font-bold text-[#EDEFF3] mb-6 flex items-center gap-2 text-[10px] uppercase tracking-widest font-mono text-[#5B6577]">
+              <span>CRONOGRAMA DETALLADO DE CLASES</span>
+            </h4>
+            
+            <div className="relative border-l border-[#1E2531] pl-6 ml-4 space-y-8">
+              {clasesCronograma.map((clase, idx) => {
+                const isFeriado = clase.tipo === "Feriado";
+                const isExtra = clase.tipo === "Extra";
+
+                return (
+                  <div key={idx} className={`relative group ${isFeriado ? "opacity-45" : ""}`}>
+                    {/* Circle marker on line */}
+                    <div className={`absolute -left-[31px] top-1.5 w-2.5 h-2.5 rounded-full border-2 border-[#0F1420] shadow-sm 
+                      ${isFeriado 
+                        ? "bg-[#5B6577]" 
+                        : isExtra 
+                          ? "bg-amber-500 animate-pulse" 
+                          : "bg-[#16C784]"}`}
+                    ></div>
+
+                    <div className="flex flex-wrap items-center gap-2 mb-2">
+                      <span className="font-mono text-xs font-bold text-[#EDEFF3]">
+                        {clase.fechaTexto}
+                      </span>
+                      
+                      {!isFeriado && clase.horario && (
+                        <span className="font-mono text-[10px] text-[#5B6577] bg-[#1E2531]/40 px-2 py-0.5 rounded border border-[#1E2531]">
+                          {clase.horario}
+                        </span>
+                      )}
+
+                      {!isFeriado && clase.aula && (
+                        <span className="font-mono text-[10px] text-[#16C784] bg-[#16C784]/10 px-2 py-0.5 rounded border border-[#16C784]/20">
+                          {clase.aula}
+                        </span>
+                      )}
+
+                      {isExtra && (
+                        <span className="font-mono text-[9px] font-bold text-amber-500 bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20 uppercase tracking-wider">
+                          CLASE EXTRA
+                        </span>
+                      )}
+
+                      {isFeriado && (
+                        <span className="font-mono text-[9px] font-bold text-red-400 bg-red-400/10 px-1.5 py-0.5 rounded border border-red-400/20 uppercase tracking-wider">
+                          Feriado / Sin Clase
+                        </span>
+                      )}
+                    </div>
+
+                    <p className="text-[#EDEFF3]/90 text-sm leading-relaxed font-sans max-w-3xl">
+                      {isFeriado ? (
+                        <span className="italic text-[#5B6577]">Sin clase (feriado)</span>
+                      ) : (
+                        clase.tema
+                      )}
+                    </p>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>

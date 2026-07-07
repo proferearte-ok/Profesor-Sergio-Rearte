@@ -20,6 +20,7 @@ const requiredEnvVars = {
   VITE_SHEET_ID_TECNOII_NOTAS: import.meta.env.VITE_SHEET_ID_TECNOII_NOTAS,
   VITE_SHEET_ID_TECNOIII_ASISTENCIA: import.meta.env.VITE_SHEET_ID_TECNOIII_ASISTENCIA,
   VITE_SHEET_ID_TECNOIII_NOTAS: import.meta.env.VITE_SHEET_ID_TECNOIII_NOTAS,
+  VITE_SHEET_ID_CRONOGRAMAS: import.meta.env.VITE_SHEET_ID_CRONOGRAMAS,
 };
 
 // Validar en consola si falta alguna variable de entorno
@@ -71,3 +72,6 @@ export const SHEETS_CONFIG: Record<string, CatedraSheets> = {
     }
   }
 };
+
+export const CRONOGRAMAS_SHEET_ID = import.meta.env.VITE_SHEET_ID_CRONOGRAMAS || "TU_ID_AQUI_CRONOGRAMAS";
+

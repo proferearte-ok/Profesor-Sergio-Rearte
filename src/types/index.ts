@@ -92,3 +92,16 @@ export interface NotaStatus {
   practica: string;
   condicion_final: string;
 }
+
+/**
+ * Detalle de clase para cronograma tipo LISTA_CLASES.
+ */
+export interface ClaseCronograma {
+  fecha: Date;
+  fechaTexto: string;
+  horario: string;
+  aula: string;
+  tema: string;
+  tipo: "Normal" | "Feriado" | "Extra";
+}
+

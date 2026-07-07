@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Asistencia, NotaNum, NotaStatus, Catedra, SeccionEstado, Archivo, CarpetaDrive } from "../types";
+import { Asistencia, NotaNum, NotaStatus, Catedra, SeccionEstado, Archivo, CarpetaDrive, ClaseCronograma } from "../types";
 
 /**
  * Normaliza un texto para búsqueda tolerante de columnas: todo en minúsculas, sin tildes/diacríticos,
@@ -701,5 +701,126 @@ export async function getCarpetasDriveFromSheet(spreadsheetId: string): Promise<
     return [];
   }
 }
+
+/**
+ * Obtiene el cronograma detallado de clases de una cátedra.
+ */
+export async function getCronogramaClasesFromSheet(
+  spreadsheetId: string,
+  sheetName: string
+): Promise<ClaseCronograma[]> {
+  try {
+    const table = await fetchGoogleSheetRows(spreadsheetId, sheetName);
+    const cols = table.cols;
+    const rows = table.rows;
+
+    let idxFecha = -1;
+    let idxHorario = -1;
+    let idxAula = -1;
+    let idxTema = -1;
+    let idxTipo = -1;
+
+    cols.forEach((col: any, index: number) => {
+      const label = col.label || "";
+      const norm = normalizarTexto(label);
+      if (norm.includes("fecha") || norm.includes("dia")) {
+        if (idxFecha === -1) idxFecha = index;
+      } else if (norm.includes("horario") || norm.includes("hora")) {
+        if (idxHorario === -1) idxHorario = index;
+      } else if (norm.includes("aula") || norm.includes("salon")) {
+        if (idxAula === -1) idxAula = index;
+      } else if (norm.includes("tema") || norm.includes("contenido") || norm.includes("titulo")) {
+        if (idxTema === -1) idxTema = index;
+      } else if (norm.includes("tipo") || norm.includes("categoria")) {
+        if (idxTipo === -1) idxTipo = index;
+      }
+    });
+
+    if (idxFecha === -1) idxFecha = 0;
+    if (idxHorario === -1) idxHorario = 1;
+    if (idxAula === -1) idxAula = 2;
+    if (idxTema === -1) idxTema = 3;
+    if (idxTipo === -1) idxTipo = 4;
+
+    const getVal = (c: any[], idx: number): string => {
+      if (idx === -1 || !c[idx] || c[idx].v === null || c[idx].v === undefined) return "";
+      return String(c[idx].v).trim();
+    };
+
+    const clases: ClaseCronograma[] = rows.map((row: any) => {
+      const c = row.c || [];
+      const cellFecha = c[idxFecha];
+      if (!cellFecha || cellFecha.v === null || cellFecha.v === undefined) {
+        return null;
+      }
+
+      let parsedDate: Date | null = null;
+      const rawVal = cellFecha.v;
+      if (typeof rawVal === "string") {
+        const match = rawVal.match(/Date\((\d+),\s*(\d+),\s*(\d+)\)/);
+        if (match) {
+          const year = parseInt(match[1], 10);
+          const month = parseInt(match[2], 10); // 0-indexed in JS Dates
+          const day = parseInt(match[3], 10);
+          parsedDate = new Date(year, month, day);
+        } else {
+          const d = new Date(rawVal);
+          if (!isNaN(d.getTime())) {
+            parsedDate = d;
+          }
+        }
+      } else if (rawVal instanceof Date) {
+        parsedDate = rawVal;
+      } else if (typeof rawVal === "number") {
+        const d = new Date(rawVal);
+        if (!isNaN(d.getTime())) {
+          parsedDate = d;
+        }
+      }
+
+      if (!parsedDate || isNaN(parsedDate.getTime())) {
+        return null;
+      }
+
+      // Formatear la fecha en español sin año (ej: "7 de Julio")
+      let fechaTexto = "";
+      const formatter = new Intl.DateTimeFormat("es-AR", { day: "numeric", month: "long" });
+      const formatted = formatter.format(parsedDate);
+      const parts = formatted.split(" de ");
+      if (parts.length === 2) {
+        fechaTexto = `${parts[0]} de ${parts[1].charAt(0).toUpperCase() + parts[1].slice(1)}`;
+      } else {
+        fechaTexto = formatted.charAt(0).toUpperCase() + formatted.slice(1);
+      }
+
+      const rawTipo = getVal(c, idxTipo);
+      const normTipo = normalizarTexto(rawTipo);
+      let tipo: "Normal" | "Feriado" | "Extra" = "Normal";
+      if (normTipo.includes("feriado")) {
+        tipo = "Feriado";
+      } else if (normTipo.includes("extra")) {
+        tipo = "Extra";
+      }
+
+      return {
+        fecha: parsedDate,
+        fechaTexto,
+        horario: getVal(c, idxHorario),
+        aula: getVal(c, idxAula),
+        tema: getVal(c, idxTema),
+        tipo
+      };
+    }).filter(Boolean) as ClaseCronograma[];
+
+    // Ordenar cronológicamente (fecha ascendente)
+    clases.sort((a, b) => a.fecha.getTime() - b.fecha.getTime());
+
+    return clases;
+  } catch (error) {
+    console.error("Error en getCronogramaClasesFromSheet:", error);
+    return [];
+  }
+}
+
 
 
