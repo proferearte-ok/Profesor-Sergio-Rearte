@@ -401,9 +401,9 @@ export default function PortalView() {
   // 4 main navigation tabs
   const navigationItems = [
     { id: "inicio", label: "Inicio", icon: BookOpen },
-    { id: "archivos", label: "Archivos", icon: FileText },
+    { id: "archivos", label: "Descargas", icon: FileText },
     { id: "cronograma", label: "Cronograma", icon: Calendar },
-    { id: "rendimiento", label: "Rendimiento", icon: Award },
+    { id: "rendimiento", label: "Asistencia y Notas", icon: Award },
   ] as const;
 
   // Render text-based, timeline list or embedded calendar
@@ -696,10 +696,10 @@ export default function PortalView() {
                   href={file.link_drive}
                   target="_blank"
                   rel="noreferrer"
-                  className="min-h-[44px] min-w-[44px] flex items-center justify-center bg-[#131826] hover:bg-[#1E2531] text-[#EDEFF3] hover:text-[#16C784] border border-[#1E2531] rounded-xl transition-all duration-200 active:scale-95"
+                  className="min-h-[44px] min-w-[44px] flex items-center justify-center bg-[#16C784]/10 hover:bg-[#16C784] text-[#16C784] hover:text-white border border-[#16C784]/20 hover:border-[#16C784] rounded-xl transition-all duration-200 active:scale-95 shadow-sm"
                   title="Descargar desde Google Drive"
                 >
-                  <Download className="w-4 h-4" />
+                  <Download className="w-4.5 h-4.5" />
                 </a>
               </div>
             ))}
@@ -756,10 +756,10 @@ export default function PortalView() {
                 href={file.link_drive}
                 target="_blank"
                 rel="noreferrer"
-                className="min-h-[44px] min-w-[44px] flex items-center justify-center bg-[#131826] hover:bg-[#1E2531] text-[#EDEFF3] hover:text-[#16C784] border border-[#1E2531] rounded-xl transition-all duration-200 active:scale-95"
+                className="min-h-[44px] min-w-[44px] flex items-center justify-center bg-[#16C784]/10 hover:bg-[#16C784] text-[#16C784] hover:text-white border border-[#16C784]/20 hover:border-[#16C784] rounded-xl transition-all duration-200 active:scale-95 shadow-sm"
                 title="Descargar desde Google Drive"
               >
-                <Download className="w-4 h-4" />
+                <Download className="w-4.5 h-4.5" />
               </a>
             </div>
           ))}
@@ -824,7 +824,7 @@ export default function PortalView() {
             <span className="w-2 h-2 rounded-full bg-[#16C784] animate-ping"></span>
             <span className="text-[9px] font-mono text-[#16C784] uppercase tracking-widest font-bold">TERMINAL DE ACCESO DIRECTO</span>
           </div>
-          <h3 className="text-base font-bold text-[#EDEFF3] tracking-tight">Acceso Público y Conexión de Cátedras</h3>
+          <h3 className="text-base font-bold text-[#EDEFF3] tracking-tight">Selección de Cátedra</h3>
         </div>
 
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
@@ -951,7 +951,15 @@ export default function PortalView() {
                     <span className="text-[10px] text-[#5B6577] font-mono">•</span>
                     <span className="text-[10px] font-mono text-[#5B6577] uppercase">COHORTE {currentYear}</span>
                   </div>
-                  <h2 className="text-lg font-bold tracking-tight text-[#EDEFF3] uppercase font-mono">{activeTab === "inicio" ? "Cátedra & Programa" : activeTab === "archivos" ? "Descarga de Archivos" : activeTab}</h2>
+                  <h2 className="text-lg font-bold tracking-tight text-[#EDEFF3] uppercase font-mono">
+                    {activeTab === "inicio" 
+                      ? `Cátedra de ${currentCatedra?.nombre ? currentCatedra.nombre.replace(/\s*\([^)]*\)/g, "").trim() : ""}` 
+                      : activeTab === "archivos" 
+                        ? "Descargas" 
+                        : activeTab === "rendimiento" 
+                          ? "Asistencia y Notas" 
+                          : activeTab}
+                  </h2>
                 </div>
               </div>
 
@@ -1027,18 +1035,18 @@ export default function PortalView() {
                   <div className="flex gap-1.5 p-1 bg-[#131826] border border-[#1E2531] rounded-xl overflow-x-auto">
                     {[
                       { id: "Programa", label: "Programa" },
-                      { id: "Condiciones_Cronograma", label: "Condiciones" },
+                      { id: "Condiciones_Cronograma", label: "Condiciones de Cursada" },
                       { id: "Bibliografia", label: "Bibliografía" },
                       { id: "Diapositivas", label: "Diapositivas" },
-                      { id: "Apuntes_Clase", label: "Apuntes" }
+                      { id: "Apuntes_Clase", label: "Apuntes de clase" }
                     ].map(sub => (
                       <button
                         key={sub.id}
                         onClick={() => setActiveFileSubSection(sub.id as any)}
-                        className={`px-4 py-2 rounded-lg text-xs font-mono font-bold uppercase transition-all flex-1 text-center whitespace-nowrap cursor-pointer ${
+                        className={`px-4 py-2 rounded-lg text-xs font-mono font-bold uppercase transition-all flex-1 text-center whitespace-nowrap cursor-pointer border ${
                           activeFileSubSection === sub.id
-                            ? "bg-[#1E2531] text-[#EDEFF3] border border-[#232B3D]"
-                            : "text-[#5B6577] hover:text-[#EDEFF3]"
+                            ? "bg-[#16C784]/15 text-[#16C784] border-[#16C784]/30 shadow-md shadow-[#16C784]/5"
+                            : "bg-transparent text-[#5B6577] border-transparent hover:bg-[#1E2531]/30 hover:text-[#EDEFF3]"
                         }`}
                       >
                         {sub.label}
@@ -1059,7 +1067,7 @@ export default function PortalView() {
                   {/* Buscador de alumnos */}
                   <div className="bg-[#0F1420] border border-[#1E2531] rounded-2xl p-6 shadow-lg space-y-4">
                     <div className="max-w-md mx-auto text-center space-y-2 mb-2">
-                      <h4 className="font-bold text-[#EDEFF3] text-sm uppercase tracking-wider font-mono">Consola de Rendimiento</h4>
+                      <h4 className="font-bold text-[#EDEFF3] text-sm uppercase tracking-wider font-mono">Asistencia y Notas</h4>
                       <p className="text-xs text-[#5B6577] leading-relaxed font-sans">
                         Consulta tu asistencia de clases prácticas y calificaciones de evaluaciones parciales y condiciones finales.
                       </p>

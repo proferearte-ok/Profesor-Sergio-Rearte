@@ -9,7 +9,7 @@ export const mockCatedras: Catedra[] = [
   {
     id: "BIO_MOL",
     nombre: "Biología Molecular",
-    cuatrimestre: "1er Cuatrimestre",
+    cuatrimestre: "2do Cuatrimestre",
     activa: true,
     anio_vigente: 2026,
     tipo_cronograma: "LISTA_FECHAS",
@@ -19,7 +19,7 @@ export const mockCatedras: Catedra[] = [
   {
     id: "TECNO_2",
     nombre: "Tecno II",
-    cuatrimestre: "2do Cuatrimestre",
+    cuatrimestre: "1er Cuatrimestre",
     activa: false,
     anio_vigente: 2026,
     tipo_cronograma: "TEXTO_SIMPLE",
@@ -29,7 +29,7 @@ export const mockCatedras: Catedra[] = [
   {
     id: "TECNO_3",
     nombre: "Tecno III",
-    cuatrimestre: "1er Cuatrimestre",
+    cuatrimestre: "2do Cuatrimestre",
     activa: true,
     anio_vigente: 2026,
     tipo_cronograma: "CALENDAR_EMBEBIDO",
@@ -268,7 +268,7 @@ A continuación, se ilustran filas exactas tal cual se registrarían en las plan
 #### Cátedras (Hojas 1)
 | ID_Catedra | Nombre | Cuatrimestre | Activa | Anio_Vigente | Tipo_Cronograma | Contenido_Cronograma |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| \`BIO_MOL\` | Biología Molecular | 1er Cuatrimestre | SI | 2026 | LISTA_FECHAS | Cronograma basado en entregas... |
+| \`BIO_MOL\` | Biología Molecular | 2do Cuatrimestre | SI | 2026 | LISTA_FECHAS | Cronograma basado en entregas... |
 
 #### Secciones_Estado (Hoja 2)
 | ID_Catedra | Seccion | Estado | Texto_Simple |

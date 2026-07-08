@@ -97,7 +97,7 @@ export default function App() {
               <h1 className={`text-lg font-bold tracking-tight transition-colors duration-300 ${
                 isStudent ? "text-white" : "text-stone-900"
               }`} id="app-title">
-                {isStudent ? "Portal Estudiantil de Cátedras" : "Portal Universitario Interactiva & Arquitectura"}
+                {isStudent ? "Prof. Sergio Rearte" : "Portal Universitario Interactiva & Arquitectura"}
               </h1>
             </div>
           </div>
