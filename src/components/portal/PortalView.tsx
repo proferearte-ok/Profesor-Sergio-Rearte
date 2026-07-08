@@ -704,6 +704,15 @@ export default function PortalView() {
         );
       }
 
+      const sortedDriveFiles = [...driveFiles];
+      if (selectedCatedra === "BIO_MOL" && tipo === "Diapositivas") {
+        sortedDriveFiles.sort((a, b) => {
+          const nameA = a.nombre_archivo || "";
+          const nameB = b.nombre_archivo || "";
+          return nameA.localeCompare(nameB, undefined, { numeric: true, sensitivity: 'base' });
+        });
+      }
+
       return (
         <div className="bg-[#0F1420] border border-[#1E2531] rounded-2xl overflow-hidden shadow-lg animate-fade-in">
           <div className="px-4 py-3 bg-[#131826]/60 border-b border-[#1E2531] flex justify-between items-center text-[10px] font-mono text-[#5B6577] uppercase tracking-wider font-bold">
@@ -711,7 +720,7 @@ export default function PortalView() {
             <span>Acción</span>
           </div>
           <div className="divide-y divide-[#1E2531]/60">
-            {driveFiles.map((file, idx) => (
+            {sortedDriveFiles.map((file, idx) => (
               <div
                 key={file.id || idx}
                 className="p-4 flex items-center justify-between gap-4 hover:bg-[#131826] transition-colors duration-200 min-h-[56px]"
@@ -747,8 +756,17 @@ export default function PortalView() {
 
     // Fallback: listado manual desde la pestaña Archivos de la planilla
     const archivos = archivosList
-      .filter(a => a.id_catedra === selectedCatedra && a.tipo_seccion === tipo)
-      .sort((a, b) => a.orden - b.orden);
+      .filter(a => a.id_catedra === selectedCatedra && a.tipo_seccion === tipo);
+
+    if (selectedCatedra === "BIO_MOL" && tipo === "Diapositivas") {
+      archivos.sort((a, b) => {
+        const nameA = a.nombre_archivo || "";
+        const nameB = b.nombre_archivo || "";
+        return nameA.localeCompare(nameB, undefined, { numeric: true, sensitivity: 'base' });
+      });
+    } else {
+      archivos.sort((a, b) => a.orden - b.orden);
+    }
 
     if (archivos.length === 0) {
       return (
@@ -808,8 +826,17 @@ export default function PortalView() {
   // Renders a list of files inline within a section card
   const renderFileListOnly = (tipo: "Bibliografia" | "Diapositivas" | "Apuntes_Clase" | "Programa" | "Condiciones_Cronograma") => {
     const archivos = archivosList
-      .filter(a => a.id_catedra === selectedCatedra && a.tipo_seccion === tipo)
-      .sort((a, b) => a.orden - b.orden);
+      .filter(a => a.id_catedra === selectedCatedra && a.tipo_seccion === tipo);
+
+    if (selectedCatedra === "BIO_MOL" && tipo === "Diapositivas") {
+      archivos.sort((a, b) => {
+        const nameA = a.nombre_archivo || "";
+        const nameB = b.nombre_archivo || "";
+        return nameA.localeCompare(nameB, undefined, { numeric: true, sensitivity: 'base' });
+      });
+    } else {
+      archivos.sort((a, b) => a.orden - b.orden);
+    }
 
     if (archivos.length === 0) return null;
 
