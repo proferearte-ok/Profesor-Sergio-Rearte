@@ -18,7 +18,8 @@ import {
   Layers,
   ChevronRight,
   TrendingUp,
-  FileSpreadsheet
+  FileSpreadsheet,
+  MessageSquare
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { 
@@ -38,6 +39,7 @@ import {
 } from "../../services/googleSheets";
 import { Asistencia, NotaNum, NotaStatus, ClaseCronograma } from "../../types";
 import StudentSearch from "./StudentSearch";
+import RemindWidget from "./RemindWidget";
 
 const ACADEMIC_INTRODUCTIONS: Record<string, string[]> = {
   BIO_MOL: [
@@ -63,8 +65,8 @@ export default function PortalView() {
     activeCatedras.length > 0 ? activeCatedras[0].id : "BIO_MOL"
   );
   
-  // Navigation tabs for Fintech UI: 'inicio' | 'archivos' | 'cronograma' | 'rendimiento'
-  const [activeTab, setActiveTab] = useState<"inicio" | "archivos" | "cronograma" | "rendimiento">("inicio");
+  // Navigation tabs for Fintech UI: 'inicio' | 'archivos' | 'cronograma' | 'rendimiento' | 'comunicacion'
+  const [activeTab, setActiveTab] = useState<"inicio" | "archivos" | "cronograma" | "rendimiento" | "comunicacion">("inicio");
   
   // Sub-section filter inside 'archivos'
   const [activeFileSubSection, setActiveFileSubSection] = useState<"Bibliografia" | "Diapositivas" | "Apuntes_Clase" | "Programa" | "Condiciones_Cronograma">("Bibliografia");
@@ -411,12 +413,13 @@ export default function PortalView() {
     return id.toUpperCase().replace("_", "-");
   };
 
-  // 4 main navigation tabs
+  // 5 main navigation tabs
   const navigationItems = [
     { id: "inicio", label: "Inicio", icon: BookOpen },
     { id: "archivos", label: "Descargas", icon: FileText },
     { id: "cronograma", label: "Cronograma", icon: Calendar },
     { id: "rendimiento", label: "Asistencia y Notas", icon: Award },
+    { id: "comunicacion", label: "Comunicación", icon: MessageSquare },
   ] as const;
 
   // Render text-based, timeline list or embedded calendar
@@ -1022,7 +1025,9 @@ export default function PortalView() {
                         ? "Descargas" 
                         : activeTab === "rendimiento" 
                           ? "Asistencia y Notas" 
-                          : activeTab}
+                          : activeTab === "comunicacion"
+                            ? "Comunicación y Avisos"
+                            : activeTab}
                   </h2>
                 </div>
               </div>
@@ -1359,6 +1364,9 @@ export default function PortalView() {
                   )}
                 </div>
               )}
+
+              {/* 5. COMUNICACIÓN (REMIND WIDGET) */}
+              {activeTab === "comunicacion" && <RemindWidget />}
               
             </motion.div>
           </AnimatePresence>
