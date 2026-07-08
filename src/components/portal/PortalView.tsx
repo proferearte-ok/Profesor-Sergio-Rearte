@@ -39,6 +39,19 @@ import {
 import { Asistencia, NotaNum, NotaStatus, ClaseCronograma } from "../../types";
 import StudentSearch from "./StudentSearch";
 
+const ACADEMIC_INTRODUCTIONS: Record<string, string[]> = {
+  BIO_MOL: [
+    "La Biología Molecular constituye una disciplina científica trascendental en el panorama académico contemporáneo, habiendo aportado los fundamentos esenciales para la comprensión de los procesos moleculares inherente a la herencia y transmisión de la información genética. Su inclusión en el plan de estudios de las carreras de Bioquímica y en la de Farmacia, resulta imperativa, dado que las metodologías y avances tecnológicos que caracterizan los laboratorios modernos se sustentan directamente en los hallazgos propiciados por esta ciencia.",
+    "El programa académico tiene como propósito fundamental instruir al estudiantado en los principios teóricos y prácticos de la disciplina, desarrollando competencias para la interpretación crítica de la literatura científica de vanguardia y fomentando la generación de grupos de investigación interdisciplinarios. Asimismo, la asignatura se erige como herramienta transversal en el ejercicio profesional, capacitando al futuro bioquímico para responder con solvencia a las exigencias del ámbito de la salud y la investigación clínica mediante una sólida formación científica."
+  ],
+  TECNO_2: [
+    "La Tecnicatura Universitaria en Biogenética exige de sus egresados un dominio riguroso de los marcos teóricos, químicos y físicos que fundamentan las metodologías instrumentales de mayor aplicación en el contexto laboratorial. En este marco, la asignatura Tecnología de Laboratorio II se configura como un eje estructural del plan de estudios, toda vez que garantiza la transmisión sistematizada de saberes especializados indispensables para el desempeño profesional. Paralelamente, dicha asignatura proporciona el ámbito empírico idóneo para la consolidación de competencias prácticas, permitiendo al estudiante operar con solvencia frente a los procedimientos técnicos que definen el campo de incumbencia de la carrera. De este modo, la disciplina opera como puente articulador entre la formación teórica y la práctica profesional, asegurando que el egresado posea las herramientas conceptuales y operativas necesarias para responder a las demandas del ámbito biogenético con precisión y eficiencia."
+  ],
+  TECNO_3: [
+    "La presente asignatura constituye un pilar fundamental para la etapa de finalización de la Tecnicatura Universitaria en Biogenética, por cuanto proporciona los marcos teóricos y prácticos inherentes a las metodologías de mayor complejidad que caracterizan el quehacer laboratorial contemporáneo. Se sitúa estratégicamente en el segundo cuatrimestre del tercer año del plan de estudios, articulando de manera sintética los saberes previamente adquiridos en Tecnología de Laboratorio II y Genética de los Microorganismos, y estableciendo, a su vez, la base técnica e instrumental indispensable para el óptimo desarrollo del Practicanato profesional. Su trascendencia radica específicamente en capacitar al estudiantado en el manejo solvente y crítico de los fundamentos químicos y físicos que rigen las técnicas instrumentales de vanguardia, permitiéndoles manipular con rigor y precisión los elementos conceptuales y operativos necesarios para responder a las exigencias del desarrollo científico moderno."
+  ]
+};
+
 export default function PortalView() {
   const [catedras, setCatedras] = useState<any[]>(mockCatedras);
   const [secciones, setSecciones] = useState<any[]>(mockSecciones);
@@ -539,6 +552,30 @@ export default function PortalView() {
                 const isFeriado = clase.tipo === "Feriado";
                 const isExtra = clase.tipo === "Extra";
 
+                // Format Horario securely preventing duplicates
+                const rawHorario = (clase.horario || "").trim();
+                const displayHorario = rawHorario
+                  ? (rawHorario.toLowerCase().startsWith("horario:") 
+                      ? rawHorario 
+                      : `Horario: ${rawHorario}`)
+                  : "";
+
+                // Format Aula securely preventing duplicates
+                const rawAula = (clase.aula || "").trim();
+                const displayAula = rawAula
+                  ? (rawAula.toLowerCase().startsWith("aula:") || rawAula.toLowerCase().startsWith("aula del 3er mod.:") || rawAula.toLowerCase().startsWith("aula del 3er mod:")
+                      ? rawAula 
+                      : `Aula del 3er Mod.: ${rawAula}`)
+                  : "";
+
+                // Format Tema securely preventing duplicates
+                const rawTema = (clase.tema || "").trim();
+                const displayTema = rawTema
+                  ? (rawTema.toLowerCase().startsWith("tema:") 
+                      ? rawTema 
+                      : `Tema: ${rawTema}`)
+                  : "";
+
                 return (
                   <div key={idx} className={`relative group ${isFeriado ? "opacity-45" : ""}`}>
                     {/* Circle marker on line */}
@@ -555,15 +592,15 @@ export default function PortalView() {
                         {clase.fechaTexto}
                       </span>
                       
-                      {!isFeriado && clase.horario && (
+                      {!isFeriado && rawHorario && (
                         <span className="font-mono text-[10px] text-[#5B6577] bg-[#1E2531]/40 px-2 py-0.5 rounded border border-[#1E2531]">
-                          {clase.horario}
+                          {displayHorario}
                         </span>
                       )}
 
-                      {!isFeriado && clase.aula && (
+                      {!isFeriado && rawAula && (
                         <span className="font-mono text-[10px] text-[#16C784] bg-[#16C784]/10 px-2 py-0.5 rounded border border-[#16C784]/20">
-                          {clase.aula}
+                          {displayAula}
                         </span>
                       )}
 
@@ -584,7 +621,7 @@ export default function PortalView() {
                       {isFeriado ? (
                         <span className="italic text-[#5B6577]">Sin clase (feriado)</span>
                       ) : (
-                        clase.tema
+                        displayTema
                       )}
                     </p>
                   </div>
@@ -963,66 +1000,22 @@ export default function PortalView() {
                 </div>
               </div>
 
-                {/* 1. INICIO (PROGRAMA Y CONDICIONES JUNTOS) */}
+                {/* 1. INICIO (INTRODUCCIÓN Y PROPÓSITO ACADÉMICO) */}
               {activeTab === "inicio" && (
                 <div className="space-y-4 animate-fade-in">
-                  <div className="grid grid-cols-1 gap-4">
-                    <div className="bg-[#0F1420] border border-[#1E2531] rounded-2xl p-6 shadow-lg space-y-4">
-                      <h4 className="font-bold text-[#EDEFF3] flex items-center gap-2 text-[10px] uppercase tracking-widest font-mono text-[#5B6577]">
-                        <span>PROGRAMA GENERAL</span>
-                      </h4>
-                      {(() => {
-                        const text = seccionesCatedra.find(s => s.seccion === "Programa")?.texto_simple;
-                        const hasFiles = archivosList.some(a => a.id_catedra === selectedCatedra && a.tipo_seccion === "Programa");
-
-                        if (!text && !hasFiles) {
-                          return (
-                            <p className="text-[#EDEFF3]/90 leading-relaxed text-sm font-sans">
-                              El programa oficial de la asignatura se encuentra actualmente en edición o actualización por los coordinadores académicos.
-                            </p>
-                          );
-                        }
-
-                        return (
-                          <>
-                            {text && (
-                              <p className="text-[#EDEFF3]/90 leading-relaxed text-sm font-sans">
-                                {text}
-                              </p>
-                            )}
-                            {hasFiles && renderFileListOnly("Programa")}
-                          </>
-                        );
-                      })()}
-                    </div>
- 
-                    <div className="bg-[#0F1420] border border-[#1E2531] rounded-2xl p-6 shadow-lg space-y-4">
-                      <h4 className="font-bold text-[#EDEFF3] flex items-center gap-2 text-[10px] uppercase tracking-widest font-mono text-[#5B6577]">
-                        <span>CONDICIONES DE CURSADA</span>
-                      </h4>
-                      {(() => {
-                        const text = seccionesCatedra.find(s => s.seccion === "Condiciones de Cursada")?.texto_simple;
-                        const hasFiles = archivosList.some(a => a.id_catedra === selectedCatedra && a.tipo_seccion === "Condiciones_Cronograma");
-
-                        if (!text && !hasFiles) {
-                          return (
-                            <p className="text-[#EDEFF3]/90 leading-relaxed text-sm font-sans">
-                              Las normativas de regularidad, régimen de promoción directa y aprobación del proyecto final se encuentran publicadas en la cartelera física del departamento académico.
-                            </p>
-                          );
-                        }
-
-                        return (
-                          <>
-                            {text && (
-                              <p className="text-[#EDEFF3]/90 leading-relaxed text-sm font-sans">
-                                {text}
-                              </p>
-                            )}
-                            {hasFiles && renderFileListOnly("Condiciones_Cronograma")}
-                          </>
-                        );
-                      })()}
+                  <div className="bg-[#0F1420] border border-[#1E2531] rounded-2xl p-6 md:p-8 shadow-lg space-y-5">
+                    <h4 className="font-bold flex items-center gap-2 text-[10px] uppercase tracking-widest font-mono text-[#5B6577]">
+                      <span>INTRODUCCIÓN Y PROPÓSITO ACADÉMICO</span>
+                    </h4>
+                    <div className="space-y-4">
+                      {(ACADEMIC_INTRODUCTIONS[selectedCatedra] || [
+                        seccionesCatedra.find(s => s.seccion === "Programa")?.texto_simple || 
+                        "El programa oficial de la asignatura se encuentra actualmente en edición o actualización por los coordinadores académicos."
+                      ]).map((paragraph, pIdx) => (
+                        <p key={pIdx} className="text-[#EDEFF3]/90 leading-relaxed text-sm font-sans text-justify">
+                          {paragraph}
+                        </p>
+                      ))}
                     </div>
                   </div>
                 </div>
