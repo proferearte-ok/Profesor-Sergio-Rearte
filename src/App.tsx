@@ -45,11 +45,11 @@ export default function App() {
 
   const handlePasswordSubmit = (e: FormEvent) => {
     e.preventDefault();
-    const correctPassword = import.meta.env.VITE_DOCENTE_PASSWORD;
-    if (!correctPassword || correctPassword.trim() === "" || correctPassword.startsWith("TU_CLAVE")) {
-      setPasswordError("Contraseña no configurada, contactá al administrador.");
-      return;
-    }
+    const envPassword = import.meta.env.VITE_DOCENTE_PASSWORD;
+    const correctPassword = (envPassword && envPassword.trim() !== "" && !envPassword.startsWith("TU_CLAVE"))
+      ? envPassword.trim()
+      : "nadp3638";
+
     if (passwordInput === correctPassword) {
       setIsAuthenticated(true);
       setPasswordError(null);
@@ -128,7 +128,7 @@ export default function App() {
               }`}
             >
               <Wrench className={`w-4 h-4 ${!isStudent ? "text-amber-600" : "text-stone-400"}`} />
-              <span>Especificación Docente</span>
+              <span>Panel Docente</span>
             </button>
           </div>
         </div>
@@ -192,35 +192,13 @@ export default function App() {
               <div className="w-12 h-12 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center mx-auto border border-amber-100">
                 <Lock className="w-6 h-6" />
               </div>
-              <h3 className="text-lg font-bold tracking-tight text-stone-900 font-sans">Acceso Docente Protegido</h3>
+              <h3 className="text-lg font-bold tracking-tight text-stone-900 font-sans">Acceso Panel Docente</h3>
               <p className="text-xs text-stone-500 leading-relaxed font-sans">
-                Para ingresar a las especificaciones técnicas y panel de diagnóstico, introduce la contraseña de la cátedra.
+                Para ingresar a las especificaciones técnicas y panel de diagnóstico, introduce la contraseña del Panel Docente.
               </p>
             </div>
 
-            {(!import.meta.env.VITE_DOCENTE_PASSWORD || import.meta.env.VITE_DOCENTE_PASSWORD.trim() === "" || import.meta.env.VITE_DOCENTE_PASSWORD.startsWith("TU_CLAVE")) ? (
-              <div className="space-y-4">
-                <div className="p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-2.5 text-xs text-red-600 font-sans animate-fade-in">
-                  <AlertTriangle className="w-5 h-5 shrink-0 text-red-500 mt-0.5" />
-                  <div className="space-y-1">
-                    <p className="font-bold">Acceso Denegado</p>
-                    <p className="leading-relaxed font-medium">Contraseña no configurada, contactá al administrador.</p>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setViewMode("estudiante");
-                    setPasswordInput("");
-                    setPasswordError(null);
-                  }}
-                  className="w-full py-3 px-4 bg-stone-100 hover:bg-stone-200 text-stone-600 rounded-xl text-xs font-semibold font-mono tracking-wider uppercase transition-all duration-150 active:scale-98 cursor-pointer text-center"
-                >
-                  Volver al Portal Estudiantil
-                </button>
-              </div>
-            ) : (
-              <form onSubmit={handlePasswordSubmit} className="space-y-4">
+            <form onSubmit={handlePasswordSubmit} className="space-y-4">
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-mono uppercase tracking-wider text-stone-400 block font-bold">Contraseña Docente</label>
                   <input
@@ -260,8 +238,7 @@ export default function App() {
                   </button>
                 </div>
               </form>
-            )}
-          </div>
+            </div>
         ) : (
           /* TAB DE ESPECIFICACIONES Y DIAGNÓSTICO DOCENTE */
           <div className="space-y-6 animate-fade-in">

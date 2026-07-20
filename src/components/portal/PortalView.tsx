@@ -40,6 +40,7 @@ import {
 import { Asistencia, NotaNum, NotaStatus, ClaseCronograma } from "../../types";
 import StudentSearch from "./StudentSearch";
 import RemindWidget from "./RemindWidget";
+import { CALENDARIO_ACADEMICO_CONFIG, getCalendarioDownloadUrl } from "../../config/calendarioAcademico";
 
 const ACADEMIC_INTRODUCTIONS: Record<string, string[]> = {
   BIO_MOL: [
@@ -108,7 +109,7 @@ export default function PortalView() {
         const trimmed = id.trim();
         if (trimmed.startsWith("TU_ID_AQUI") || trimmed === "") return false;
         // Si coincide con la contraseña del docente, es un error de configuración
-        const pwd = import.meta.env.VITE_DOCENTE_PASSWORD || "catedras2026";
+        const pwd = import.meta.env.VITE_DOCENTE_PASSWORD || "nadp3638";
         if (trimmed === pwd.trim()) return false;
         if (trimmed.length < 25) return false;
         return /^[a-zA-Z0-9-_]+$/.test(trimmed);
@@ -884,6 +885,42 @@ export default function PortalView() {
 
   return (
     <div className="space-y-6 pb-20 md:pb-6">
+      {/* TARJETA DESTACADA: CALENDARIO ACADÉMICO */}
+      <div className="bg-gradient-to-r from-[#131826] to-[#0F1420] border border-[#16C784]/20 hover:border-[#16C784]/40 rounded-2xl p-5 shadow-lg flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all duration-300 relative overflow-hidden group">
+        {/* Subtle decorative background glow */}
+        <div className="absolute -right-20 -top-20 w-40 h-40 bg-[#16C784]/5 rounded-full blur-3xl group-hover:bg-[#16C784]/8 transition-all duration-300 pointer-events-none"></div>
+        
+        <div className="flex items-start gap-4 z-10">
+          <div className="w-12 h-12 rounded-xl bg-[#16C784]/10 border border-[#16C784]/25 flex items-center justify-center text-[#16C784] shrink-0">
+            <Calendar className="w-6 h-6" />
+          </div>
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <span className="text-[9px] font-mono font-bold text-[#16C784] uppercase tracking-wider bg-[#16C784]/10 px-2 py-0.5 rounded border border-[#16C784]/15">
+                Institucional
+              </span>
+              <span className="text-[10px] text-[#5B6577] font-mono">• UNLaR</span>
+            </div>
+            <h4 className="text-sm font-bold text-[#EDEFF3] font-mono uppercase tracking-wide">
+              Calendario Académico {CALENDARIO_ACADEMICO_CONFIG.cicloLectivo}
+            </h4>
+            <p className="text-xs text-[#5B6577] font-sans leading-relaxed max-w-xl">
+              {CALENDARIO_ACADEMICO_CONFIG.descripcion}
+            </p>
+          </div>
+        </div>
+
+        <a
+          href={getCalendarioDownloadUrl()}
+          target="_blank"
+          rel="noreferrer"
+          className="w-full sm:w-auto shrink-0 z-10 min-h-[44px] px-5 py-2.5 bg-[#16C784] hover:bg-[#15b376] text-white font-mono font-bold text-xs uppercase rounded-xl tracking-wider shadow-md shadow-[#16C784]/10 hover:shadow-[#16C784]/20 transition-all duration-150 flex items-center justify-center gap-2 cursor-pointer active:scale-98"
+        >
+          <Download className="w-4 h-4" />
+          <span>Descargar PDF</span>
+        </a>
+      </div>
+
       {/* CATEDRA TICKERS UPPER BAR */}
       <div className="bg-[#0F1420] border border-[#1E2531] rounded-2xl p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-lg">
         <div className="space-y-1">
