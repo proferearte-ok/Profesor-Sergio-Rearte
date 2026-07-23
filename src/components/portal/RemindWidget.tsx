@@ -40,14 +40,14 @@ export default function RemindWidget() {
   return (
     <div className="space-y-6 animate-fade-in">
       {/* TARJETA INSTRUCCIONES: UNITE A REMIND */}
-      <div className="bg-[#0F1420] border border-[#1E2531] rounded-2xl p-6 shadow-lg space-y-5">
-        <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3 border-b border-[#1E2531]/60 pb-4">
+      <div className="bg-white border border-stone-200 rounded-2xl p-6 shadow-2xs space-y-5">
+        <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3 border-b border-stone-200 pb-4">
           <div className="space-y-1">
-            <h4 className="font-bold flex items-center gap-2 text-[10px] uppercase tracking-widest font-mono text-[#5B6577]">
-              <Smartphone className="w-4 h-4 text-[#16C784]" />
+            <h4 className="font-bold flex items-center gap-2 text-xs uppercase tracking-widest font-mono text-stone-600">
+              <Smartphone className="w-4.5 h-4.5 text-amber-800" />
               <span>Instrucciones de Acceso</span>
             </h4>
-            <h3 className="text-base font-bold text-[#EDEFF3] font-sans">
+            <h3 className="text-lg font-bold text-stone-900 font-sans">
               Unite a Remind
             </h3>
           </div>
@@ -55,74 +55,74 @@ export default function RemindWidget() {
             href="https://www.remind.com" 
             target="_blank" 
             rel="noreferrer"
-            className="w-full sm:w-auto text-center text-xs font-mono font-bold text-[#16C784] hover:underline flex items-center justify-center gap-1.5 bg-[#16C784]/10 hover:bg-[#16C784]/15 px-4 py-2.5 min-h-[44px] rounded-xl border border-[#16C784]/20 transition-all duration-150"
+            className="w-full sm:w-auto text-center text-sm font-mono font-bold text-amber-900 hover:underline flex items-center justify-center gap-2 bg-amber-100/80 hover:bg-amber-200/80 px-4.5 py-2.5 min-h-[46px] rounded-xl border border-amber-300/80 transition-all duration-150"
           >
             <span>Ir a Remind.com</span>
-            <ExternalLink className="w-3.5 h-3.5" />
+            <ExternalLink className="w-4 h-4" />
           </a>
         </div>
 
-        <p className="text-xs text-[#5B6577] font-sans leading-relaxed">
+        <p className="text-sm text-stone-700 font-sans leading-relaxed">
           {REMIND_CONFIG.description}. Podés seguir estos pasos sencillos para unirte a la clase:
         </p>
 
         {/* Pasos de Instrucción */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="bg-[#131826]/40 border border-[#1E2531]/40 p-4 rounded-xl space-y-2 flex flex-col justify-between">
-            <div className="space-y-2">
-              <span className="w-6 h-6 rounded-lg bg-[#16C784]/10 text-[#16C784] font-mono text-xs font-bold flex items-center justify-center border border-[#16C784]/20">
+          <div className="bg-stone-50 border border-stone-200/90 p-4.5 rounded-xl space-y-2 flex flex-col justify-between">
+            <div className="space-y-2.5">
+              <span className="w-7 h-7 rounded-lg bg-amber-900 text-amber-50 font-mono text-sm font-bold flex items-center justify-center shadow-xs">
                 1
               </span>
-              <p className="text-xs text-[#EDEFF3] font-medium leading-relaxed font-sans">
-                Creá tu cuenta en <strong className="text-[#16C784]">Remind.com</strong> o descarga la app móvil.
+              <p className="text-sm text-stone-800 font-medium leading-relaxed font-sans">
+                Creá tu cuenta en <strong className="text-amber-900 font-bold">Remind.com</strong> o descarga la app móvil.
               </p>
             </div>
           </div>
 
-          <div className="bg-[#131826]/40 border border-[#1E2531]/40 p-4 rounded-xl space-y-2 flex flex-col justify-between">
-            <div className="space-y-2">
-              <span className="w-6 h-6 rounded-lg bg-[#16C784]/10 text-[#16C784] font-mono text-xs font-bold flex items-center justify-center border border-[#16C784]/20">
+          <div className="bg-stone-50 border border-stone-200/90 p-4.5 rounded-xl space-y-2 flex flex-col justify-between">
+            <div className="space-y-2.5">
+              <span className="w-7 h-7 rounded-lg bg-amber-900 text-amber-50 font-mono text-sm font-bold flex items-center justify-center shadow-xs">
                 2
               </span>
-              <p className="text-xs text-[#EDEFF3] font-medium leading-relaxed font-sans">
-                Ingresá a la opción <strong className="text-[#16C784]">"Add Class"</strong> en tu panel.
+              <p className="text-sm text-stone-800 font-medium leading-relaxed font-sans">
+                Ingresá a la opción <strong className="text-amber-900 font-bold">"Add Class"</strong> en tu panel.
               </p>
             </div>
           </div>
 
-          <div className="bg-[#131826]/40 border border-[#1E2531]/40 p-4 rounded-xl space-y-2 flex flex-col justify-between">
-            <div className="space-y-2">
-              <span className="w-6 h-6 rounded-lg bg-[#16C784]/10 text-[#16C784] font-mono text-xs font-bold flex items-center justify-center border border-[#16C784]/20">
+          <div className="bg-stone-50 border border-stone-200/90 p-4.5 rounded-xl space-y-2 flex flex-col justify-between">
+            <div className="space-y-2.5">
+              <span className="w-7 h-7 rounded-lg bg-amber-900 text-amber-50 font-mono text-sm font-bold flex items-center justify-center shadow-xs">
                 3
               </span>
-              <p className="text-xs text-[#EDEFF3] font-medium leading-relaxed font-sans">
-                Elegí la opción de <strong className="text-[#16C784]">"Join Existing Class"</strong>.
+              <p className="text-sm text-stone-800 font-medium leading-relaxed font-sans">
+                Elegí la opción de <strong className="text-amber-900 font-bold">"Join Existing Class"</strong>.
               </p>
             </div>
           </div>
 
-          <div className="bg-[#131826]/10 border border-[#16C784]/30 p-4 rounded-xl space-y-2 flex flex-col justify-between relative overflow-hidden group">
-            <div className="space-y-2 z-10">
-              <span className="w-6 h-6 rounded-lg bg-[#16C784] text-white font-mono text-xs font-bold flex items-center justify-center">
+          <div className="bg-amber-100/60 border border-amber-300/80 p-4.5 rounded-xl space-y-2 flex flex-col justify-between relative overflow-hidden group">
+            <div className="space-y-2.5 z-10">
+              <span className="w-7 h-7 rounded-lg bg-amber-900 text-amber-50 font-mono text-sm font-bold flex items-center justify-center shadow-xs">
                 4
               </span>
-              <p className="text-xs text-[#EDEFF3] font-medium leading-relaxed font-sans">
+              <p className="text-sm text-stone-800 font-medium leading-relaxed font-sans">
                 Usá el código:
               </p>
-              <div className="flex items-center justify-between gap-2 bg-[#0F1420] border border-[#1E2531] px-3 py-2 rounded-lg">
-                <span className="font-mono text-xs text-[#16C784] font-bold tracking-wide select-all">
+              <div className="flex items-center justify-between gap-2 bg-white border border-amber-300/80 px-3 py-2 rounded-xl shadow-2xs">
+                <span className="font-mono text-sm text-amber-950 font-bold tracking-wide select-all">
                   {REMIND_CONFIG.classCode}
                 </span>
                 <button
                   onClick={handleCopy}
                   type="button"
-                  className="p-1.5 text-[#5B6577] hover:text-[#16C784] bg-[#131826] hover:bg-[#16C784]/10 border border-[#1E2531] hover:border-[#16C784]/20 rounded transition-all duration-150 shrink-0 min-h-[32px] min-w-[32px] flex items-center justify-center active:scale-95"
+                  className="p-1.5 text-stone-500 hover:text-amber-900 bg-stone-100 hover:bg-amber-100 border border-stone-200 hover:border-amber-300 rounded-lg transition-all duration-150 shrink-0 min-h-[36px] min-w-[36px] flex items-center justify-center active:scale-95 cursor-pointer"
                   title="Copiar código"
                 >
                   {copied ? (
-                    <Check className="w-3.5 h-3.5 text-[#16C784]" />
+                    <Check className="w-4 h-4 text-emerald-600" />
                   ) : (
-                    <Copy className="w-3.5 h-3.5" />
+                    <Copy className="w-4 h-4" />
                   )}
                 </button>
               </div>
@@ -132,34 +132,34 @@ export default function RemindWidget() {
       </div>
 
       {/* WIDGET ORIGINAL CON EL CANAL EN VIVO */}
-      <div className="bg-[#0F1420] border border-[#1E2531] rounded-2xl p-6 shadow-lg space-y-4">
-        <div className="flex justify-between items-center border-b border-[#1E2531]/60 pb-3">
-          <h4 className="font-bold flex items-center gap-2 text-[10px] uppercase tracking-widest font-mono text-[#5B6577]">
-            <Megaphone className="w-4 h-4 text-[#16C784]" />
+      <div className="bg-white border border-stone-200 rounded-2xl p-6 shadow-2xs space-y-4">
+        <div className="flex justify-between items-center border-b border-stone-200 pb-3.5">
+          <h4 className="font-bold flex items-center gap-2 text-xs uppercase tracking-widest font-mono text-stone-600">
+            <Megaphone className="w-4.5 h-4.5 text-amber-800" />
             <span>CANAL DE AVISOS Y RECORDATORIOS (REMIND WIDGET)</span>
           </h4>
           <a 
             href="https://www.remind.com/join/54689070de95013e125f0242ac110025" 
             target="_blank" 
             rel="noreferrer"
-            className="text-[10px] font-mono text-[#16C784] hover:underline flex items-center gap-1 bg-[#16C784]/10 px-2 py-1 rounded border border-[#16C784]/20 font-bold"
+            className="text-xs font-mono text-amber-900 hover:underline flex items-center gap-1.5 bg-amber-100/80 px-3 py-1.5 rounded-lg border border-amber-300/80 font-bold"
           >
             <span>Abrir Remind</span>
-            <ExternalLink className="w-3 h-3" />
+            <ExternalLink className="w-3.5 h-3.5" />
           </a>
         </div>
 
-        <div className="flex gap-3 bg-[#131826]/40 border border-[#1E2531]/40 p-4 rounded-xl text-xs text-[#EDEFF3]/80 leading-relaxed font-sans">
-          <Info className="w-5 h-5 text-[#16C784] shrink-0 mt-0.5" />
+        <div className="flex gap-3 bg-stone-50 border border-stone-200 p-4 rounded-xl text-sm text-stone-700 leading-relaxed font-sans">
+          <Info className="w-5 h-5 text-amber-800 shrink-0 mt-0.5" />
           <div className="space-y-1">
-            <p className="font-bold text-[#EDEFF3] uppercase font-mono tracking-wider text-[9px]">Suscripción Directa:</p>
-            <p className="text-[#5B6577] text-[11px]">
+            <p className="font-bold text-stone-900 uppercase font-mono tracking-wider text-xs">Suscripción Directa:</p>
+            <p className="text-stone-700 text-xs md:text-sm">
               Puedes sumarte al canal pulsando el botón <strong>"Join Class"</strong> que aparece en el widget inferior para recibir todas las novedades y anuncios de la cursada en tu móvil u ordenador.
             </p>
           </div>
         </div>
 
-        <div className="overflow-hidden rounded-xl bg-[#131826]/50 border border-[#1E2531]/60 p-2 min-h-[520px] flex flex-col justify-center">
+        <div className="overflow-hidden rounded-2xl bg-stone-900 border border-stone-800 p-2 min-h-[520px] flex flex-col justify-center">
           <div ref={containerRef} className="w-full h-full" />
         </div>
       </div>

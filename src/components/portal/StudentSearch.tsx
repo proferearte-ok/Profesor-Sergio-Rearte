@@ -80,27 +80,27 @@ export default function StudentSearch({
 
   return (
     <div className="w-full max-w-md mx-auto" ref={containerRef}>
-      <label className="block text-[10px] font-mono text-[#5B6577] uppercase tracking-wider mb-2 font-bold">
+      <label className="block text-xs font-mono text-stone-600 uppercase tracking-wider mb-2 font-bold">
         BUSCADOR DE ALUMNOS (COHORTE <span className="font-mono">{cohortYear}</span>)
       </label>
 
       {selectedStudent ? (
-        <div className="flex items-center justify-between bg-[#0F1420] border border-[#1E2531] rounded-xl p-3.5 animate-fade-in shadow-lg">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-[#16C784] flex items-center justify-center font-bold text-sm font-mono">
+        <div className="flex items-center justify-between bg-white border border-stone-200 rounded-2xl p-4 animate-fade-in shadow-2xs">
+          <div className="flex items-center gap-3.5">
+            <div className="w-11 h-11 rounded-full bg-amber-900 text-amber-50 flex items-center justify-center font-bold text-base font-mono shadow-xs shadow-amber-900/20">
               {selectedStudent.charAt(0).toUpperCase()}
             </div>
             <div>
-              <p className="text-[9px] text-[#5B6577] font-mono uppercase tracking-widest">Estudiante Seleccionado</p>
-              <p className="text-sm font-bold text-[#EDEFF3]">{selectedStudent}</p>
+              <p className="text-[10px] text-amber-900/70 font-mono uppercase tracking-widest font-bold">Estudiante Seleccionado</p>
+              <p className="text-base font-bold text-stone-900">{selectedStudent}</p>
             </div>
           </div>
           <button
             onClick={handleClear}
-            className="p-2.5 bg-[#131826] hover:bg-[#1E2531] text-[#5B6577] hover:text-[#EDEFF3] rounded-lg transition-colors cursor-pointer active:scale-95 min-h-[44px] min-w-[44px] flex items-center justify-center"
+            className="p-2.5 bg-stone-100 hover:bg-amber-100 text-stone-700 hover:text-amber-950 rounded-xl transition-colors cursor-pointer active:scale-95 min-h-[44px] min-w-[44px] flex items-center justify-center border border-stone-200"
             title="Cambiar de estudiante"
           >
-            <X className="w-4 h-4" />
+            <X className="w-4.5 h-4.5" />
           </button>
         </div>
       ) : (
@@ -115,45 +115,45 @@ export default function StudentSearch({
               }}
               onFocus={() => setIsOpen(true)}
               placeholder={placeholder}
-              className="w-full pl-11 pr-11 py-3.5 bg-[#131826] border border-[#1E2531] text-[#EDEFF3] placeholder-[#5B6577] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#16C784]/30 focus:border-[#16C784] transition-all shadow-md font-sans min-h-[48px]"
+              className="w-full pl-12 pr-11 py-3.5 bg-white border border-stone-300 text-stone-900 placeholder-stone-400 rounded-2xl text-base focus:outline-none focus:ring-2 focus:ring-amber-800/20 focus:border-amber-800 transition-all shadow-2xs font-sans min-h-[50px]"
             />
-            <div className="absolute left-4 top-4 text-[#5B6577]">
-              <Search className="w-4 h-4" />
+            <div className="absolute left-4 top-4 text-stone-400">
+              <Search className="w-5 h-5 text-stone-400" />
             </div>
             {query && (
               <button
                 onClick={() => setQuery("")}
-                className="absolute right-3.5 top-3.5 p-1 text-[#5B6577] hover:text-[#EDEFF3] rounded-full cursor-pointer"
+                className="absolute right-3.5 top-3.5 p-1 text-stone-400 hover:text-stone-700 rounded-full cursor-pointer"
               >
-                <X className="w-3.5 h-3.5" />
+                <X className="w-4 h-4" />
               </button>
             )}
           </div>
 
           {/* MENÚ DESPLEGABLE DE SUGERENCIAS */}
           {isOpen && query.trim().length >= 2 && (
-            <div className="absolute z-30 w-full mt-1.5 bg-[#131826] border border-[#1E2531] rounded-xl shadow-2xl overflow-hidden animate-fade-in max-h-[300px] overflow-y-auto">
+            <div className="absolute z-30 w-full mt-2 bg-white border border-stone-200 rounded-2xl shadow-xl overflow-hidden animate-fade-in max-h-[320px] overflow-y-auto">
               {suggestions.length > 0 ? (
                 <div className="py-1">
-                  <div className="px-4 py-2.5 bg-[#0F1420] text-[9px] font-mono text-[#5B6577] border-b border-[#1E2531] uppercase tracking-widest">
+                  <div className="px-4 py-2.5 bg-stone-100/90 text-xs font-mono text-stone-600 border-b border-stone-200 uppercase tracking-widest font-bold">
                     SUGERENCIAS ({suggestions.length})
                   </div>
                   {suggestions.map((name, idx) => (
                     <button
                       key={idx}
                       onClick={() => handleSelect(name)}
-                      className="w-full text-left px-4 py-3 hover:bg-[#1E2531] text-[#EDEFF3] text-xs flex items-center justify-between border-b border-[#1E2531]/40 last:border-b-0 transition-colors cursor-pointer min-h-[44px]"
+                      className="w-full text-left px-4 py-3.5 hover:bg-amber-50 text-stone-900 text-sm flex items-center justify-between border-b border-stone-100 last:border-b-0 transition-colors cursor-pointer min-h-[48px]"
                     >
-                      <div className="flex items-center gap-2.5">
-                        <User className="w-4 h-4 text-[#5B6577]" />
-                        <span className="font-sans font-medium">{name}</span>
+                      <div className="flex items-center gap-3">
+                        <User className="w-4.5 h-4.5 text-stone-400" />
+                        <span className="font-sans font-semibold">{name}</span>
                       </div>
-                      <Check className="w-4 h-4 text-[#16C784]" />
+                      <Check className="w-4.5 h-4.5 text-amber-800" />
                     </button>
                   ))}
                 </div>
               ) : (
-                <div className="px-4 py-4 text-center text-[#5B6577] text-xs font-mono italic">
+                <div className="px-4 py-4 text-center text-stone-500 text-xs font-mono italic">
                   No se encontraron coincidencias para "{query}"
                 </div>
               )}
@@ -161,7 +161,7 @@ export default function StudentSearch({
           )}
 
           {isOpen && query.trim().length < 2 && query.trim().length > 0 && (
-            <div className="absolute z-30 w-full mt-1.5 bg-[#0F1420] border border-[#1E2531] rounded-xl p-3 text-center text-[#5B6577] text-xs font-mono shadow-xl">
+            <div className="absolute z-30 w-full mt-2 bg-white border border-stone-200 rounded-2xl p-3.5 text-center text-stone-500 text-xs font-mono shadow-xl">
               Escribe al menos 2 caracteres para buscar...
             </div>
           )}

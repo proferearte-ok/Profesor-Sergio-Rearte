@@ -69,65 +69,65 @@ export default function App() {
   return (
     <div className={`min-h-screen font-sans transition-colors duration-300 ${
       isStudent 
-        ? "bg-[#0A0E17] text-[#EDEFF3] selection:bg-emerald-500/20 selection:text-[#16C784]" 
-        : "bg-[#FAF9F6] text-stone-800 selection:bg-amber-200 selection:text-amber-900"
+        ? "bg-[#FAF7F2] text-stone-900 selection:bg-amber-200 selection:text-amber-950" 
+        : "bg-[#FAF7F2] text-stone-900 selection:bg-amber-200 selection:text-amber-950"
     }`}>
       {/* HEADER SECTION */}
       <header className={`sticky top-0 z-50 border-b transition-colors duration-300 ${
         isStudent 
-          ? "bg-[#0F1420]/90 backdrop-blur-md border-[#1E2531] shadow-md shadow-black/10" 
-          : "border-stone-200 bg-white shadow-xs"
+          ? "bg-white/95 backdrop-blur-md border-amber-900/10 shadow-2xs" 
+          : "border-stone-200 bg-white shadow-2xs"
       }`}>
         <div className="max-w-7xl mx-auto px-6 py-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <div className="flex items-center gap-3">
-            <div className={`p-2 rounded-lg shadow-sm transition-colors duration-300 ${
-              isStudent ? "bg-emerald-500/10 text-[#16C784]" : "bg-stone-900 text-white"
+          <div className="flex items-center gap-3.5">
+            <div className={`p-3 rounded-xl shadow-xs transition-colors duration-300 ${
+              isStudent ? "bg-amber-900 text-amber-50 shadow-amber-900/20" : "bg-stone-900 text-white"
             }`}>
-              <Database className="w-6 h-6" id="logo-icon" />
+              <Database className="w-5.5 h-5.5" id="logo-icon" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className={`text-[10px] tracking-widest uppercase font-mono px-2 py-0.5 rounded-sm font-bold transition-colors duration-300 ${
-                  isStudent ? "bg-emerald-500/10 text-[#16C784]" : "bg-amber-100 text-amber-800"
+                <span className={`text-xs tracking-widest uppercase font-mono px-2.5 py-0.5 rounded-md font-bold transition-colors duration-300 ${
+                  isStudent ? "bg-amber-100/80 text-amber-950 border border-amber-200/80" : "bg-amber-100 text-amber-900 border border-amber-200"
                 }`}>
                   {isStudent ? "Terminal Académica" : "Portal de Cátedras"}
                 </span>
-                <span className="text-xs text-[#5B6577] font-mono">v2.1.0</span>
+                <span className="text-xs text-stone-500 font-mono font-medium">v2.1.0</span>
               </div>
-              <h1 className={`text-lg font-bold tracking-tight transition-colors duration-300 ${
-                isStudent ? "text-white" : "text-stone-900"
+              <h1 className={`text-lg md:text-xl font-bold tracking-tight transition-colors duration-300 ${
+                isStudent ? "text-stone-900" : "text-stone-900"
               }`} id="app-title">
-                {isStudent ? "Prof. Sergio Rearte" : "Portal Universitario Interactiva & Arquitectura"}
+                {isStudent ? "Prof. Sergio Rearte" : "Portal Universitario Interactivo & Arquitectura"}
               </h1>
             </div>
           </div>
 
           {/* VIEW MODE SELECTOR */}
-          <div className={`flex items-center gap-1.5 p-1.5 rounded-xl self-stretch md:self-auto border transition-colors duration-300 ${
+          <div className={`flex items-center gap-2 p-1.5 rounded-xl self-stretch md:self-auto border transition-colors duration-300 ${
             isStudent 
-              ? "bg-[#131826] border-[#1E2531]" 
-              : "bg-stone-100 border-stone-200/55 shadow-xs"
+              ? "bg-stone-100/90 border-stone-200/90" 
+              : "bg-stone-100 border-stone-200 shadow-2xs"
           }`}>
             <button
               onClick={() => setViewMode("estudiante")}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-all ${
+              className={`flex items-center gap-2 px-4.5 py-2.5 rounded-lg text-sm font-bold cursor-pointer transition-all ${
                 isStudent
-                  ? "bg-[#1E2531] text-white font-bold"
-                  : "text-stone-500 hover:text-stone-800"
+                  ? "bg-amber-900 text-white shadow-2xs"
+                  : "text-stone-600 hover:text-stone-900"
               }`}
             >
-              <GraduationCap className={`w-4 h-4 ${isStudent ? "text-[#16C784]" : "text-amber-600"}`} />
+              <GraduationCap className={`w-4.5 h-4.5 ${isStudent ? "text-amber-200" : "text-amber-700"}`} />
               <span>Vista Estudiante</span>
             </button>
             <button
               onClick={() => setViewMode("docente")}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-all ${
+              className={`flex items-center gap-2 px-4.5 py-2.5 rounded-lg text-sm font-bold cursor-pointer transition-all ${
                 !isStudent
-                  ? "bg-white text-stone-950 shadow-sm font-bold"
-                  : "text-[#5B6577] hover:text-[#EDEFF3]"
+                  ? "bg-amber-900 text-white shadow-2xs"
+                  : "text-stone-600 hover:text-stone-900"
               }`}
             >
-              <Wrench className={`w-4 h-4 ${!isStudent ? "text-amber-600" : "text-stone-400"}`} />
+              <Wrench className={`w-4.5 h-4.5 ${!isStudent ? "text-amber-200" : "text-stone-500"}`} />
               <span>Panel Docente</span>
             </button>
           </div>
@@ -136,41 +136,41 @@ export default function App() {
 
       {/* CORE INFO SUMMARY - ONLY SHOW IN TEACHER MODE TO AVOID CLUTTERING STUDENT VIEW */}
       {!isStudent && isAuthenticated && (
-        <section className="bg-gradient-to-r from-stone-900 via-stone-850 to-stone-900 text-stone-100 py-10 px-6 shadow-md animate-fade-in">
+        <section className="bg-gradient-to-r from-stone-950 via-amber-950 to-stone-950 text-stone-100 py-10 px-6 shadow-md animate-fade-in">
           <div className="max-w-7xl mx-auto">
             <div className="flex flex-col lg:flex-row gap-8 items-start lg:items-center justify-between">
               <div className="max-w-3xl">
-                <div className="flex items-center gap-2 text-amber-400 text-sm font-mono mb-2">
-                  <Clock className="w-4 h-4" />
-                  <span>Ciclo Lectivo Activo: Cohorte 2026</span>
+                <div className="flex items-center gap-2 text-amber-300 text-base font-mono mb-2">
+                  <Clock className="w-4.5 h-4.5 text-amber-400" />
+                  <span className="font-semibold">Ciclo Lectivo Activo: Cohorte 2026</span>
                 </div>
-                <h2 className="text-3xl font-bold tracking-tight text-white mb-3">
+                <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-white mb-3">
                   Reemplazo de Google Sites con Google Sheets + React
                 </h2>
-                <p className="text-stone-300 leading-relaxed text-sm md:text-base">
+                <p className="text-stone-200 leading-relaxed text-base md:text-lg">
                   Diseño de datos estructurado y sin sobreingeniería. Permite al docente actualizar programas, apuntes, asistencias y notas desde una planilla tradicional de cálculo, alimentando en tiempo real una web interactiva y responsiva de alta gama en Google AI Studio.
                 </p>
               </div>
-              <div className="bg-stone-800/80 backdrop-blur-xs p-5 rounded-xl border border-stone-700 w-full lg:w-96 text-xs font-mono space-y-2.5">
-                <div className="text-amber-400 font-semibold border-b border-stone-700 pb-1.5 flex items-center justify-between">
+              <div className="bg-amber-950/60 backdrop-blur-xs p-5 rounded-2xl border border-amber-800/40 w-full lg:w-96 text-sm font-mono space-y-3">
+                <div className="text-amber-300 font-bold border-b border-amber-800/50 pb-2 flex items-center justify-between">
                   <span>ESTADO DEL RELEVAMIENTO</span>
-                  <Sparkles className="w-3.5 h-3.5" />
+                  <Sparkles className="w-4 h-4 text-amber-400" />
                 </div>
                 <div className="flex justify-between">
                   <span className="text-stone-400">Cátedras:</span>
-                  <span className="text-stone-200">3 Cuatrimestrales</span>
+                  <span className="text-stone-100 font-semibold">3 Cuatrimestrales</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-stone-400">Secciones por Cátedra:</span>
-                  <span className="text-stone-200">8 Estándar</span>
+                  <span className="text-stone-100 font-semibold">8 Estándar</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-stone-400">Planillas de Notas:</span>
-                  <span className="text-emerald-400 font-semibold">2 Esquemas (Num / Status)</span>
+                  <span className="text-emerald-400 font-bold">2 Esquemas (Num / Status)</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-stone-400">Gestor de Históricos:</span>
-                  <span className="text-stone-200">Soportado por Año</span>
+                  <span className="text-stone-100 font-semibold">Soportado por Año</span>
                 </div>
               </div>
             </div>
@@ -189,39 +189,39 @@ export default function App() {
           /* PANTALLA DE CONTRASEÑA DOCENTE PROTEGIDA */
           <div className="max-w-md mx-auto my-12 p-8 bg-white border border-stone-200 rounded-2xl shadow-xl space-y-6 animate-fade-in text-stone-800">
             <div className="text-center space-y-2">
-              <div className="w-12 h-12 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center mx-auto border border-amber-100">
-                <Lock className="w-6 h-6" />
+              <div className="w-14 h-14 rounded-2xl bg-amber-100 text-amber-900 flex items-center justify-center mx-auto border border-amber-200 shadow-2xs">
+                <Lock className="w-7 h-7" />
               </div>
-              <h3 className="text-lg font-bold tracking-tight text-stone-900 font-sans">Acceso Panel Docente</h3>
-              <p className="text-xs text-stone-500 leading-relaxed font-sans">
+              <h3 className="text-xl font-bold tracking-tight text-stone-900 font-sans">Acceso Panel Docente</h3>
+              <p className="text-sm text-stone-600 leading-relaxed font-sans">
                 Para ingresar a las especificaciones técnicas y panel de diagnóstico, introduce la contraseña del Panel Docente.
               </p>
             </div>
 
-            <form onSubmit={handlePasswordSubmit} className="space-y-4">
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-mono uppercase tracking-wider text-stone-400 block font-bold">Contraseña Docente</label>
+            <form onSubmit={handlePasswordSubmit} className="space-y-5">
+                <div className="space-y-2">
+                  <label className="text-xs font-mono uppercase tracking-wider text-amber-900 block font-bold">Contraseña Docente</label>
                   <input
                     type="password"
                     value={passwordInput}
                     onChange={(e) => setPasswordInput(e.target.value)}
                     placeholder="Introduce la contraseña..."
-                    className="w-full px-4 py-3 rounded-xl border border-stone-200 text-stone-900 placeholder-stone-400 text-sm focus:outline-hidden focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all font-mono"
+                    className="w-full px-4.5 py-3.5 rounded-xl border border-stone-300 text-stone-900 placeholder-stone-400 text-base focus:outline-hidden focus:ring-2 focus:ring-amber-800/20 focus:border-amber-800 transition-all font-mono"
                     autoFocus
                   />
                 </div>
 
                 {passwordError && (
-                  <div className="p-3 bg-red-50 border border-red-200 rounded-xl flex items-start gap-2.5 text-xs text-red-600 animate-fade-in">
-                    <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-red-500" />
+                  <div className="p-3.5 bg-rose-50 border border-rose-200 rounded-xl flex items-start gap-2.5 text-sm text-rose-700 animate-fade-in">
+                    <AlertTriangle className="w-4.5 h-4.5 shrink-0 mt-0.5 text-rose-600" />
                     <span className="font-sans font-medium">{passwordError}</span>
                   </div>
                 )}
 
-                <div className="pt-2 flex flex-col gap-2">
+                <div className="pt-2 flex flex-col gap-2.5">
                   <button
                     type="submit"
-                    className="w-full py-3 px-4 bg-stone-900 hover:bg-stone-800 text-white rounded-xl text-xs font-bold font-mono tracking-wider uppercase transition-all duration-150 active:scale-98 cursor-pointer shadow-sm text-center"
+                    className="w-full py-3.5 px-4 bg-amber-900 hover:bg-amber-950 text-white rounded-xl text-xs font-bold font-mono tracking-wider uppercase transition-all duration-150 active:scale-98 cursor-pointer shadow-sm text-center"
                   >
                     Confirmar Clave
                   </button>
@@ -232,7 +232,7 @@ export default function App() {
                       setPasswordInput("");
                       setPasswordError(null);
                     }}
-                    className="w-full py-3 px-4 bg-stone-100 hover:bg-stone-200 text-stone-600 rounded-xl text-xs font-semibold font-mono tracking-wider uppercase transition-all duration-150 active:scale-98 cursor-pointer text-center"
+                    className="w-full py-3.5 px-4 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-xl text-xs font-semibold font-mono tracking-wider uppercase transition-all duration-150 active:scale-98 cursor-pointer text-center"
                   >
                     Volver al Portal Estudiantil
                   </button>
@@ -247,49 +247,49 @@ export default function App() {
               <button
                 id="tab-visualizer"
                 onClick={() => setActiveTab("visualizer")}
-                className={`flex items-center gap-2 px-5 py-3 border-b-2 font-medium text-sm whitespace-nowrap transition-all cursor-pointer ${
+                className={`flex items-center gap-2 px-5 py-3.5 border-b-2 font-bold text-base whitespace-nowrap transition-all cursor-pointer ${
                   activeTab === "visualizer"
-                    ? "border-amber-600 text-amber-900 bg-amber-50/50"
-                    : "border-transparent text-stone-500 hover:text-stone-800 hover:border-stone-300"
+                    ? "border-amber-800 text-amber-950 bg-amber-100/50"
+                    : "border-transparent text-stone-500 hover:text-stone-900 hover:border-stone-300"
                 }`}
               >
-                <FileSpreadsheet className="w-4 h-4" />
+                <FileSpreadsheet className="w-4.5 h-4.5" />
                 <span>1. Visualizador de Hojas de Datos</span>
               </button>
               <button
                 id="tab-recommendation"
                 onClick={() => setActiveTab("recommendation")}
-                className={`flex items-center gap-2 px-5 py-3 border-b-2 font-medium text-sm whitespace-nowrap transition-all cursor-pointer ${
+                className={`flex items-center gap-2 px-5 py-3.5 border-b-2 font-bold text-base whitespace-nowrap transition-all cursor-pointer ${
                   activeTab === "recommendation"
-                    ? "border-amber-600 text-amber-900 bg-amber-50/50"
-                    : "border-transparent text-stone-500 hover:text-stone-800 hover:border-stone-300"
+                    ? "border-amber-800 text-amber-950 bg-amber-100/50"
+                    : "border-transparent text-stone-500 hover:text-stone-900 hover:border-stone-300"
                 }`}
               >
-                <Layers className="w-4 h-4" />
+                <Layers className="w-4.5 h-4.5" />
                 <span>2. Recomendación: Sheets vs JSON</span>
               </button>
               <button
                 id="tab-versioning"
                 onClick={() => setActiveTab("versioning")}
-                className={`flex items-center gap-2 px-5 py-3 border-b-2 font-medium text-sm whitespace-nowrap transition-all cursor-pointer ${
+                className={`flex items-center gap-2 px-5 py-3.5 border-b-2 font-bold text-base whitespace-nowrap transition-all cursor-pointer ${
                   activeTab === "versioning"
-                    ? "border-amber-600 text-amber-900 bg-amber-50/50"
-                    : "border-transparent text-stone-500 hover:text-stone-800 hover:border-stone-300"
+                    ? "border-amber-800 text-amber-950 bg-amber-100/50"
+                    : "border-transparent text-stone-500 hover:text-stone-900 hover:border-stone-300"
                 }`}
               >
-                <Calendar className="w-4 h-4" />
+                <Calendar className="w-4.5 h-4.5" />
                 <span>3. Gestión de Históricos (Años)</span>
               </button>
               <button
                 id="tab-markdown"
                 onClick={() => setActiveTab("markdown")}
-                className={`flex items-center gap-2 px-5 py-3 border-b-2 font-medium text-sm whitespace-nowrap transition-all cursor-pointer ${
+                className={`flex items-center gap-2 px-5 py-3.5 border-b-2 font-bold text-base whitespace-nowrap transition-all cursor-pointer ${
                   activeTab === "markdown"
-                    ? "border-amber-600 text-amber-900 bg-amber-50/50"
-                    : "border-transparent text-stone-500 hover:text-stone-800 hover:border-stone-300"
+                    ? "border-amber-800 text-amber-950 bg-amber-100/50"
+                    : "border-transparent text-stone-500 hover:text-stone-900 hover:border-stone-300"
                 }`}
               >
-                <FileText className="w-4 h-4" />
+                <FileText className="w-4.5 h-4.5" />
                 <span>4. Especificación Markdown Completa</span>
               </button>
 
@@ -297,16 +297,16 @@ export default function App() {
                 <button
                   id="btn-copy-header"
                   onClick={copyToClipboard}
-                  className="flex items-center gap-2 bg-stone-900 hover:bg-stone-800 text-white px-4 py-2 rounded-lg font-medium text-xs transition-all shadow-sm active:scale-95 cursor-pointer"
+                  className="flex items-center gap-2 bg-amber-900 hover:bg-amber-950 text-white px-4.5 py-2.5 rounded-xl font-bold text-xs font-mono uppercase tracking-wider transition-all shadow-2xs active:scale-95 cursor-pointer"
                 >
                   {copied ? (
                     <>
-                      <Check className="w-3.5 h-3.5 text-emerald-400" />
+                      <Check className="w-4 h-4 text-emerald-300" />
                       <span>Copiado</span>
                     </>
                   ) : (
                     <>
-                      <Copy className="w-3.5 h-3.5" />
+                      <Copy className="w-4 h-4" />
                       <span>Copiar Markdown</span>
                     </>
                   )}
@@ -326,14 +326,14 @@ export default function App() {
       </main>
 
       {/* FOOTER */}
-      <footer className={`border-t py-12 mt-16 text-center text-xs font-mono transition-colors duration-300 ${
+      <footer className={`border-t py-10 mt-16 text-center text-sm font-mono transition-colors duration-300 ${
         isStudent 
-          ? "bg-[#0F1420] border-[#1E2531] text-[#5B6577]" 
-          : "bg-stone-100 border-stone-200 text-stone-500"
+          ? "bg-white border-stone-200 text-stone-600 shadow-2xs" 
+          : "bg-white border-stone-200 text-stone-600 shadow-2xs"
       }`}>
         <div className="max-w-7xl mx-auto px-6 space-y-2">
-          <p className={isStudent ? "text-[#EDEFF3]/80" : ""}>Portal Universitario de Cátedras &amp; Arquitectura de Datos Académicas</p>
-          <p className={isStudent ? "text-[#5B6577]" : "text-stone-400"}>Sincronizado dinámicamente mediante Google Sheets API en Google AI Studio</p>
+          <p className="text-stone-800 font-bold">Portal Universitario de Cátedras &amp; Arquitectura de Datos Académicas</p>
+          <p className="text-stone-500 text-xs">Sincronizado dinámicamente mediante Google Sheets API en Google AI Studio</p>
         </div>
       </footer>
     </div>

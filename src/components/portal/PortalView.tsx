@@ -427,11 +427,11 @@ export default function PortalView() {
   const renderCronograma = () => {
     if (currentCatedra.tipo_cronograma === "TEXTO_SIMPLE") {
       return (
-        <div className="bg-[#0F1420] border border-[#1E2531] rounded-2xl p-6 shadow-lg animate-fade-in space-y-4">
-          <h4 className="font-bold text-[#EDEFF3] flex items-center gap-2 text-[10px] uppercase tracking-widest font-mono text-[#5B6577]">
+        <div className="bg-white border border-stone-200 rounded-2xl p-6 shadow-2xs animate-fade-in space-y-4">
+          <h4 className="font-bold flex items-center gap-2 text-xs uppercase tracking-widest font-mono text-stone-600">
             <span>CRONOGRAMA DE CURSADA</span>
           </h4>
-          <p className="text-[#EDEFF3]/90 leading-relaxed text-sm font-sans">
+          <p className="text-stone-800 leading-relaxed text-base font-sans">
             {currentCatedra.contenido_cronograma}
           </p>
         </div>
@@ -450,18 +450,18 @@ export default function PortalView() {
 
       return (
         <div className="space-y-4 animate-fade-in">
-          <div className="bg-[#0F1420] border border-[#1E2531] rounded-2xl p-6 shadow-lg">
-            <h4 className="font-bold text-[#EDEFF3] mb-6 flex items-center gap-2 text-[10px] uppercase tracking-widest font-mono text-[#5B6577]">
+          <div className="bg-white border border-stone-200 rounded-2xl p-6 shadow-2xs">
+            <h4 className="font-bold text-stone-600 mb-6 flex items-center gap-2 text-xs uppercase tracking-widest font-mono">
               <span>HITOS Y FECHAS CLAVE</span>
             </h4>
-            <div className="relative border-l-2 border-[#1E2531] pl-6 ml-4 space-y-8">
+            <div className="relative border-l-2 border-stone-200 pl-6 ml-4 space-y-8">
               {fechasBio.map((item, idx) => (
                 <div key={idx} className="relative">
-                  <div className="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-[#16C784] border-4 border-[#0F1420] shadow-sm animate-pulse"></div>
-                  <span className="font-mono text-[10px] font-bold text-[#16C784] bg-[#16C784]/10 px-2.5 py-1 rounded border border-[#16C784]/20 uppercase tracking-wider">
+                  <div className="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-amber-900 border-4 border-white shadow-xs"></div>
+                  <span className="font-mono text-xs font-bold text-amber-950 bg-amber-100 px-3 py-1 rounded-md border border-amber-300 uppercase tracking-wider">
                     {item.sem}
                   </span>
-                  <p className="text-[#EDEFF3]/90 mt-3 text-sm leading-relaxed font-sans">{item.desc}</p>
+                  <p className="text-stone-800 mt-3 text-base leading-relaxed font-sans font-medium">{item.desc}</p>
                 </div>
               ))}
             </div>
@@ -476,9 +476,9 @@ export default function PortalView() {
 
       return (
         <div className="space-y-4 animate-fade-in">
-          <div className="bg-[#0F1420] border border-[#1E2531] rounded-2xl p-5 shadow-lg">
+          <div className="bg-white border border-stone-200 rounded-2xl p-6 shadow-2xs">
             <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3 mb-4">
-              <h4 className="font-bold text-[#EDEFF3] flex items-center gap-2 text-[10px] uppercase tracking-widest font-mono text-[#5B6577]">
+              <h4 className="font-bold flex items-center gap-2 text-xs uppercase tracking-widest font-mono text-stone-600">
                 <span>CALENDARIO DE GOOGLE INTEGRADO</span>
               </h4>
               {isGoogleCalendarUrl && (
@@ -486,24 +486,24 @@ export default function PortalView() {
                   href={calendarUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-1.5 text-[10px] text-[#16C784] hover:text-[#16C784]/80 font-mono uppercase tracking-wider underline"
+                  className="inline-flex items-center gap-1.5 text-xs text-amber-900 hover:text-amber-950 font-mono uppercase tracking-wider underline font-bold"
                 >
                   <span>Abrir Ventana</span>
                   <ExternalLink className="w-3.5 h-3.5" />
                 </a>
               )}
             </div>
-            <div className="aspect-video w-full rounded-xl border border-[#1E2531] overflow-hidden bg-[#131826] flex items-center justify-center relative min-h-[300px]">
+            <div className="aspect-video w-full rounded-2xl border border-stone-200 overflow-hidden bg-stone-50 flex items-center justify-center relative min-h-[320px]">
               {isGoogleCalendarUrl ? (
                 <iframe
                   src={calendarUrl}
-                  className="absolute inset-0 w-full h-full border-none filter invert contrast-125 opacity-90"
+                  className="absolute inset-0 w-full h-full border-none opacity-100"
                   title="Calendario Cátedra"
                 ></iframe>
               ) : (
                 <div className="text-center p-6 space-y-2">
-                  <Calendar className="w-8 h-8 text-[#5B6577] mx-auto opacity-40" />
-                  <p className="text-xs text-[#5B6577] italic font-sans">
+                  <Calendar className="w-9 h-9 text-stone-400 mx-auto opacity-50" />
+                  <p className="text-sm text-stone-600 italic font-sans">
                     El cronograma en calendario todavía no fue configurado para esta cátedra.
                   </p>
                 </div>
@@ -517,27 +517,27 @@ export default function PortalView() {
     if (currentCatedra.tipo_cronograma === "LISTA_CLASES") {
       if (cronogramaLoading) {
         return (
-          <div className="bg-[#0F1420] border border-[#1E2531] rounded-2xl p-12 text-center shadow-lg animate-fade-in flex flex-col items-center justify-center gap-3">
-            <Loader2 className="w-8 h-8 text-[#16C784] animate-spin" />
-            <p className="text-xs text-[#5B6577] font-mono uppercase tracking-wider">Cargando cronograma de clases...</p>
+          <div className="bg-white border border-stone-200 rounded-2xl p-12 text-center shadow-2xs animate-fade-in flex flex-col items-center justify-center gap-3">
+            <Loader2 className="w-8 h-8 text-amber-900 animate-spin" />
+            <p className="text-xs text-stone-600 font-mono uppercase tracking-wider font-semibold">Cargando cronograma de clases...</p>
           </div>
         );
       }
 
       if (cronogramaError) {
         return (
-          <div className="bg-[#0F1420] border border-red-900/30 rounded-2xl p-8 text-center shadow-lg animate-fade-in space-y-3">
-            <AlertTriangle className="w-8 h-8 text-red-500 mx-auto" />
-            <p className="text-sm text-red-400 font-sans">{cronogramaError}</p>
+          <div className="bg-white border border-rose-200 rounded-2xl p-8 text-center shadow-2xs animate-fade-in space-y-3">
+            <AlertTriangle className="w-8 h-8 text-rose-600 mx-auto" />
+            <p className="text-sm text-rose-700 font-sans">{cronogramaError}</p>
           </div>
         );
       }
 
       if (!clasesCronograma || clasesCronograma.length === 0) {
         return (
-          <div className="bg-[#0F1420] border border-[#1E2531] rounded-2xl p-12 text-center shadow-lg animate-fade-in space-y-2">
-            <Calendar className="w-8 h-8 text-[#5B6577] mx-auto opacity-40" />
-            <p className="text-xs text-[#5B6577] font-sans italic">
+          <div className="bg-white border border-stone-200 rounded-2xl p-12 text-center shadow-2xs animate-fade-in space-y-2">
+            <Calendar className="w-8 h-8 text-stone-400 mx-auto opacity-50" />
+            <p className="text-sm text-stone-600 font-sans italic">
               Cronograma todavía no cargado para esta cátedra.
             </p>
           </div>
@@ -546,12 +546,12 @@ export default function PortalView() {
 
       return (
         <div className="space-y-4 animate-fade-in">
-          <div className="bg-[#0F1420] border border-[#1E2531] rounded-2xl p-6 shadow-lg">
-            <h4 className="font-bold text-[#EDEFF3] mb-6 flex items-center gap-2 text-[10px] uppercase tracking-widest font-mono text-[#5B6577]">
+          <div className="bg-white border border-stone-200 rounded-2xl p-6 shadow-2xs">
+            <h4 className="font-bold text-stone-600 mb-6 flex items-center gap-2 text-xs uppercase tracking-widest font-mono">
               <span>CRONOGRAMA DETALLADO DE CLASES</span>
             </h4>
             
-            <div className="relative border-l border-[#1E2531] pl-6 ml-4 space-y-8">
+            <div className="relative border-l border-stone-300 pl-6 ml-4 space-y-8">
               {clasesCronograma.map((clase, idx) => {
                 const isFeriado = clase.tipo === "Feriado";
                 const isExtra = clase.tipo === "Extra";
@@ -581,49 +581,49 @@ export default function PortalView() {
                   : "";
 
                 return (
-                  <div key={idx} className={`relative group ${isFeriado ? "opacity-45" : ""}`}>
+                  <div key={idx} className={`relative group ${isFeriado ? "opacity-50" : ""}`}>
                     {/* Circle marker on line */}
-                    <div className={`absolute -left-[31px] top-1.5 w-2.5 h-2.5 rounded-full border-2 border-[#0F1420] shadow-sm 
+                    <div className={`absolute -left-[31px] top-1.5 w-3 h-3 rounded-full border-2 border-white shadow-xs 
                       ${isFeriado 
-                        ? "bg-[#5B6577]" 
+                        ? "bg-stone-400" 
                         : isExtra 
-                          ? "bg-amber-500 animate-pulse" 
-                          : "bg-[#16C784]"}`}
+                          ? "bg-amber-600 animate-pulse" 
+                          : "bg-amber-900"}`}
                     ></div>
 
                     <div className="flex flex-wrap items-center gap-2 mb-2">
-                      <span className="font-mono text-xs font-bold text-[#EDEFF3]">
+                      <span className="font-mono text-sm font-bold text-stone-900">
                         {clase.fechaTexto}
                       </span>
                       
                       {!isFeriado && rawHorario && (
-                        <span className="font-mono text-[10px] text-[#5B6577] bg-[#1E2531]/40 px-2 py-0.5 rounded border border-[#1E2531]">
+                        <span className="font-mono text-xs text-stone-700 bg-stone-100 px-2.5 py-1 rounded-lg border border-stone-200 font-medium">
                           {displayHorario}
                         </span>
                       )}
 
                       {!isFeriado && rawAula && (
-                        <span className="font-mono text-[10px] text-[#16C784] bg-[#16C784]/10 px-2 py-0.5 rounded border border-[#16C784]/20">
+                        <span className="font-mono text-xs text-amber-900 bg-amber-100/80 px-2.5 py-1 rounded-lg border border-amber-300 font-semibold">
                           {displayAula}
                         </span>
                       )}
 
                       {isExtra && (
-                        <span className="font-mono text-[9px] font-bold text-amber-500 bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20 uppercase tracking-wider">
+                        <span className="font-mono text-xs font-bold text-amber-900 bg-amber-200/80 px-2 py-0.5 rounded-lg border border-amber-300 uppercase tracking-wider">
                           CLASE EXTRA
                         </span>
                       )}
 
                       {isFeriado && (
-                        <span className="font-mono text-[9px] font-bold text-red-400 bg-red-400/10 px-1.5 py-0.5 rounded border border-red-400/20 uppercase tracking-wider">
+                        <span className="font-mono text-xs font-bold text-rose-800 bg-rose-50 px-2 py-0.5 rounded-lg border border-rose-200 uppercase tracking-wider">
                           Feriado / Sin Clase
                         </span>
                       )}
                     </div>
 
-                    <p className="text-[#EDEFF3]/90 text-sm leading-relaxed font-sans max-w-3xl">
+                    <p className="text-stone-800 text-base leading-relaxed font-sans max-w-3xl font-normal">
                       {isFeriado ? (
-                        <span className="italic text-[#5B6577]">Sin clase (feriado)</span>
+                        <span className="italic text-stone-400">Sin clase (feriado)</span>
                       ) : (
                         displayTema
                       )}
@@ -651,11 +651,11 @@ export default function PortalView() {
 
     if (seccionConfig?.estado === "Inactiva") {
       return (
-        <div className="bg-[#0F1420] border border-[#1E2531] rounded-2xl p-8 text-center max-w-lg mx-auto space-y-4 animate-fade-in shadow-xl">
-          <Info className="w-10 h-10 text-[#5B6577] mx-auto" />
+        <div className="bg-white border border-stone-200 rounded-2xl p-8 text-center max-w-lg mx-auto space-y-4 animate-fade-in shadow-2xs">
+          <Info className="w-10 h-10 text-stone-400 mx-auto" />
           <div>
-            <h5 className="font-bold text-[#EDEFF3] text-sm uppercase tracking-wider">Sección en Preparación</h5>
-            <p className="text-xs text-[#5B6577] leading-relaxed mt-2 font-sans">
+            <h5 className="font-bold text-stone-900 text-base uppercase tracking-wider">Sección en Preparación</h5>
+            <p className="text-sm text-stone-600 leading-relaxed mt-2 font-sans">
               {seccionConfig.texto_simple || "Esta sección se encuentra temporalmente inactiva o en proceso de edición por el equipo docente de la cátedra."}
             </p>
           </div>
@@ -673,20 +673,20 @@ export default function PortalView() {
     if (isDynamicSection && hasDriveFolder) {
       if (driveLoading) {
         return (
-          <div className="bg-[#0F1420] border border-[#1E2531] rounded-2xl p-12 text-center max-w-lg mx-auto space-y-4 animate-fade-in shadow-xl">
-            <Loader2 className="w-8 h-8 text-[#16C784] mx-auto animate-spin" />
-            <p className="text-xs text-[#5B6577] font-mono uppercase tracking-wider">Cargando archivos desde Google Drive...</p>
+          <div className="bg-white border border-stone-200 rounded-2xl p-12 text-center max-w-lg mx-auto space-y-4 animate-fade-in shadow-2xs">
+            <Loader2 className="w-8 h-8 text-amber-900 mx-auto animate-spin" />
+            <p className="text-xs text-stone-600 font-mono uppercase tracking-wider font-semibold">Cargando archivos desde Google Drive...</p>
           </div>
         );
       }
 
       if (driveError) {
         return (
-          <div className="bg-[#E24B4A]/10 border border-[#E24B4A]/25 rounded-2xl p-6 text-center max-w-lg mx-auto space-y-4 animate-fade-in">
-            <AlertTriangle className="w-8 h-8 text-[#E24B4A] mx-auto" />
+          <div className="bg-rose-50 border border-rose-200 rounded-2xl p-6 text-center max-w-lg mx-auto space-y-4 animate-fade-in">
+            <AlertTriangle className="w-8 h-8 text-rose-600 mx-auto" />
             <div>
-              <h5 className="font-bold text-[#E24B4A] text-xs uppercase tracking-wider font-mono">Error de Sincronización</h5>
-              <p className="text-xs text-[#5B6577] mt-2 font-sans leading-relaxed">
+              <h5 className="font-bold text-rose-800 text-xs uppercase tracking-wider font-mono">Error de Sincronización</h5>
+              <p className="text-sm text-rose-700 mt-2 font-sans leading-relaxed">
                 {driveError}
               </p>
             </div>
@@ -696,11 +696,11 @@ export default function PortalView() {
 
       if (driveFiles.length === 0) {
         return (
-          <div className="bg-[#0F1420] border border-[#1E2531] rounded-2xl p-8 text-center max-w-lg mx-auto space-y-4 animate-fade-in shadow-xl">
-            <FileText className="w-10 h-10 text-[#5B6577] mx-auto animate-pulse" />
+          <div className="bg-white border border-stone-200 rounded-2xl p-8 text-center max-w-lg mx-auto space-y-4 animate-fade-in shadow-2xs">
+            <FileText className="w-10 h-10 text-stone-400 mx-auto animate-pulse" />
             <div>
-              <h5 className="font-bold text-[#EDEFF3] text-sm uppercase tracking-wider">Carpeta vacía</h5>
-              <p className="text-xs text-[#5B6577] leading-relaxed mt-2 font-sans">
+              <h5 className="font-bold text-stone-900 text-base uppercase tracking-wider">Carpeta vacía</h5>
+              <p className="text-sm text-stone-600 leading-relaxed mt-2 font-sans">
                 No se encontraron archivos en la carpeta de Google Drive configurada para esta sección.
               </p>
             </div>
@@ -718,26 +718,26 @@ export default function PortalView() {
       }
 
       return (
-        <div className="bg-[#0F1420] border border-[#1E2531] rounded-2xl overflow-hidden shadow-lg animate-fade-in">
-          <div className="px-4 py-3 bg-[#131826]/60 border-b border-[#1E2531] flex justify-between items-center text-[10px] font-mono text-[#5B6577] uppercase tracking-wider font-bold">
+        <div className="bg-white border border-stone-200 rounded-2xl overflow-hidden shadow-2xs animate-fade-in">
+          <div className="px-5 py-3.5 bg-stone-100 border-b border-stone-200 flex justify-between items-center text-xs font-mono text-stone-600 uppercase tracking-wider font-bold">
             <span>Archivo / Publicación (En Vivo)</span>
             <span>Acción</span>
           </div>
-          <div className="divide-y divide-[#1E2531]/60">
+          <div className="divide-y divide-stone-200">
             {sortedDriveFiles.map((file, idx) => (
               <div
                 key={file.id || idx}
-                className="p-4 flex items-center justify-between gap-4 hover:bg-[#131826] transition-colors duration-200 min-h-[56px]"
+                className="p-4.5 flex items-center justify-between gap-4 hover:bg-amber-50/50 transition-colors duration-200 min-h-[60px]"
               >
-                <div className="flex items-center gap-3.5 truncate max-w-[80%]">
-                  <div className="w-9 h-9 rounded-lg bg-[#131826] border border-[#1E2531] flex items-center justify-center shrink-0 text-xs font-mono font-bold text-[#16C784]">
+                <div className="flex items-center gap-4 truncate max-w-[80%]">
+                  <div className="w-10 h-10 rounded-xl bg-amber-100/80 border border-amber-300 flex items-center justify-center shrink-0 text-sm font-mono font-bold text-amber-950">
                     {(idx + 1).toString().padStart(2, "0")}
                   </div>
                   <div className="space-y-0.5 truncate">
-                    <h5 className="font-semibold text-[#EDEFF3] text-sm truncate font-sans" title={file.nombre_archivo}>
+                    <h5 className="font-semibold text-stone-900 text-base truncate font-sans" title={file.nombre_archivo}>
                       {file.nombre_archivo}
                     </h5>
-                    <p className="text-[10px] text-[#5B6577] font-mono uppercase tracking-wider">
+                    <p className="text-xs text-stone-500 font-mono uppercase tracking-wider font-semibold">
                       Publicado: <span className="font-mono">{file.fecha_subida}</span>
                     </p>
                   </div>
@@ -746,10 +746,10 @@ export default function PortalView() {
                   href={file.link_drive}
                   target="_blank"
                   rel="noreferrer"
-                  className="min-h-[44px] min-w-[44px] flex items-center justify-center bg-[#16C784]/10 hover:bg-[#16C784] text-[#16C784] hover:text-white border border-[#16C784]/20 hover:border-[#16C784] rounded-xl transition-all duration-200 active:scale-95 shadow-sm"
+                  className="min-h-[46px] min-w-[46px] flex items-center justify-center bg-amber-100/80 hover:bg-amber-900 text-amber-950 hover:text-white border border-amber-300 hover:border-amber-900 rounded-xl transition-all duration-200 active:scale-95 shadow-2xs cursor-pointer"
                   title="Descargar desde Google Drive"
                 >
-                  <Download className="w-4.5 h-4.5" />
+                  <Download className="w-5 h-5" />
                 </a>
               </div>
             ))}
@@ -774,11 +774,11 @@ export default function PortalView() {
 
     if (archivos.length === 0) {
       return (
-        <div className="bg-[#0F1420] border border-[#1E2531] rounded-2xl p-8 text-center max-w-lg mx-auto space-y-4 animate-fade-in shadow-xl">
-          <FileText className="w-10 h-10 text-[#5B6577] mx-auto animate-pulse" />
+        <div className="bg-white border border-stone-200 rounded-2xl p-8 text-center max-w-lg mx-auto space-y-4 animate-fade-in shadow-2xs">
+          <FileText className="w-10 h-10 text-stone-400 mx-auto animate-pulse" />
           <div>
-            <h5 className="font-bold text-[#EDEFF3] text-sm uppercase tracking-wider">Sin archivos disponibles</h5>
-            <p className="text-xs text-[#5B6577] leading-relaxed mt-2 font-sans">
+            <h5 className="font-bold text-stone-900 text-base uppercase tracking-wider">Sin archivos disponibles</h5>
+            <p className="text-sm text-stone-600 leading-relaxed mt-2 font-sans">
               Esta sección todavía no tiene contenido cargado en la planilla. Los apuntes se irán subiendo a medida que avance el cuatrimestre.
             </p>
           </div>
@@ -787,26 +787,26 @@ export default function PortalView() {
     }
 
     return (
-      <div className="bg-[#0F1420] border border-[#1E2531] rounded-2xl overflow-hidden shadow-lg animate-fade-in">
-        <div className="px-4 py-3 bg-[#131826]/60 border-b border-[#1E2531] flex justify-between items-center text-[10px] font-mono text-[#5B6577] uppercase tracking-wider font-bold">
+      <div className="bg-white border border-stone-200 rounded-2xl overflow-hidden shadow-2xs animate-fade-in">
+        <div className="px-5 py-3.5 bg-stone-100 border-b border-stone-200 flex justify-between items-center text-xs font-mono text-stone-600 uppercase tracking-wider font-bold">
           <span>Archivo / Publicación</span>
           <span>Acción</span>
         </div>
-        <div className="divide-y divide-[#1E2531]/60">
+        <div className="divide-y divide-stone-200">
           {archivos.map((file, idx) => (
             <div
               key={idx}
-              className="p-4 flex items-center justify-between gap-4 hover:bg-[#131826] transition-colors duration-200 min-h-[56px]"
+              className="p-4.5 flex items-center justify-between gap-4 hover:bg-amber-50/50 transition-colors duration-200 min-h-[60px]"
             >
-              <div className="flex items-center gap-3.5 truncate max-w-[80%]">
-                <div className="w-9 h-9 rounded-lg bg-[#131826] border border-[#1E2531] flex items-center justify-center shrink-0 text-xs font-mono font-bold text-[#16C784]">
+              <div className="flex items-center gap-4 truncate max-w-[80%]">
+                <div className="w-10 h-10 rounded-xl bg-amber-100/80 border border-amber-300 flex items-center justify-center shrink-0 text-sm font-mono font-bold text-amber-950">
                   {file.orden.toString().padStart(2, "0")}
                 </div>
                 <div className="space-y-0.5 truncate">
-                  <h5 className="font-semibold text-[#EDEFF3] text-sm truncate font-sans" title={file.nombre_archivo}>
+                  <h5 className="font-semibold text-stone-900 text-base truncate font-sans" title={file.nombre_archivo}>
                     {file.nombre_archivo}
                   </h5>
-                  <p className="text-[10px] text-[#5B6577] font-mono uppercase tracking-wider">
+                  <p className="text-xs text-stone-500 font-mono uppercase tracking-wider font-semibold">
                     Publicado: <span className="font-mono">{file.fecha_subida}</span>
                   </p>
                 </div>
@@ -815,10 +815,10 @@ export default function PortalView() {
                 href={file.link_drive}
                 target="_blank"
                 rel="noreferrer"
-                className="min-h-[44px] min-w-[44px] flex items-center justify-center bg-[#16C784]/10 hover:bg-[#16C784] text-[#16C784] hover:text-white border border-[#16C784]/20 hover:border-[#16C784] rounded-xl transition-all duration-200 active:scale-95 shadow-sm"
+                className="min-h-[46px] min-w-[46px] flex items-center justify-center bg-amber-100/80 hover:bg-amber-900 text-amber-950 hover:text-white border border-amber-300 hover:border-amber-900 rounded-xl transition-all duration-200 active:scale-95 shadow-2xs cursor-pointer"
                 title="Descargar desde Google Drive"
               >
-                <Download className="w-4.5 h-4.5" />
+                <Download className="w-5 h-5" />
               </a>
             </div>
           ))}
@@ -886,25 +886,25 @@ export default function PortalView() {
   return (
     <div className="space-y-6 pb-20 md:pb-6">
       {/* TARJETA DESTACADA: CALENDARIO ACADÉMICO */}
-      <div className="bg-gradient-to-r from-[#131826] to-[#0F1420] border border-[#16C784]/20 hover:border-[#16C784]/40 rounded-2xl p-5 shadow-lg flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all duration-300 relative overflow-hidden group">
-        {/* Subtle decorative background glow */}
-        <div className="absolute -right-20 -top-20 w-40 h-40 bg-[#16C784]/5 rounded-full blur-3xl group-hover:bg-[#16C784]/8 transition-all duration-300 pointer-events-none"></div>
+      <div className="bg-gradient-to-r from-amber-900 via-amber-900 to-stone-900 text-white rounded-2xl p-6 shadow-sm shadow-amber-950/20 border border-amber-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all duration-300 relative overflow-hidden group">
+        {/* Decorative subtle ambient background */}
+        <div className="absolute -right-20 -top-20 w-40 h-40 bg-amber-400/10 rounded-full blur-2xl pointer-events-none"></div>
         
         <div className="flex items-start gap-4 z-10">
-          <div className="w-12 h-12 rounded-xl bg-[#16C784]/10 border border-[#16C784]/25 flex items-center justify-center text-[#16C784] shrink-0">
-            <Calendar className="w-6 h-6" />
+          <div className="w-12 h-12 rounded-xl bg-white/15 border border-white/20 flex items-center justify-center text-white shrink-0 shadow-2xs">
+            <Calendar className="w-6 h-6 text-amber-200" />
           </div>
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <span className="text-[9px] font-mono font-bold text-[#16C784] uppercase tracking-wider bg-[#16C784]/10 px-2 py-0.5 rounded border border-[#16C784]/15">
+              <span className="text-xs font-mono font-bold text-amber-950 uppercase tracking-wider bg-amber-100 px-2.5 py-0.5 rounded shadow-2xs">
                 Institucional
               </span>
-              <span className="text-[10px] text-[#5B6577] font-mono">• UNLaR</span>
+              <span className="text-xs text-amber-200 font-mono">• UNLaR</span>
             </div>
-            <h4 className="text-sm font-bold text-[#EDEFF3] font-mono uppercase tracking-wide">
+            <h4 className="text-base font-bold text-white font-mono uppercase tracking-wide">
               Calendario Académico {CALENDARIO_ACADEMICO_CONFIG.cicloLectivo}
             </h4>
-            <p className="text-xs text-[#5B6577] font-sans leading-relaxed max-w-xl">
+            <p className="text-sm text-stone-200/90 font-sans leading-relaxed max-w-xl">
               {CALENDARIO_ACADEMICO_CONFIG.descripcion}
             </p>
           </div>
@@ -914,26 +914,26 @@ export default function PortalView() {
           href={getCalendarioDownloadUrl()}
           target="_blank"
           rel="noreferrer"
-          className="w-full sm:w-auto shrink-0 z-10 min-h-[44px] px-5 py-2.5 bg-[#16C784] hover:bg-[#15b376] text-white font-mono font-bold text-xs uppercase rounded-xl tracking-wider shadow-md shadow-[#16C784]/10 hover:shadow-[#16C784]/20 transition-all duration-150 flex items-center justify-center gap-2 cursor-pointer active:scale-98"
+          className="w-full sm:w-auto shrink-0 z-10 min-h-[46px] px-5 py-2.5 bg-amber-50 hover:bg-amber-100 text-amber-950 font-mono font-bold text-xs uppercase rounded-xl tracking-wider shadow-2xs hover:shadow-xs transition-all duration-150 flex items-center justify-center gap-2 cursor-pointer active:scale-98"
         >
-          <Download className="w-4 h-4" />
+          <Download className="w-4 h-4 text-amber-900" />
           <span>Descargar PDF</span>
         </a>
       </div>
 
       {/* CATEDRA TICKERS UPPER BAR */}
-      <div className="bg-[#0F1420] border border-[#1E2531] rounded-2xl p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-lg">
+      <div className="bg-white border border-stone-200 rounded-2xl p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-2xs">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-[#16C784] animate-ping"></span>
-            <span className="text-[9px] font-mono text-[#16C784] uppercase tracking-widest font-bold">TERMINAL DE ACCESO DIRECTO</span>
+            <span className="w-2.5 h-2.5 rounded-full bg-amber-800 animate-ping"></span>
+            <span className="text-xs font-mono text-amber-800 uppercase tracking-widest font-bold">ACCESO DIRECTO</span>
           </div>
-          <h3 className="text-base font-bold text-[#EDEFF3] tracking-tight">Selección de Cátedra</h3>
+          <h3 className="text-lg font-bold text-stone-900 tracking-tight">Selección de Cátedra</h3>
         </div>
 
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
-          {/* Cátedras as "TICKERS" */}
-          <div className="flex flex-wrap gap-1.5 p-1 bg-[#131826] border border-[#1E2531] rounded-xl w-full md:w-auto">
+          {/* Cátedras buttons */}
+          <div className="flex flex-wrap gap-1.5 p-1 bg-stone-100 border border-stone-200 rounded-xl w-full md:w-auto">
             {activeCatedras.map(cat => {
               const isActive = selectedCatedra === cat.id;
               return (
@@ -942,10 +942,10 @@ export default function PortalView() {
                   onClick={() => {
                     setSelectedCatedra(cat.id);
                   }}
-                  className={`px-3.5 py-2 rounded-lg text-xs font-mono font-bold uppercase transition-all duration-150 cursor-pointer flex-1 md:flex-none text-center ${
+                  className={`px-4 py-2.5 rounded-lg text-xs font-mono font-bold uppercase transition-all duration-150 cursor-pointer flex-1 md:flex-none text-center ${
                     isActive
-                      ? "bg-[#16C784]/15 text-[#16C784] border border-[#16C784]/25"
-                      : "bg-transparent text-[#5B6577] border border-transparent hover:text-[#EDEFF3] hover:border-[#1E2531]"
+                      ? "bg-amber-900 text-amber-50 shadow-2xs border border-amber-900"
+                      : "bg-transparent text-stone-700 border border-transparent hover:text-stone-900 hover:bg-white"
                   }`}
                 >
                   {getTickerCode(cat.id)}
@@ -957,18 +957,18 @@ export default function PortalView() {
           {/* Connection Status Indicator */}
           <div className="shrink-0 flex items-center justify-center">
             {loading ? (
-              <span className="px-3 py-1.5 text-[9px] font-mono bg-[#131826] border border-[#1E2531] text-[#5B6577] rounded-full flex items-center gap-1.5">
-                <Loader2 className="w-3 h-3 animate-spin text-[#16C784]" />
+              <span className="px-3 py-1.5 text-xs font-mono bg-stone-100 border border-stone-200 text-stone-600 rounded-full flex items-center gap-1.5">
+                <Loader2 className="w-3.5 h-3.5 animate-spin text-amber-800" />
                 <span>SINC_DATA...</span>
               </span>
             ) : isDemoMode ? (
-              <span className="px-3 py-1.5 text-[9px] font-mono bg-[#E24B4A]/10 text-[#E24B4A] border border-[#E24B4A]/20 rounded-full flex items-center gap-1.5 font-bold">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#E24B4A] animate-pulse"></span>
+              <span className="px-3 py-1.5 text-xs font-mono bg-amber-50 text-amber-800 border border-amber-300 rounded-full flex items-center gap-1.5 font-bold">
+                <span className="w-2 h-2 rounded-full bg-amber-600 animate-pulse"></span>
                 <span>MODO_OFFLINE</span>
               </span>
             ) : (
-              <span className="px-3 py-1.5 text-[9px] font-mono bg-[#16C784]/10 text-[#16C784] border border-[#16C784]/25 rounded-full flex items-center gap-1.5 font-bold animate-fade-in">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#16C784]"></span>
+              <span className="px-3 py-1.5 text-xs font-mono bg-emerald-50 text-emerald-800 border border-emerald-300 rounded-full flex items-center gap-1.5 font-bold animate-fade-in">
+                <span className="w-2 h-2 rounded-full bg-emerald-600"></span>
                 <span>SHEETS_EN_VIVO</span>
               </span>
             )}
@@ -978,11 +978,11 @@ export default function PortalView() {
 
       {/* ERROR BANNER IF CONNECTIONS LOSE INTEGRITY */}
       {errorMsg && (
-        <div className="bg-[#E24B4A]/10 border border-[#E24B4A]/25 text-[#E24B4A] rounded-xl p-4 flex items-start gap-3 animate-fade-in text-xs max-w-4xl mx-auto">
-          <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+        <div className="bg-rose-50 border border-rose-200 text-rose-800 rounded-xl p-4 flex items-start gap-3 animate-fade-in text-xs max-w-4xl mx-auto">
+          <AlertTriangle className="w-4 h-4 shrink-0 text-rose-600 mt-0.5" />
           <div className="space-y-1">
-            <p className="font-bold uppercase font-mono tracking-wider text-[10px]">Alerta de Conexión:</p>
-            <p className="text-[#EDEFF3]/80 leading-relaxed font-sans">
+            <p className="font-bold uppercase font-mono tracking-wider text-xs">Alerta de Conexión:</p>
+            <p className="text-rose-700 leading-relaxed font-sans text-xs md:text-sm">
               No se pudo conectar con las planillas en vivo ({errorMsg}). Para mantener tu consulta activa, el sistema cargó la base de datos local y segura en modo offline.
             </p>
           </div>
@@ -993,10 +993,10 @@ export default function PortalView() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         
         {/* DESKTOP SIDEBAR NAVIGATION */}
-        <div className="hidden md:block md:col-span-1 space-y-2">
-          <div className="bg-[#0F1420] border border-[#1E2531] rounded-2xl p-4 shadow-lg space-y-1">
-            <p className="px-3 py-1.5 text-[9px] font-mono text-[#5B6577] uppercase tracking-widest mb-2 font-bold">
-              TERMINAL MENU
+        <div className="hidden md:block md:col-span-1 space-y-3">
+          <div className="bg-white border border-stone-200 rounded-2xl p-4 shadow-2xs space-y-1.5">
+            <p className="px-3 py-1.5 text-xs font-mono text-stone-500 uppercase tracking-widest mb-2 font-bold">
+              MENÚ DE NAVEGACIÓN
             </p>
             {navigationItems.map(item => {
               const Icon = item.icon;
@@ -1008,28 +1008,28 @@ export default function PortalView() {
                   onClick={() => setActiveTab(item.id)}
                   className={`w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-semibold cursor-pointer transition-all ${
                     isActive
-                      ? "bg-[#16C784]/10 text-[#16C784] border-l-4 border-[#16C784] pl-2.5"
-                      : "text-[#5B6577] hover:bg-[#131826] hover:text-[#EDEFF3]"
+                      ? "bg-amber-100/70 text-amber-950 border-l-4 border-amber-800 pl-3 font-bold shadow-2xs"
+                      : "text-stone-700 hover:bg-stone-100 hover:text-stone-900"
                   }`}
                 >
-                  <Icon className={`w-4.5 h-4.5 ${isActive ? "text-[#16C784]" : "text-[#5B6577]"}`} />
-                  <span className="uppercase tracking-wider font-mono text-[10px] font-bold">{item.label}</span>
+                  <Icon className={`w-5 h-5 ${isActive ? "text-amber-800" : "text-stone-400"}`} />
+                  <span className="uppercase tracking-wider font-mono text-xs font-bold">{item.label}</span>
                 </button>
               );
             })}
           </div>
 
           {/* INFORMACIÓN DE LA MATERIA */}
-          <div className="bg-[#0F1420] border border-[#1E2531] rounded-2xl p-4 shadow-lg space-y-3 font-mono text-[10px] text-[#5B6577]">
-            <p className="text-[#EDEFF3] font-bold tracking-wider uppercase border-b border-[#1E2531] pb-1.5 flex items-center gap-2">
-              <Info className="w-3.5 h-3.5 text-[#16C784]" />
+          <div className="bg-white border border-stone-200 rounded-2xl p-4 shadow-2xs space-y-3 font-mono text-xs text-stone-600">
+            <p className="text-stone-900 font-bold tracking-wider uppercase border-b border-stone-200 pb-2 flex items-center gap-2">
+              <Info className="w-4 h-4 text-amber-800" />
               <span>SISTEMA DE INFO</span>
             </p>
-            <div className="space-y-1.5">
-              <p><span className="text-[#5B6577]">CÓDIGO:</span> <span className="text-[#EDEFF3] font-mono">{getTickerCode(selectedCatedra)}</span></p>
-              <p><span className="text-[#5B6577]">MATERIA:</span> <span className="text-[#EDEFF3]">{currentCatedra.nombre}</span></p>
-              <p><span className="text-[#5B6577]">DICTADO:</span> <span className="text-[#EDEFF3]">{currentCatedra.cuatrimestre}</span></p>
-              <p><span className="text-[#5B6577]">COHORTE:</span> <span className="text-[#EDEFF3]">{currentYear}</span></p>
+            <div className="space-y-2">
+              <p><span className="text-stone-400">CÓDIGO:</span> <span className="text-stone-900 font-mono font-bold">{getTickerCode(selectedCatedra)}</span></p>
+              <p><span className="text-stone-400">MATERIA:</span> <span className="text-stone-900 font-sans font-semibold">{currentCatedra.nombre}</span></p>
+              <p><span className="text-stone-400">DICTADO:</span> <span className="text-stone-900">{currentCatedra.cuatrimestre}</span></p>
+              <p><span className="text-stone-400">COHORTE:</span> <span className="text-stone-900 font-mono">{currentYear}</span></p>
             </div>
           </div>
         </div>
@@ -1046,16 +1046,16 @@ export default function PortalView() {
               className="space-y-4"
             >
               {/* SECTION HEADER CARD */}
-              <div className="bg-[#0F1420] text-white rounded-2xl p-5 shadow-lg border border-[#1E2531] flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+              <div className="bg-white border border-stone-200 rounded-2xl p-5 shadow-2xs flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
                   <div className="flex items-center gap-2 mb-1.5">
-                    <span className="text-[9px] font-mono tracking-widest text-[#16C784] uppercase font-bold bg-[#16C784]/15 px-2 py-0.5 rounded border border-[#16C784]/20">
+                    <span className="text-xs font-mono tracking-widest text-amber-900 uppercase font-bold bg-amber-100/80 px-2.5 py-0.5 rounded border border-amber-200">
                       {getTickerCode(selectedCatedra)}
                     </span>
-                    <span className="text-[10px] text-[#5B6577] font-mono">•</span>
-                    <span className="text-[10px] font-mono text-[#5B6577] uppercase">COHORTE {currentYear}</span>
+                    <span className="text-xs text-stone-300 font-mono">•</span>
+                    <span className="text-xs font-mono text-stone-500 uppercase font-semibold">COHORTE {currentYear}</span>
                   </div>
-                  <h2 className="text-lg font-bold tracking-tight text-[#EDEFF3] uppercase font-mono">
+                  <h2 className="text-xl md:text-2xl font-bold tracking-tight text-stone-900 uppercase font-mono">
                     {activeTab === "inicio" 
                       ? `Cátedra de ${currentCatedra?.nombre ? currentCatedra.nombre.replace(/\s*\([^)]*\)/g, "").trim() : ""}` 
                       : activeTab === "archivos" 
@@ -1072,8 +1072,8 @@ export default function PortalView() {
                 {/* 1. INICIO (INTRODUCCIÓN Y PROPÓSITO ACADÉMICO) */}
               {activeTab === "inicio" && (
                 <div className="space-y-4 animate-fade-in">
-                  <div className="bg-[#0F1420] border border-[#1E2531] rounded-2xl p-6 md:p-8 shadow-lg space-y-5">
-                    <h4 className="font-bold flex items-center gap-2 text-[10px] uppercase tracking-widest font-mono text-[#5B6577]">
+                  <div className="bg-white border border-stone-200 rounded-2xl p-6 md:p-8 shadow-2xs space-y-5">
+                    <h4 className="font-bold flex items-center gap-2 text-xs uppercase tracking-widest font-mono text-stone-500">
                       <span>INTRODUCCIÓN Y PROPÓSITO ACADÉMICO</span>
                     </h4>
                     <div className="space-y-4">
@@ -1081,7 +1081,7 @@ export default function PortalView() {
                         seccionesCatedra.find(s => s.seccion === "Programa")?.texto_simple || 
                         "El programa oficial de la asignatura se encuentra actualmente en edición o actualización por los coordinadores académicos."
                       ]).map((paragraph, pIdx) => (
-                        <p key={pIdx} className="text-[#EDEFF3]/90 leading-relaxed text-sm font-sans text-justify">
+                        <p key={pIdx} className="text-stone-800 leading-relaxed text-base font-sans text-justify">
                           {paragraph}
                         </p>
                       ))}
@@ -1093,8 +1093,8 @@ export default function PortalView() {
               {/* 2. ARCHIVOS (CON FILTRO INTERNO) */}
               {activeTab === "archivos" && (
                 <div className="space-y-4 animate-fade-in">
-                  {/* File category switcher - Ticker Style */}
-                  <div className="flex gap-1.5 p-1 bg-[#131826] border border-[#1E2531] rounded-xl overflow-x-auto">
+                  {/* File category switcher */}
+                  <div className="flex gap-1.5 p-1 bg-stone-100 border border-stone-200 rounded-xl overflow-x-auto">
                     {[
                       { id: "Programa", label: "Programa" },
                       { id: "Condiciones_Cronograma", label: "Condiciones de Cursada" },
@@ -1105,10 +1105,10 @@ export default function PortalView() {
                       <button
                         key={sub.id}
                         onClick={() => setActiveFileSubSection(sub.id as any)}
-                        className={`px-4 py-2 rounded-lg text-xs font-mono font-bold uppercase transition-all flex-1 text-center whitespace-nowrap cursor-pointer border ${
+                        className={`px-4 py-2.5 rounded-lg text-xs font-mono font-bold uppercase transition-all flex-1 text-center whitespace-nowrap cursor-pointer border ${
                           activeFileSubSection === sub.id
-                            ? "bg-[#16C784]/15 text-[#16C784] border-[#16C784]/30 shadow-md shadow-[#16C784]/5"
-                            : "bg-transparent text-[#5B6577] border-transparent hover:bg-[#1E2531]/30 hover:text-[#EDEFF3]"
+                            ? "bg-white text-amber-950 border-stone-300 shadow-2xs"
+                            : "bg-transparent text-stone-600 border-transparent hover:text-stone-900"
                         }`}
                       >
                         {sub.label}
@@ -1123,21 +1123,21 @@ export default function PortalView() {
               {/* 3. CRONOGRAMA */}
               {activeTab === "cronograma" && renderCronograma()}
 
-              {/* 4. RENDIMIENTO (BUSCADOR + BOLETÍN & ASISTENCIA UNIFICADOS EN UN TRADING DASHBOARD) */}
+              {/* 4. RENDIMIENTO (BUSCADOR + BOLETÍN & ASISTENCIA UNIFICADOS EN DASHBOARD) */}
               {activeTab === "rendimiento" && (
                 <div className="space-y-6">
                   {/* Buscador de alumnos */}
-                  <div className="bg-[#0F1420] border border-[#1E2531] rounded-2xl p-6 shadow-lg space-y-4">
+                  <div className="bg-white border border-stone-200 rounded-2xl p-6 shadow-2xs space-y-4">
                     <div className="max-w-md mx-auto text-center space-y-2 mb-2">
-                      <h4 className="font-bold text-[#EDEFF3] text-sm uppercase tracking-wider font-mono">Asistencia y Notas</h4>
-                      <p className="text-xs text-[#5B6577] leading-relaxed font-sans">
+                      <h4 className="font-bold text-stone-900 text-base uppercase tracking-wider font-mono">Asistencia y Notas</h4>
+                      <p className="text-sm text-stone-600 leading-relaxed font-sans">
                         Consulta tu asistencia de clases prácticas y calificaciones de evaluaciones parciales y condiciones finales.
                       </p>
                     </div>
 
                     {loading ? (
-                      <div className="flex flex-col items-center justify-center py-8 gap-2 text-[#5B6577] text-xs font-mono">
-                        <Loader2 className="w-5 h-5 animate-spin text-[#16C784]" />
+                      <div className="flex flex-col items-center justify-center py-8 gap-2 text-stone-500 text-xs font-mono">
+                        <Loader2 className="w-5 h-5 animate-spin text-amber-800" />
                         <span>SINC_DATA_BASE...</span>
                       </div>
                     ) : (
@@ -1151,26 +1151,26 @@ export default function PortalView() {
                     )}
                   </div>
 
-                  {/* UNIFIED TRADING PERFORMANCE CARD */}
+                  {/* UNIFIED PERFORMANCE CARD */}
                   {selectedStudent && (
                     <motion.div
                       initial={{ opacity: 0, scale: 0.98 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      className="bg-[#0F1420] border border-[#1E2531] rounded-2xl overflow-hidden shadow-2xl max-w-2xl mx-auto"
+                      className="bg-white border border-stone-200 rounded-2xl overflow-hidden shadow-2xs max-w-2xl mx-auto"
                     >
                       {/* CARD HEADER */}
-                      <div className="bg-[#131826] p-4 border-b border-[#1E2531] text-white flex justify-between items-center">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-[#16C784] flex items-center justify-center font-bold font-mono">
+                      <div className="bg-stone-900 p-4.5 border-b border-stone-800 text-white flex justify-between items-center">
+                        <div className="flex items-center gap-3.5">
+                          <div className="w-11 h-11 rounded-full bg-amber-800 text-amber-50 flex items-center justify-center font-bold font-mono text-base shadow-2xs">
                             {selectedStudent.split(" ").map(w => w.charAt(0)).join("").substring(0, 2).toUpperCase()}
                           </div>
                           <div>
-                            <p className="text-[9px] font-mono text-[#5B6577] uppercase tracking-widest">Padrón / Estudiante</p>
-                            <h5 className="font-bold text-sm text-[#EDEFF3]">{selectedStudent}</h5>
+                            <p className="text-xs font-mono text-stone-400 uppercase tracking-widest">Padrón / Estudiante</p>
+                            <h5 className="font-bold text-base text-white">{selectedStudent}</h5>
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className="text-[9px] font-mono text-[#5B6577] uppercase tracking-widest mb-1">Estado Final</p>
+                          <p className="text-xs font-mono text-stone-400 uppercase tracking-widest mb-1">Estado Final</p>
                           {(() => {
                             const finalCond = selectedCatedra !== "TECNO_3" 
                               ? studentGradesNum?.condicion_final 
@@ -1181,13 +1181,13 @@ export default function PortalView() {
                             const isRegular = cleanCond === "REGULAR";
                             
                             const colorClass = isPromocion 
-                              ? "text-[#16C784] bg-[#16C784]/15 border-[#16C784]/25" 
+                              ? "text-emerald-800 bg-emerald-50 border-emerald-300" 
                               : isRegular 
-                                ? "text-[#F0997B] bg-[#F0997B]/15 border-[#F0997B]/25" 
-                                : "text-[#E24B4A] bg-[#E24B4A]/15 border-[#E24B4A]/25";
+                                ? "text-amber-900 bg-amber-50 border-amber-300" 
+                                : "text-rose-800 bg-rose-50 border-rose-300";
 
                             return (
-                              <span className={`px-3.5 py-1 rounded-md text-base font-mono font-bold uppercase border inline-block ${colorClass}`}>
+                              <span className={`px-4 py-1.5 rounded-lg text-base font-mono font-bold uppercase border inline-block ${colorClass}`}>
                                 {finalCond || "N/A"}
                               </span>
                             );
@@ -1196,10 +1196,10 @@ export default function PortalView() {
                       </div>
 
                       {/* CARD BODY */}
-                      <div className="p-5 space-y-6">
+                      <div className="p-6 space-y-6">
                         
-                        {/* SECTION A: ASISTENCIA (VISUAL VARIATION INDICATOR) */}
-                        <div className="bg-[#131826]/60 border border-[#1E2531]/80 rounded-xl p-4 space-y-3.5">
+                        {/* SECTION A: ASISTENCIA */}
+                        <div className="bg-stone-50 border border-stone-200 rounded-xl p-5 space-y-4">
                           {(() => {
                             const currentCatedraObj = (catedras || []).find(c => c.id === selectedCatedra);
                             const totalClases = currentCatedraObj?.total_clases ?? 10;
@@ -1212,27 +1212,27 @@ export default function PortalView() {
                               <>
                                 <div className="flex justify-between items-center">
                                   <div>
-                                    <p className="text-[9px] font-mono text-[#5B6577] uppercase tracking-wider font-bold">ASISTENCIA EN CURSADA</p>
-                                    <h4 className="text-xs text-[#EDEFF3] font-sans font-medium">Clases Prácticas Requeridas</h4>
+                                    <p className="text-xs font-mono text-stone-500 uppercase tracking-wider font-bold">ASISTENCIA EN CURSADA</p>
+                                    <h4 className="text-sm text-stone-900 font-sans font-semibold">Clases Prácticas Requeridas</h4>
                                   </div>
                                   <div className="text-right">
-                                    <span className="text-2xl font-bold text-[#EDEFF3] font-mono tracking-tight">
+                                    <span className="text-3xl font-bold text-stone-900 font-mono tracking-tight">
                                       {studentAttendance ? formattedPct : "0%"}
                                     </span>
                                   </div>
                                 </div>
 
-                                {/* Horizontal Price-Variation Progress Bar */}
+                                {/* Horizontal Progress Bar */}
                                 {studentAttendance ? (
                                   (() => {
                                     const req = selectedCatedra === "BIO_MOL" ? 80 : 75;
                                     const cumple = pct >= req;
-                                    const colorHex = cumple ? "#16C784" : "#E24B4A";
+                                    const colorHex = cumple ? "#059669" : "#e11d48";
 
                                     return (
                                       <div className="space-y-3">
                                         {/* Progress bar line */}
-                                        <div className="w-full h-1.5 bg-[#1E2531] rounded-full overflow-hidden">
+                                        <div className="w-full h-2 bg-stone-200 rounded-full overflow-hidden">
                                           <div 
                                             className="h-full rounded-full transition-all duration-500"
                                             style={{ 
@@ -1243,22 +1243,22 @@ export default function PortalView() {
                                         </div>
 
                                         {/* Sub-text indicating detail of attendance */}
-                                        <div className="flex justify-between items-center text-[10px] font-mono text-[#5B6577]">
+                                        <div className="flex justify-between items-center text-xs font-mono text-stone-600">
                                           <span>Detalle de asistencias:</span>
-                                          <span className="font-semibold text-[#EDEFF3]">
+                                          <span className="font-semibold text-stone-900">
                                             {studentAttendance.presentes} de {totalClases} clases
                                           </span>
                                         </div>
 
-                                        {/* Compliance Badge / Variation Quote */}
-                                        <div className={`p-3 rounded-lg bg-[#0F1420] border border-[#1E2531] flex justify-between items-center text-xs`}>
-                                          <span className="font-mono text-[9px] text-[#5B6577] uppercase tracking-wider">Cumplimiento Mínimo ({req}%)</span>
+                                        {/* Compliance Badge */}
+                                        <div className={`p-3.5 rounded-xl bg-white border border-stone-200 flex justify-between items-center text-xs`}>
+                                          <span className="font-mono text-xs text-stone-600 uppercase tracking-wider">Cumplimiento Mínimo ({req}%)</span>
                                           {cumple ? (
-                                            <span className="font-mono font-bold text-[#16C784] flex items-center gap-1 bg-[#16C784]/10 px-2 py-0.5 rounded border border-[#16C784]/20">
+                                            <span className="font-mono font-bold text-emerald-800 flex items-center gap-1 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-300">
                                               ▲ CUMPLE REQUISITO
                                             </span>
                                           ) : (
-                                            <span className="font-mono font-bold text-[#E24B4A] flex items-center gap-1 bg-[#E24B4A]/10 px-2 py-0.5 rounded border border-[#E24B4A]/20 animate-pulse">
+                                            <span className="font-mono font-bold text-rose-800 flex items-center gap-1 bg-rose-50 px-2.5 py-1 rounded-lg border border-rose-300 animate-pulse">
                                               ▼ INSUFICIENTE
                                             </span>
                                           )}
@@ -1267,16 +1267,16 @@ export default function PortalView() {
                                     );
                                   })()
                                 ) : (
-                                  <p className="text-xs text-[#5B6577] italic font-sans text-center">No se registraron planillas de asistencia para este alumno.</p>
+                                  <p className="text-sm text-stone-500 italic font-sans text-center">No se registraron planillas de asistencia para este alumno.</p>
                                 )}
                               </>
                             );
                           })()}
                         </div>
 
-                        {/* SECTION B: CALIFICACIONES (TICKS/QUOTES PANEL) */}
+                        {/* SECTION B: CALIFICACIONES */}
                         <div className="space-y-3">
-                          <p className="text-[9px] font-mono text-[#5B6577] uppercase tracking-wider font-bold">PANEL DE COTIZACIÓN DE NOTAS</p>
+                          <p className="text-xs font-mono text-stone-500 uppercase tracking-wider font-bold">PANEL DE NOTAS</p>
                           
                           {/* CASO: ESQUEMA NUMÉRICO (BIO_MOL / TECNO II) */}
                           {selectedCatedra !== "TECNO_3" ? (
@@ -1284,56 +1284,56 @@ export default function PortalView() {
                               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                                 
                                 {/* P1 Card */}
-                                <div className="p-3.5 bg-[#131826]/70 border border-[#1E2531] rounded-xl space-y-2.5">
+                                <div className="p-4 bg-stone-50 border border-stone-200 rounded-xl space-y-2.5">
                                   <div className="flex justify-between items-start">
-                                    <span className="text-[9px] font-mono text-[#5B6577] uppercase tracking-wider font-bold">1ER PARCIAL</span>
-                                    <span className="text-[10px] font-mono font-bold text-[#16C784] bg-[#16C784]/10 px-1.5 py-0.5 rounded">
+                                    <span className="text-xs font-mono text-stone-600 uppercase tracking-wider font-bold">1ER PARCIAL</span>
+                                    <span className="text-xs font-mono font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-lg border border-emerald-300">
                                       {studentGradesNum.p1_resultado}
                                     </span>
                                   </div>
                                   <div className="flex justify-between items-baseline pt-1">
-                                    <span className="text-[10px] font-mono text-[#5B6577]">TEO:</span>
-                                    <span className="text-lg font-bold font-mono text-[#EDEFF3]">{studentGradesNum.p1_teoria}</span>
-                                    <span className="text-[10px] font-mono text-[#5B6577] ml-2">PRAC:</span>
-                                    <span className="text-lg font-bold font-mono text-[#EDEFF3]">{studentGradesNum.p1_practica}</span>
+                                    <span className="text-xs font-mono text-stone-500">TEO:</span>
+                                    <span className="text-xl font-bold font-mono text-stone-900">{studentGradesNum.p1_teoria}</span>
+                                    <span className="text-xs font-mono text-stone-500 ml-2">PRAC:</span>
+                                    <span className="text-xl font-bold font-mono text-stone-900">{studentGradesNum.p1_practica}</span>
                                   </div>
                                 </div>
 
                                 {/* P2 Card */}
-                                <div className="p-3.5 bg-[#131826]/70 border border-[#1E2531] rounded-xl space-y-2.5">
+                                <div className="p-4 bg-stone-50 border border-stone-200 rounded-xl space-y-2.5">
                                   <div className="flex justify-between items-start">
-                                    <span className="text-[9px] font-mono text-[#5B6577] uppercase tracking-wider font-bold">2DO PARCIAL</span>
-                                    <span className="text-[10px] font-mono font-bold text-[#16C784] bg-[#16C784]/10 px-1.5 py-0.5 rounded">
+                                    <span className="text-xs font-mono text-stone-600 uppercase tracking-wider font-bold">2DO PARCIAL</span>
+                                    <span className="text-xs font-mono font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-lg border border-emerald-300">
                                       {studentGradesNum.p2_resultado}
                                     </span>
                                   </div>
                                   <div className="flex justify-between items-baseline pt-1">
-                                    <span className="text-[10px] font-mono text-[#5B6577]">TEO:</span>
-                                    <span className="text-lg font-bold font-mono text-[#EDEFF3]">{studentGradesNum.p2_teoria}</span>
-                                    <span className="text-[10px] font-mono text-[#5B6577] ml-2">PRAC:</span>
-                                    <span className="text-lg font-bold font-mono text-[#EDEFF3]">{studentGradesNum.p2_practica}</span>
+                                    <span className="text-xs font-mono text-stone-500">TEO:</span>
+                                    <span className="text-xl font-bold font-mono text-stone-900">{studentGradesNum.p2_teoria}</span>
+                                    <span className="text-xs font-mono text-stone-500 ml-2">PRAC:</span>
+                                    <span className="text-xl font-bold font-mono text-stone-900">{studentGradesNum.p2_practica}</span>
                                   </div>
                                 </div>
 
                                 {/* Rec Card */}
-                                <div className="p-3.5 bg-[#131826]/70 border border-[#1E2531] rounded-xl space-y-2.5">
+                                <div className="p-4 bg-stone-50 border border-stone-200 rounded-xl space-y-2.5">
                                   <div className="flex justify-between items-start">
-                                    <span className="text-[9px] font-mono text-[#5B6577] uppercase tracking-wider font-bold">RECUPERATORIO</span>
-                                    <span className="text-[10px] font-mono font-bold text-[#F0997B] bg-[#F0997B]/10 px-1.5 py-0.5 rounded uppercase">
+                                    <span className="text-xs font-mono text-stone-600 uppercase tracking-wider font-bold">RECUPERATORIO</span>
+                                    <span className="text-xs font-mono font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded-lg border border-amber-300 uppercase">
                                       {studentGradesNum.recupera || "N/C"}
                                     </span>
                                   </div>
                                   <div className="flex justify-between items-baseline pt-1">
-                                    <span className="text-[10px] font-mono text-[#5B6577]">TEO:</span>
-                                    <span className="text-lg font-bold font-mono text-[#EDEFF3]">{studentGradesNum.rec_teoria || "-"}</span>
-                                    <span className="text-[10px] font-mono text-[#5B6577] ml-2">PRAC:</span>
-                                    <span className="text-lg font-bold font-mono text-[#EDEFF3]">{studentGradesNum.rec_practica || "-"}</span>
+                                    <span className="text-xs font-mono text-stone-500">TEO:</span>
+                                    <span className="text-xl font-bold font-mono text-stone-900">{studentGradesNum.rec_teoria || "-"}</span>
+                                    <span className="text-xs font-mono text-stone-500 ml-2">PRAC:</span>
+                                    <span className="text-xl font-bold font-mono text-stone-900">{studentGradesNum.rec_practica || "-"}</span>
                                   </div>
                                 </div>
 
                               </div>
                             ) : (
-                              <p className="text-xs text-[#5B6577] italic text-center font-sans py-2">No se registraron notas para este alumno.</p>
+                              <p className="text-sm text-stone-500 italic text-center font-sans py-2">No se registraron notas para este alumno.</p>
                             )
                           ) : (
                             /* CASO: ESQUEMA CUALITATIVO (TECNO III) */
@@ -1342,33 +1342,33 @@ export default function PortalView() {
                                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                                   
                                   {/* P1 Teorico Card */}
-                                  <div className="p-3.5 bg-[#131826]/70 border border-[#1E2531] rounded-xl space-y-1.5">
-                                    <span className="text-[9px] font-mono text-[#5B6577] uppercase tracking-wider font-bold block">1ER PARCIAL TEO</span>
+                                  <div className="p-4 bg-stone-50 border border-stone-200 rounded-xl space-y-2">
+                                    <span className="text-xs font-mono text-stone-600 uppercase tracking-wider font-bold block">1ER PARCIAL TEO</span>
                                     <div className="flex justify-between items-baseline pt-1">
-                                      <span className="text-lg font-bold font-mono text-[#EDEFF3]">{studentGradesStatus.p1_teoria}</span>
-                                      <span className="text-[10px] font-mono text-[#16C784] bg-[#16C784]/10 px-1.5 py-0.5 rounded">
+                                      <span className="text-xl font-bold font-mono text-stone-900">{studentGradesStatus.p1_teoria}</span>
+                                      <span className="text-xs font-mono text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-lg border border-emerald-300">
                                         {studentGradesStatus.p1_condicion}
                                       </span>
                                     </div>
                                   </div>
 
                                   {/* P2 Teorico Card */}
-                                  <div className="p-3.5 bg-[#131826]/70 border border-[#1E2531] rounded-xl space-y-1.5">
-                                    <span className="text-[9px] font-mono text-[#5B6577] uppercase tracking-wider font-bold block">2DO PARCIAL TEO</span>
+                                  <div className="p-4 bg-stone-50 border border-stone-200 rounded-xl space-y-2">
+                                    <span className="text-xs font-mono text-stone-600 uppercase tracking-wider font-bold block">2DO PARCIAL TEO</span>
                                     <div className="flex justify-between items-baseline pt-1">
-                                      <span className="text-lg font-bold font-mono text-[#EDEFF3]">{studentGradesStatus.p2_teoria}</span>
-                                      <span className="text-[10px] font-mono text-[#16C784] bg-[#16C784]/10 px-1.5 py-0.5 rounded">
+                                      <span className="text-xl font-bold font-mono text-stone-900">{studentGradesStatus.p2_teoria}</span>
+                                      <span className="text-xs font-mono text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-lg border border-emerald-300">
                                         {studentGradesStatus.p2_condicion}
                                       </span>
                                     </div>
                                   </div>
 
                                   {/* Recuperatorio Card */}
-                                  <div className="p-3.5 bg-[#131826]/70 border border-[#1E2531] rounded-xl space-y-1.5">
-                                    <span className="text-[9px] font-mono text-[#5B6577] uppercase tracking-wider font-bold block">RECUPERATORIOS</span>
+                                  <div className="p-4 bg-stone-50 border border-stone-200 rounded-xl space-y-2">
+                                    <span className="text-xs font-mono text-stone-600 uppercase tracking-wider font-bold block">RECUPERATORIOS</span>
                                     <div className="flex justify-between items-baseline pt-1">
-                                      <span className="text-lg font-bold font-mono text-[#EDEFF3]">{studentGradesStatus.rec_teoria || "-"}</span>
-                                      <span className="text-[10px] font-mono text-[#F0997B] bg-[#F0997B]/10 px-1.5 py-0.5 rounded">
+                                      <span className="text-xl font-bold font-mono text-stone-900">{studentGradesStatus.rec_teoria || "-"}</span>
+                                      <span className="text-xs font-mono text-amber-800 bg-amber-50 px-2 py-0.5 rounded-lg border border-amber-300">
                                         {studentGradesStatus.rec_condicion || "N/A"}
                                       </span>
                                     </div>
@@ -1376,22 +1376,22 @@ export default function PortalView() {
 
                                 </div>
 
-                                <div className="p-4 bg-[#131826]/70 border border-[#1E2531] rounded-xl flex justify-between items-center">
+                                <div className="p-4.5 bg-stone-50 border border-stone-200 rounded-xl flex justify-between items-center">
                                   <div>
-                                    <p className="text-[9px] font-mono text-[#5B6577] uppercase tracking-wider font-bold">RENDIMIENTO PRÁCTICO</p>
-                                    <h5 className="font-semibold text-[#EDEFF3] text-xs font-sans">Proyecto Global Troncal</h5>
+                                    <p className="text-xs font-mono text-stone-600 uppercase tracking-wider font-bold">RENDIMIENTO PRÁCTICO</p>
+                                    <h5 className="font-semibold text-stone-900 text-sm font-sans">Proyecto Global Troncal</h5>
                                   </div>
-                                  <span className={`px-3 py-1 rounded text-xs font-mono font-bold border ${
+                                  <span className={`px-3.5 py-1.5 rounded-lg text-xs font-mono font-bold border ${
                                     studentGradesStatus.practica === "Aprobado"
-                                      ? "text-[#16C784] bg-[#16C784]/15 border-[#16C784]/20"
-                                      : "text-[#F0997B] bg-[#F0997B]/15 border-[#F0997B]/20"
+                                      ? "text-emerald-800 bg-emerald-50 border-emerald-300"
+                                      : "text-amber-800 bg-amber-50 border-amber-300"
                                   }`}>
                                     {studentGradesStatus.practica}
                                   </span>
                                 </div>
                               </div>
                             ) : (
-                              <p className="text-xs text-[#5B6577] italic text-center font-sans py-2">No se registraron notas para este alumno.</p>
+                              <p className="text-sm text-stone-500 italic text-center font-sans py-2">No se registraron notas para este alumno.</p>
                             )
                           )}
                         </div>
@@ -1410,8 +1410,8 @@ export default function PortalView() {
         </div>
       </div>
 
-      {/* PERSISTENT BOTTOM NAVIGATION BAR FOR MOBILE (THUMBS-FRIENDLY ACCESSIBILITY) */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 bg-[#0F1420]/95 backdrop-blur-md border-t border-[#1E2531] md:hidden shadow-2xl">
+      {/* PERSISTENT BOTTOM NAVIGATION BAR FOR MOBILE */}
+      <div className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-stone-200 md:hidden shadow-xl">
         <div className="flex justify-around items-center h-16">
           {navigationItems.map(item => {
             const Icon = item.icon;
@@ -1421,11 +1421,11 @@ export default function PortalView() {
                 key={item.id}
                 onClick={() => setActiveTab(item.id)}
                 className={`flex flex-col items-center justify-center w-full h-full transition-all active:scale-95 duration-100 ${
-                  isActive ? "text-[#16C784] font-bold" : "text-[#5B6577] hover:text-[#EDEFF3]"
+                  isActive ? "text-amber-900 font-bold" : "text-stone-400 hover:text-stone-600"
                 }`}
               >
                 <Icon className="w-5 h-5 mb-1 shrink-0" />
-                <span className="text-[9px] font-mono uppercase tracking-wider">{item.label}</span>
+                <span className="text-[10px] font-mono uppercase tracking-wider">{item.label}</span>
               </button>
             );
           })}
