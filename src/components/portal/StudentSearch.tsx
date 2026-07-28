@@ -87,17 +87,17 @@ export default function StudentSearch({
       {selectedStudent ? (
         <div className="flex items-center justify-between bg-white border border-stone-200 rounded-2xl p-4 animate-fade-in shadow-2xs">
           <div className="flex items-center gap-3.5">
-            <div className="w-11 h-11 rounded-full bg-amber-900 text-amber-50 flex items-center justify-center font-bold text-base font-mono shadow-xs shadow-amber-900/20">
+            <div className="w-11 h-11 rounded-full bg-[#1A1F35] text-[#FCE19C] flex items-center justify-center font-bold text-base font-mono shadow-xs">
               {selectedStudent.charAt(0).toUpperCase()}
             </div>
             <div>
-              <p className="text-[10px] text-amber-900/70 font-mono uppercase tracking-widest font-bold">Estudiante Seleccionado</p>
+              <p className="text-[10px] text-stone-500 font-mono uppercase tracking-widest font-bold">Estudiante Seleccionado</p>
               <p className="text-base font-bold text-stone-900">{selectedStudent}</p>
             </div>
           </div>
           <button
             onClick={handleClear}
-            className="p-2.5 bg-stone-100 hover:bg-amber-100 text-stone-700 hover:text-amber-950 rounded-xl transition-colors cursor-pointer active:scale-95 min-h-[44px] min-w-[44px] flex items-center justify-center border border-stone-200"
+            className="p-2.5 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-xl transition-colors cursor-pointer active:scale-95 min-h-[44px] min-w-[44px] flex items-center justify-center border border-stone-200"
             title="Cambiar de estudiante"
           >
             <X className="w-4.5 h-4.5" />

@@ -73,61 +73,47 @@ export default function App() {
         : "bg-[#FAF7F2] text-stone-900 selection:bg-amber-200 selection:text-amber-950"
     }`}>
       {/* HEADER SECTION */}
-      <header className={`sticky top-0 z-50 border-b transition-colors duration-300 ${
-        isStudent 
-          ? "bg-white/95 backdrop-blur-md border-amber-900/10 shadow-2xs" 
-          : "border-stone-200 bg-white shadow-2xs"
-      }`}>
-        <div className="max-w-7xl mx-auto px-6 py-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <div className="flex items-center gap-3.5">
-            <div className={`p-3 rounded-xl shadow-xs transition-colors duration-300 ${
-              isStudent ? "bg-amber-900 text-amber-50 shadow-amber-900/20" : "bg-stone-900 text-white"
-            }`}>
-              <Database className="w-5.5 h-5.5" id="logo-icon" />
+      <header className="sticky top-0 z-50 border-b border-stone-200/90 bg-white/95 backdrop-blur-md shadow-2xs">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3.5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-[#1A1F35] text-[#FCE19C] shadow-2xs">
+              <Database className="w-5 h-5" id="logo-icon" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className={`text-xs tracking-widest uppercase font-mono px-2.5 py-0.5 rounded-md font-bold transition-colors duration-300 ${
-                  isStudent ? "bg-amber-100/80 text-amber-950 border border-amber-200/80" : "bg-amber-100 text-amber-900 border border-amber-200"
-                }`}>
-                  {isStudent ? "Terminal Académica" : "Portal de Cátedras"}
+                <span className="text-[11px] font-mono font-bold text-stone-900 uppercase tracking-wider">
+                  {isStudent ? "TERMINAL ACADÉMICA" : "PORTAL DOCENTE"}
                 </span>
-                <span className="text-xs text-stone-500 font-mono font-medium">v2.1.0</span>
+                <span className="text-[10px] text-stone-500 font-mono font-bold">v2.1.0</span>
               </div>
-              <h1 className={`text-lg md:text-xl font-bold tracking-tight transition-colors duration-300 ${
-                isStudent ? "text-stone-900" : "text-stone-900"
-              }`} id="app-title">
-                {isStudent ? "Prof. Sergio Rearte" : "Portal Universitario Interactivo & Arquitectura"}
+              <h1 className="text-sm md:text-base font-bold text-stone-900 font-sans tracking-tight" id="app-title">
+                {isStudent ? "Profesor Sergio Rearte" : "Portal Universitario Interactivo & Arquitectura"}
               </h1>
             </div>
           </div>
 
           {/* VIEW MODE SELECTOR */}
-          <div className={`flex items-center gap-2 p-1.5 rounded-xl self-stretch md:self-auto border transition-colors duration-300 ${
-            isStudent 
-              ? "bg-stone-100/90 border-stone-200/90" 
-              : "bg-stone-100 border-stone-200 shadow-2xs"
-          }`}>
+          <div className="flex items-center gap-1.5 p-1 rounded-xl bg-stone-100 border border-stone-200 shadow-2xs self-stretch sm:self-auto">
             <button
               onClick={() => setViewMode("estudiante")}
-              className={`flex items-center gap-2 px-4.5 py-2.5 rounded-lg text-sm font-bold cursor-pointer transition-all ${
+              className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-bold font-mono uppercase transition-all cursor-pointer ${
                 isStudent
-                  ? "bg-amber-900 text-white shadow-2xs"
+                  ? "bg-[#1A1F35] text-white shadow-2xs"
                   : "text-stone-600 hover:text-stone-900"
               }`}
             >
-              <GraduationCap className={`w-4.5 h-4.5 ${isStudent ? "text-amber-200" : "text-amber-700"}`} />
+              <GraduationCap className={`w-4 h-4 ${isStudent ? "text-[#FCE19C]" : "text-stone-500"}`} />
               <span>Vista Estudiante</span>
             </button>
             <button
               onClick={() => setViewMode("docente")}
-              className={`flex items-center gap-2 px-4.5 py-2.5 rounded-lg text-sm font-bold cursor-pointer transition-all ${
+              className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-bold font-mono uppercase transition-all cursor-pointer ${
                 !isStudent
-                  ? "bg-amber-900 text-white shadow-2xs"
+                  ? "bg-[#1A1F35] text-white shadow-2xs"
                   : "text-stone-600 hover:text-stone-900"
               }`}
             >
-              <Wrench className={`w-4.5 h-4.5 ${!isStudent ? "text-amber-200" : "text-stone-500"}`} />
+              <Wrench className={`w-4 h-4 ${!isStudent ? "text-[#FCE19C]" : "text-stone-500"}`} />
               <span>Panel Docente</span>
             </button>
           </div>

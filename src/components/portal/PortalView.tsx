@@ -16,10 +16,11 @@ import {
   ExternalLink,
   Info,
   Layers,
-  ChevronRight,
-  TrendingUp,
-  FileSpreadsheet,
-  MessageSquare
+  MessageSquare,
+  Menu,
+  FileCode,
+  User,
+  Check
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { 
@@ -45,7 +46,7 @@ import { CALENDARIO_ACADEMICO_CONFIG, getCalendarioDownloadUrl } from "../../con
 const ACADEMIC_INTRODUCTIONS: Record<string, string[]> = {
   BIO_MOL: [
     "La Biología Molecular constituye una disciplina científica trascendental en el panorama académico contemporáneo, habiendo aportado los fundamentos esenciales para la comprensión de los procesos moleculares inherente a la herencia y transmisión de la información genética. Su inclusión en el plan de estudios de las carreras de Bioquímica y en la de Farmacia, resulta imperativa, dado que las metodologías y avances tecnológicos que caracterizan los laboratorios modernos se sustentan directamente en los hallazgos propiciados por esta ciencia.",
-    "El programa académico tiene como propósito fundamental instruir al estudiantado en los principios teóricos y prácticos de la disciplina, desarrollando competencias para la interpretación crítica de la literatura científica de vanguardia y fomentando la generación de grupos de investigación interdisciplinarios. Asimismo, la asignatura se erige como herramienta transversal en el ejercicio profesional, capacitando al futuro bioquímico para responder con solvencia a las exigencias del ámbito de la salud y la investigación clínica mediante una sólida formación científica."
+    "El programa académico tiene como propósito fundamental instruir al estudiantado en los principios teóricos y prácticos de la disciplina, desarrollando competencias para la interpretación crítica de la literatura científica de vanguardia y fomentando la generación de grupos de investigación interdisciplinados. Asimismo, la asignatura se erige como herramienta transversal en el ejercicio profesional, capacitando al futuro bioquímico para responder con solvencia a las exigencias del ámbito de la salud y la investigación clínica mediante una sólida formación científica."
   ],
   TECNO_2: [
     "La Tecnicatura Universitaria en Biogenética exige de sus egresados un dominio riguroso de los marcos teóricos, químicos y físicos que fundamentan las metodologías instrumentales de mayor aplicación en el contexto laboratorial. En este marco, la asignatura Tecnología de Laboratorio II se configura como un eje estructural del plan de estudios, toda vez que garantiza la transmisión sistematizada de saberes especializados indispensables para el desempeño profesional. Paralelamente, dicha asignatura proporciona el ámbito empírico idóneo para la consolidación de competencias prácticas, permitiendo al estudiante operar con solvencia frente a los procedimientos técnicos que definen el campo de incumbencia de la carrera. De este modo, la disciplina opera como puente articulador entre la formación teórica y la práctica profesional, asegurando que el egresado posea las herramientas conceptuales y operativas necesarias para responder a las demandas del ámbito biogenético con precisión y eficiencia."
@@ -66,7 +67,7 @@ export default function PortalView() {
     activeCatedras.length > 0 ? activeCatedras[0].id : "BIO_MOL"
   );
   
-  // Navigation tabs for Fintech UI: 'inicio' | 'archivos' | 'cronograma' | 'rendimiento' | 'comunicacion'
+  // Navigation tabs: 'inicio' | 'archivos' | 'cronograma' | 'rendimiento' | 'comunicacion'
   const [activeTab, setActiveTab] = useState<"inicio" | "archivos" | "cronograma" | "rendimiento" | "comunicacion">("inicio");
   
   // Sub-section filter inside 'archivos'
@@ -93,6 +94,9 @@ export default function PortalView() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isDemoMode, setIsDemoMode] = useState<boolean>(true);
 
+  // Mobile menu sidebar toggle state
+  const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
+
   // Alumno seleccionado por el buscador
   const [selectedStudent, setSelectedStudent] = useState<string | null>(null);
 
@@ -108,7 +112,6 @@ export default function PortalView() {
         if (!id) return false;
         const trimmed = id.trim();
         if (trimmed.startsWith("TU_ID_AQUI") || trimmed === "") return false;
-        // Si coincide con la contraseña del docente, es un error de configuración
         const pwd = import.meta.env.VITE_DOCENTE_PASSWORD || "nadp3638";
         if (trimmed === pwd.trim()) return false;
         if (trimmed.length < 25) return false;
@@ -116,7 +119,7 @@ export default function PortalView() {
       };
 
       if (!isValidGoogleSheetId(panelConfigId)) {
-        console.info("ℹ️ [CONFIG] El ID 'VITE_SHEET_ID_PANEL_CONFIG' no está configurado o es inválido (ej: coincide con la contraseña). Usando datos locales por defecto.");
+        console.info("ℹ️ [CONFIG] El ID 'VITE_SHEET_ID_PANEL_CONFIG' no está configurado o es inválido. Usando datos locales por defecto.");
         return;
       }
 
@@ -135,7 +138,6 @@ export default function PortalView() {
         const fetchedArchivos = await getArchivosFromSheet(panelConfigId!);
         const fetchedCarpetasDrive = await getCarpetasDriveFromSheet(panelConfigId!);
 
-        // Enriquecer cátedras con la información de cronograma de la hoja Secciones
         const enrichedCatedras = fetchedCatedras.map(cat => {
           const cronoSec = fetchedSecciones.find(s => s.id_catedra === cat.id && s.seccion === "Cronograma");
           return {
@@ -150,15 +152,13 @@ export default function PortalView() {
         setArchivosList(fetchedArchivos);
         setCarpetasDrive(fetchedCarpetasDrive);
 
-        // Si la cátedra seleccionada ya no existe o no está activa, cambiar a la primera activa
         const activeCats = enrichedCatedras.filter(c => c.activa);
         if (activeCats.length > 0 && !activeCats.some(c => c.id === selectedCatedra)) {
           setSelectedCatedra(activeCats[0].id);
         }
-        console.info("✅ [CONFIG] Configuración del panel docente cargada en vivo con éxito.");
+        console.info("✅ [CONFIG] Configuración del panel docente cargada con éxito.");
       } catch (err: any) {
         console.warn("⚠️ [CONFIG] No se pudo cargar configuración en vivo desde el panel docente:", err);
-        // Error no bloquea el sistema: se mantienen los mocks por defecto
       } finally {
         setConfigLoading(false);
       }
@@ -251,11 +251,9 @@ export default function PortalView() {
       setCronogramaError(null);
       try {
         const spreadsheetId = CRONOGRAMAS_SHEET_ID;
-        const sheetName = currentCatedra.id; // e.g., "BIO_MOL", "TECNO_2", "TECNO_3"
+        const sheetName = currentCatedra.id;
         
         if (!spreadsheetId || spreadsheetId.startsWith("TU_ID_AQUI")) {
-          // If no spreadsheet is set, let's load a mock list of classes for demonstration
-          console.warn("⚠️ VITE_SHEET_ID_CRONOGRAMAS no está configurado. Usando mock data para LISTA_CLASES.");
           const mockClases: ClaseCronograma[] = [
             {
               fecha: new Date(2026, 2, 10),
@@ -427,7 +425,7 @@ export default function PortalView() {
   const renderCronograma = () => {
     if (currentCatedra.tipo_cronograma === "TEXTO_SIMPLE") {
       return (
-        <div className="bg-white border border-stone-200 rounded-2xl p-6 shadow-2xs animate-fade-in space-y-4">
+        <div className="bg-white border border-stone-200/90 rounded-2xl p-6 md:p-8 shadow-2xs space-y-4 animate-fade-in">
           <h4 className="font-bold flex items-center gap-2 text-xs uppercase tracking-widest font-mono text-stone-600">
             <span>CRONOGRAMA DE CURSADA</span>
           </h4>
@@ -450,15 +448,15 @@ export default function PortalView() {
 
       return (
         <div className="space-y-4 animate-fade-in">
-          <div className="bg-white border border-stone-200 rounded-2xl p-6 shadow-2xs">
+          <div className="bg-white border border-stone-200/90 rounded-2xl p-6 md:p-8 shadow-2xs">
             <h4 className="font-bold text-stone-600 mb-6 flex items-center gap-2 text-xs uppercase tracking-widest font-mono">
               <span>HITOS Y FECHAS CLAVE</span>
             </h4>
-            <div className="relative border-l-2 border-stone-200 pl-6 ml-4 space-y-8">
+            <div className="relative border-l-2 border-stone-200 pl-6 ml-3 space-y-8">
               {fechasBio.map((item, idx) => (
                 <div key={idx} className="relative">
-                  <div className="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-amber-900 border-4 border-white shadow-xs"></div>
-                  <span className="font-mono text-xs font-bold text-amber-950 bg-amber-100 px-3 py-1 rounded-md border border-amber-300 uppercase tracking-wider">
+                  <div className="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-[#60290A] border-4 border-white shadow-2xs"></div>
+                  <span className="font-mono text-xs font-bold text-[#60290A] bg-amber-100/80 px-3 py-1 rounded-md border border-amber-300 uppercase tracking-wider">
                     {item.sem}
                   </span>
                   <p className="text-stone-800 mt-3 text-base leading-relaxed font-sans font-medium">{item.desc}</p>
@@ -476,24 +474,24 @@ export default function PortalView() {
 
       return (
         <div className="space-y-4 animate-fade-in">
-          <div className="bg-white border border-stone-200 rounded-2xl p-6 shadow-2xs">
+          <div className="bg-white border border-stone-200/90 rounded-2xl p-6 md:p-8 shadow-2xs">
             <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3 mb-4">
               <h4 className="font-bold flex items-center gap-2 text-xs uppercase tracking-widest font-mono text-stone-600">
-                <span>CALENDARIO DE GOOGLE INTEGRADO</span>
+                <span>CALENDARIO INTEGRADO</span>
               </h4>
               {isGoogleCalendarUrl && (
                 <a
                   href={calendarUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-1.5 text-xs text-amber-900 hover:text-amber-950 font-mono uppercase tracking-wider underline font-bold"
+                  className="inline-flex items-center gap-1.5 text-xs text-[#60290A] hover:underline font-mono uppercase tracking-wider font-bold"
                 >
                   <span>Abrir Ventana</span>
                   <ExternalLink className="w-3.5 h-3.5" />
                 </a>
               )}
             </div>
-            <div className="aspect-video w-full rounded-2xl border border-stone-200 overflow-hidden bg-stone-50 flex items-center justify-center relative min-h-[320px]">
+            <div className="aspect-video w-full rounded-2xl border border-stone-200 overflow-hidden bg-stone-50 flex items-center justify-center relative min-h-[360px]">
               {isGoogleCalendarUrl ? (
                 <iframe
                   src={calendarUrl}
@@ -502,7 +500,7 @@ export default function PortalView() {
                 ></iframe>
               ) : (
                 <div className="text-center p-6 space-y-2">
-                  <Calendar className="w-9 h-9 text-stone-400 mx-auto opacity-50" />
+                  <Calendar className="w-10 h-10 text-stone-400 mx-auto opacity-50" />
                   <p className="text-sm text-stone-600 italic font-sans">
                     El cronograma en calendario todavía no fue configurado para esta cátedra.
                   </p>
@@ -518,7 +516,7 @@ export default function PortalView() {
       if (cronogramaLoading) {
         return (
           <div className="bg-white border border-stone-200 rounded-2xl p-12 text-center shadow-2xs animate-fade-in flex flex-col items-center justify-center gap-3">
-            <Loader2 className="w-8 h-8 text-amber-900 animate-spin" />
+            <Loader2 className="w-8 h-8 text-[#60290A] animate-spin" />
             <p className="text-xs text-stone-600 font-mono uppercase tracking-wider font-semibold">Cargando cronograma de clases...</p>
           </div>
         );
@@ -546,17 +544,16 @@ export default function PortalView() {
 
       return (
         <div className="space-y-4 animate-fade-in">
-          <div className="bg-white border border-stone-200 rounded-2xl p-6 shadow-2xs">
+          <div className="bg-white border border-stone-200/90 rounded-2xl p-6 md:p-8 shadow-2xs">
             <h4 className="font-bold text-stone-600 mb-6 flex items-center gap-2 text-xs uppercase tracking-widest font-mono">
               <span>CRONOGRAMA DETALLADO DE CLASES</span>
             </h4>
             
-            <div className="relative border-l border-stone-300 pl-6 ml-4 space-y-8">
+            <div className="relative border-l-2 border-stone-200 pl-6 ml-3 space-y-8">
               {clasesCronograma.map((clase, idx) => {
                 const isFeriado = clase.tipo === "Feriado";
                 const isExtra = clase.tipo === "Extra";
 
-                // Format Horario securely preventing duplicates
                 const rawHorario = (clase.horario || "").trim();
                 const displayHorario = rawHorario
                   ? (rawHorario.toLowerCase().startsWith("horario:") 
@@ -564,15 +561,13 @@ export default function PortalView() {
                       : `Horario: ${rawHorario}`)
                   : "";
 
-                // Format Aula securely preventing duplicates
                 const rawAula = (clase.aula || "").trim();
                 const displayAula = rawAula
-                  ? (rawAula.toLowerCase().startsWith("aula:") || rawAula.toLowerCase().startsWith("aula del 3er mod.:") || rawAula.toLowerCase().startsWith("aula del 3er mod:")
+                  ? (rawAula.toLowerCase().startsWith("aula:") || rawAula.toLowerCase().startsWith("aula del 3er mod.:")
                       ? rawAula 
-                      : `Aula del 3er Mod.: ${rawAula}`)
+                      : `Aula: ${rawAula}`)
                   : "";
 
-                // Format Tema securely preventing duplicates
                 const rawTema = (clase.tema || "").trim();
                 const displayTema = rawTema
                   ? (rawTema.toLowerCase().startsWith("tema:") 
@@ -581,14 +576,13 @@ export default function PortalView() {
                   : "";
 
                 return (
-                  <div key={idx} className={`relative group ${isFeriado ? "opacity-50" : ""}`}>
-                    {/* Circle marker on line */}
-                    <div className={`absolute -left-[31px] top-1.5 w-3 h-3 rounded-full border-2 border-white shadow-xs 
+                  <div key={idx} className={`relative group ${isFeriado ? "opacity-60" : ""}`}>
+                    <div className={`absolute -left-[31px] top-1.5 w-3.5 h-3.5 rounded-full border-2 border-white shadow-2xs 
                       ${isFeriado 
                         ? "bg-stone-400" 
                         : isExtra 
                           ? "bg-amber-600 animate-pulse" 
-                          : "bg-amber-900"}`}
+                          : "bg-[#60290A]"}`}
                     ></div>
 
                     <div className="flex flex-wrap items-center gap-2 mb-2">
@@ -603,7 +597,7 @@ export default function PortalView() {
                       )}
 
                       {!isFeriado && rawAula && (
-                        <span className="font-mono text-xs text-amber-900 bg-amber-100/80 px-2.5 py-1 rounded-lg border border-amber-300 font-semibold">
+                        <span className="font-mono text-xs text-[#60290A] bg-amber-100/80 px-2.5 py-1 rounded-lg border border-amber-300 font-semibold">
                           {displayAula}
                         </span>
                       )}
@@ -640,7 +634,7 @@ export default function PortalView() {
     return null;
   };
 
-  // Render a clean list of files with download action on the right
+  // Render a clean list of files with exact PDF icon styling from Screenshot 2
   const renderArchivosSection = (tipo: "Bibliografia" | "Diapositivas" | "Apuntes_Clase" | "Programa" | "Condiciones_Cronograma") => {
     const seccionConfigName = 
       tipo === "Bibliografia" ? "Bibliografía" : 
@@ -663,7 +657,6 @@ export default function PortalView() {
       );
     }
 
-    // Verificar si es sección dinámica de Google Drive
     const isDynamicSection = tipo === "Bibliografia" || tipo === "Diapositivas" || tipo === "Apuntes_Clase";
     const matchedFolder = isDynamicSection 
       ? carpetasDrive.find(c => c.id_catedra === selectedCatedra && c.tipo_seccion === tipo)
@@ -674,7 +667,7 @@ export default function PortalView() {
       if (driveLoading) {
         return (
           <div className="bg-white border border-stone-200 rounded-2xl p-12 text-center max-w-lg mx-auto space-y-4 animate-fade-in shadow-2xs">
-            <Loader2 className="w-8 h-8 text-amber-900 mx-auto animate-spin" />
+            <Loader2 className="w-8 h-8 text-[#60290A] mx-auto animate-spin" />
             <p className="text-xs text-stone-600 font-mono uppercase tracking-wider font-semibold">Cargando archivos desde Google Drive...</p>
           </div>
         );
@@ -697,9 +690,9 @@ export default function PortalView() {
       if (driveFiles.length === 0) {
         return (
           <div className="bg-white border border-stone-200 rounded-2xl p-8 text-center max-w-lg mx-auto space-y-4 animate-fade-in shadow-2xs">
-            <FileText className="w-10 h-10 text-stone-400 mx-auto animate-pulse" />
+            <FileText className="w-10 h-10 text-stone-400 mx-auto opacity-50" />
             <div>
-              <h5 className="font-bold text-stone-900 text-base uppercase tracking-wider">Carpeta vacía</h5>
+              <h5 className="font-bold text-stone-900 text-base uppercase tracking-wider font-sans">Carpeta sin archivos</h5>
               <p className="text-sm text-stone-600 leading-relaxed mt-2 font-sans">
                 No se encontraron archivos en la carpeta de Google Drive configurada para esta sección.
               </p>
@@ -718,47 +711,42 @@ export default function PortalView() {
       }
 
       return (
-        <div className="bg-white border border-stone-200 rounded-2xl overflow-hidden shadow-2xs animate-fade-in">
-          <div className="px-5 py-3.5 bg-stone-100 border-b border-stone-200 flex justify-between items-center text-xs font-mono text-stone-600 uppercase tracking-wider font-bold">
-            <span>Archivo / Publicación (En Vivo)</span>
-            <span>Acción</span>
-          </div>
-          <div className="divide-y divide-stone-200">
-            {sortedDriveFiles.map((file, idx) => (
-              <div
-                key={file.id || idx}
-                className="p-4.5 flex items-center justify-between gap-4 hover:bg-amber-50/50 transition-colors duration-200 min-h-[60px]"
-              >
-                <div className="flex items-center gap-4 truncate max-w-[80%]">
-                  <div className="w-10 h-10 rounded-xl bg-amber-100/80 border border-amber-300 flex items-center justify-center shrink-0 text-sm font-mono font-bold text-amber-950">
-                    {(idx + 1).toString().padStart(2, "0")}
-                  </div>
-                  <div className="space-y-0.5 truncate">
-                    <h5 className="font-semibold text-stone-900 text-base truncate font-sans" title={file.nombre_archivo}>
-                      {file.nombre_archivo}
-                    </h5>
-                    <p className="text-xs text-stone-500 font-mono uppercase tracking-wider font-semibold">
-                      Publicado: <span className="font-mono">{file.fecha_subida}</span>
-                    </p>
-                  </div>
+        <div className="space-y-3 animate-fade-in">
+          {sortedDriveFiles.map((file, idx) => (
+            <div
+              key={file.id || idx}
+              className="bg-white border border-stone-200/90 rounded-2xl p-4 flex items-center justify-between gap-4 shadow-2xs hover:shadow-xs transition-all duration-200 min-h-[68px]"
+            >
+              <div className="flex items-center gap-4 truncate max-w-[80%]">
+                <div className="w-12 h-12 rounded-xl bg-[#60290A] text-amber-50 flex flex-col items-center justify-center shrink-0 shadow-2xs font-mono">
+                  <FileText className="w-5 h-5 text-amber-200 mb-0.5" />
+                  <span className="text-[9px] font-bold tracking-widest leading-none uppercase">PDF</span>
                 </div>
-                <a
-                  href={file.link_drive}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="min-h-[46px] min-w-[46px] flex items-center justify-center bg-amber-100/80 hover:bg-amber-900 text-amber-950 hover:text-white border border-amber-300 hover:border-amber-900 rounded-xl transition-all duration-200 active:scale-95 shadow-2xs cursor-pointer"
-                  title="Descargar desde Google Drive"
-                >
-                  <Download className="w-5 h-5" />
-                </a>
+                <div className="space-y-0.5 truncate">
+                  <h5 className="font-bold text-stone-900 text-base truncate font-sans" title={file.nombre_archivo}>
+                    {file.nombre_archivo}
+                  </h5>
+                  <p className="text-xs text-stone-500 font-mono uppercase tracking-wider font-semibold">
+                    PUBLICADO: <span className="font-mono">{file.fecha_subida}</span>
+                  </p>
+                </div>
               </div>
-            ))}
-          </div>
+              <a
+                href={file.link_drive}
+                target="_blank"
+                rel="noreferrer"
+                className="w-11 h-11 flex items-center justify-center bg-[#60290A] hover:bg-[#471E07] text-white rounded-xl transition-all duration-200 active:scale-95 shadow-2xs cursor-pointer shrink-0"
+                title="Descargar archivo"
+              >
+                <Download className="w-5 h-5" />
+              </a>
+            </div>
+          ))}
         </div>
       );
     }
 
-    // Fallback: listado manual desde la pestaña Archivos de la planilla
+    // Fallback: listado manual desde la planilla
     const archivos = archivosList
       .filter(a => a.id_catedra === selectedCatedra && a.tipo_seccion === tipo);
 
@@ -775,9 +763,9 @@ export default function PortalView() {
     if (archivos.length === 0) {
       return (
         <div className="bg-white border border-stone-200 rounded-2xl p-8 text-center max-w-lg mx-auto space-y-4 animate-fade-in shadow-2xs">
-          <FileText className="w-10 h-10 text-stone-400 mx-auto animate-pulse" />
+          <FileText className="w-10 h-10 text-stone-400 mx-auto opacity-50" />
           <div>
-            <h5 className="font-bold text-stone-900 text-base uppercase tracking-wider">Sin archivos disponibles</h5>
+            <h5 className="font-bold text-stone-900 text-base uppercase tracking-wider font-sans">Sin archivos disponibles</h5>
             <p className="text-sm text-stone-600 leading-relaxed mt-2 font-sans">
               Esta sección todavía no tiene contenido cargado en la planilla. Los apuntes se irán subiendo a medida que avance el cuatrimestre.
             </p>
@@ -787,650 +775,598 @@ export default function PortalView() {
     }
 
     return (
-      <div className="bg-white border border-stone-200 rounded-2xl overflow-hidden shadow-2xs animate-fade-in">
-        <div className="px-5 py-3.5 bg-stone-100 border-b border-stone-200 flex justify-between items-center text-xs font-mono text-stone-600 uppercase tracking-wider font-bold">
-          <span>Archivo / Publicación</span>
-          <span>Acción</span>
-        </div>
-        <div className="divide-y divide-stone-200">
-          {archivos.map((file, idx) => (
-            <div
-              key={idx}
-              className="p-4.5 flex items-center justify-between gap-4 hover:bg-amber-50/50 transition-colors duration-200 min-h-[60px]"
-            >
-              <div className="flex items-center gap-4 truncate max-w-[80%]">
-                <div className="w-10 h-10 rounded-xl bg-amber-100/80 border border-amber-300 flex items-center justify-center shrink-0 text-sm font-mono font-bold text-amber-950">
-                  {file.orden.toString().padStart(2, "0")}
-                </div>
-                <div className="space-y-0.5 truncate">
-                  <h5 className="font-semibold text-stone-900 text-base truncate font-sans" title={file.nombre_archivo}>
-                    {file.nombre_archivo}
-                  </h5>
-                  <p className="text-xs text-stone-500 font-mono uppercase tracking-wider font-semibold">
-                    Publicado: <span className="font-mono">{file.fecha_subida}</span>
-                  </p>
-                </div>
+      <div className="space-y-3 animate-fade-in">
+        {archivos.map((file, idx) => (
+          <div
+            key={idx}
+            className="bg-white border border-stone-200/90 rounded-2xl p-4 flex items-center justify-between gap-4 shadow-2xs hover:shadow-xs transition-all duration-200 min-h-[68px]"
+          >
+            <div className="flex items-center gap-4 truncate max-w-[80%]">
+              <div className="w-12 h-12 rounded-xl bg-[#60290A] text-amber-50 flex flex-col items-center justify-center shrink-0 shadow-2xs font-mono">
+                <FileText className="w-5 h-5 text-amber-200 mb-0.5" />
+                <span className="text-[9px] font-bold tracking-widest leading-none uppercase">PDF</span>
               </div>
-              <a
-                href={file.link_drive}
-                target="_blank"
-                rel="noreferrer"
-                className="min-h-[46px] min-w-[46px] flex items-center justify-center bg-amber-100/80 hover:bg-amber-900 text-amber-950 hover:text-white border border-amber-300 hover:border-amber-900 rounded-xl transition-all duration-200 active:scale-95 shadow-2xs cursor-pointer"
-                title="Descargar desde Google Drive"
-              >
-                <Download className="w-5 h-5" />
-              </a>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  };
-
-  // Renders a list of files inline within a section card
-  const renderFileListOnly = (tipo: "Bibliografia" | "Diapositivas" | "Apuntes_Clase" | "Programa" | "Condiciones_Cronograma") => {
-    const archivos = archivosList
-      .filter(a => a.id_catedra === selectedCatedra && a.tipo_seccion === tipo);
-
-    if (selectedCatedra === "BIO_MOL" && tipo === "Diapositivas") {
-      archivos.sort((a, b) => {
-        const nameA = a.nombre_archivo || "";
-        const nameB = b.nombre_archivo || "";
-        return nameA.localeCompare(nameB, undefined, { numeric: true, sensitivity: 'base' });
-      });
-    } else {
-      archivos.sort((a, b) => a.orden - b.orden);
-    }
-
-    if (archivos.length === 0) return null;
-
-    return (
-      <div className="mt-4 bg-[#131826]/40 border border-[#1E2531] rounded-xl overflow-hidden animate-fade-in">
-        <div className="px-3.5 py-2 bg-[#131826]/80 border-b border-[#1E2531] flex justify-between items-center text-[9px] font-mono text-[#5B6577] uppercase tracking-wider font-bold">
-          <span>Archivos Adjuntos ({archivos.length})</span>
-          <span>Descargar</span>
-        </div>
-        <div className="divide-y divide-[#1E2531]/40">
-          {archivos.map((file, idx) => (
-            <div
-              key={idx}
-              className="p-3.5 flex items-center justify-between gap-3 hover:bg-[#131826]/60 transition-colors duration-150"
-            >
-              <div className="flex items-center gap-3 truncate max-w-[80%]">
-                <FileText className="w-4 h-4 text-[#16C784] shrink-0" />
-                <div className="space-y-0.5 truncate">
-                  <h5 className="font-semibold text-[#EDEFF3] text-xs truncate font-sans" title={file.nombre_archivo}>
-                    {file.nombre_archivo}
-                  </h5>
-                  <p className="text-[9px] text-[#5B6577] font-mono uppercase">
-                    Publicado: <span>{file.fecha_subida}</span>
-                  </p>
-                </div>
+              <div className="space-y-0.5 truncate">
+                <h5 className="font-bold text-stone-900 text-base truncate font-sans" title={file.nombre_archivo}>
+                  {file.nombre_archivo}
+                </h5>
+                <p className="text-xs text-stone-500 font-mono uppercase tracking-wider font-semibold">
+                  PUBLICADO: <span className="font-mono">{file.fecha_subida}</span>
+                </p>
               </div>
-              <a
-                href={file.link_drive}
-                target="_blank"
-                rel="noreferrer"
-                className="w-9 h-9 flex items-center justify-center bg-[#0F1420] hover:bg-[#1E2531] text-[#EDEFF3] hover:text-[#16C784] border border-[#1E2531] rounded-lg transition-all duration-150 active:scale-95 shrink-0"
-                title="Descargar desde Google Drive"
-              >
-                <Download className="w-3.5 h-3.5" />
-              </a>
             </div>
-          ))}
-        </div>
+            <a
+              href={file.link_drive}
+              target="_blank"
+              rel="noreferrer"
+              className="w-11 h-11 flex items-center justify-center bg-[#60290A] hover:bg-[#471E07] text-white rounded-xl transition-all duration-200 active:scale-95 shadow-2xs cursor-pointer shrink-0"
+              title="Descargar archivo"
+            >
+              <Download className="w-5 h-5" />
+            </a>
+          </div>
+        ))}
       </div>
     );
   };
 
   return (
-    <div className="space-y-6 pb-20 md:pb-6">
-      {/* TARJETA DESTACADA: CALENDARIO ACADÉMICO */}
-      <div className="bg-gradient-to-r from-amber-900 via-amber-900 to-stone-900 text-white rounded-2xl p-6 shadow-sm shadow-amber-950/20 border border-amber-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all duration-300 relative overflow-hidden group">
-        {/* Decorative subtle ambient background */}
-        <div className="absolute -right-20 -top-20 w-40 h-40 bg-amber-400/10 rounded-full blur-2xl pointer-events-none"></div>
-        
-        <div className="flex items-start gap-4 z-10">
-          <div className="w-12 h-12 rounded-xl bg-white/15 border border-white/20 flex items-center justify-center text-white shrink-0 shadow-2xs">
-            <Calendar className="w-6 h-6 text-amber-200" />
+    <div className="space-y-6 animate-fade-in pb-16 md:pb-6">
+      
+      {/* 1. TOP INSTITUTIONAL BANNER (CALENDARIO ACADÉMICO 2026) */}
+      <div className="bg-gradient-to-r from-[#1C1510] via-[#351F12] to-[#170F0A] border border-[#3E2313]/50 rounded-2xl p-6 md:p-8 text-stone-100 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative overflow-hidden">
+        {/* Subtle background glow effect */}
+        <div className="absolute -right-10 -bottom-10 w-60 h-60 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div className="space-y-2 max-w-2xl z-10">
+          <div className="flex items-center gap-2">
+            <span className="bg-amber-100/20 text-[#FCE19C] text-[10px] font-mono px-2.5 py-0.5 rounded-md uppercase font-bold border border-[#FCE19C]/30 tracking-wider">
+              INSTITUCIONAL • UNLaR
+            </span>
           </div>
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-mono font-bold text-amber-950 uppercase tracking-wider bg-amber-100 px-2.5 py-0.5 rounded shadow-2xs">
-                Institucional
-              </span>
-              <span className="text-xs text-amber-200 font-mono">• UNLaR</span>
-            </div>
-            <h4 className="text-base font-bold text-white font-mono uppercase tracking-wide">
-              Calendario Académico {CALENDARIO_ACADEMICO_CONFIG.cicloLectivo}
-            </h4>
-            <p className="text-sm text-stone-200/90 font-sans leading-relaxed max-w-xl">
-              {CALENDARIO_ACADEMICO_CONFIG.descripcion}
-            </p>
-          </div>
+          <h2 className="text-xl md:text-2xl font-bold tracking-wider text-white font-mono uppercase">
+            CALENDARIO ACADÉMICO {CALENDARIO_ACADEMICO_CONFIG.cicloLectivo}
+          </h2>
+          <p className="text-xs md:text-sm text-stone-300 font-sans leading-relaxed">
+            {CALENDARIO_ACADEMICO_CONFIG.descripcion}
+          </p>
         </div>
 
         <a
           href={getCalendarioDownloadUrl()}
           target="_blank"
           rel="noreferrer"
-          className="w-full sm:w-auto shrink-0 z-10 min-h-[46px] px-5 py-2.5 bg-amber-50 hover:bg-amber-100 text-amber-950 font-mono font-bold text-xs uppercase rounded-xl tracking-wider shadow-2xs hover:shadow-xs transition-all duration-150 flex items-center justify-center gap-2 cursor-pointer active:scale-98"
+          className="bg-white hover:bg-stone-100 text-stone-900 font-bold font-mono text-xs px-5 py-3 rounded-xl shadow-md transition-all active:scale-95 flex items-center gap-2 cursor-pointer shrink-0 z-10 border border-white"
         >
-          <Download className="w-4 h-4 text-amber-900" />
-          <span>Descargar PDF</span>
+          <span>DESCARGAR PDF</span>
+          <Download className="w-4 h-4 text-[#60290A]" />
         </a>
       </div>
 
-      {/* CATEDRA TICKERS UPPER BAR */}
-      <div className="bg-white border border-stone-200 rounded-2xl p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-2xs">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-amber-800 animate-ping"></span>
-            <span className="text-xs font-mono text-amber-800 uppercase tracking-widest font-bold">ACCESO DIRECTO</span>
+      {/* 2. ACCESO DIRECTO (SELECCIÓN DE CÁTEDRA) */}
+      <div className="bg-white border border-stone-200/90 rounded-2xl p-4 md:p-5 shadow-2xs space-y-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <span className="text-[10px] font-mono font-bold text-stone-500 uppercase tracking-widest flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-amber-600 inline-block"></span>
+              ACCESO DIRECTO
+            </span>
+            <h3 className="text-base font-bold text-stone-900 font-sans">
+              Selección de Cátedra
+            </h3>
           </div>
-          <h3 className="text-lg font-bold text-stone-900 tracking-tight">Selección de Cátedra</h3>
-        </div>
 
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
-          {/* Cátedras buttons */}
-          <div className="flex flex-wrap gap-1.5 p-1 bg-stone-100 border border-stone-200 rounded-xl w-full md:w-auto">
-            {activeCatedras.map(cat => {
-              const isActive = selectedCatedra === cat.id;
+          {/* CÁTEDRA PILLS */}
+          <div className="flex flex-wrap items-center gap-2.5 pt-1 sm:pt-0">
+            {catedras.map(cat => {
+              const isSelected = cat.id === selectedCatedra;
+              const ticker = getTickerCode(cat.id);
               return (
                 <button
                   key={cat.id}
-                  onClick={() => {
-                    setSelectedCatedra(cat.id);
-                  }}
-                  className={`px-4 py-2.5 rounded-lg text-xs font-mono font-bold uppercase transition-all duration-150 cursor-pointer flex-1 md:flex-none text-center ${
-                    isActive
-                      ? "bg-amber-900 text-amber-50 shadow-2xs border border-amber-900"
-                      : "bg-transparent text-stone-700 border border-transparent hover:text-stone-900 hover:bg-white"
+                  onClick={() => setSelectedCatedra(cat.id)}
+                  className={`px-4.5 py-2 rounded-full text-xs font-mono font-bold transition-all duration-200 cursor-pointer flex items-center gap-2 active:scale-95 ${
+                    isSelected
+                      ? "bg-[#1A1F35] text-white shadow-xs"
+                      : "bg-white hover:bg-stone-100 text-stone-700 border border-stone-300 shadow-2xs"
                   }`}
                 >
-                  {getTickerCode(cat.id)}
+                  <span>{ticker}</span>
+                  {isSelected && (
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#FCE19C] shadow-2xs"></span>
+                  )}
                 </button>
               );
             })}
-          </div>
 
-          {/* Connection Status Indicator */}
-          <div className="shrink-0 flex items-center justify-center">
-            {loading ? (
-              <span className="px-3 py-1.5 text-xs font-mono bg-stone-100 border border-stone-200 text-stone-600 rounded-full flex items-center gap-1.5">
-                <Loader2 className="w-3.5 h-3.5 animate-spin text-amber-800" />
-                <span>SINC_DATA...</span>
-              </span>
-            ) : isDemoMode ? (
-              <span className="px-3 py-1.5 text-xs font-mono bg-amber-50 text-amber-800 border border-amber-300 rounded-full flex items-center gap-1.5 font-bold">
-                <span className="w-2 h-2 rounded-full bg-amber-600 animate-pulse"></span>
-                <span>MODO_OFFLINE</span>
-              </span>
-            ) : (
-              <span className="px-3 py-1.5 text-xs font-mono bg-emerald-50 text-emerald-800 border border-emerald-300 rounded-full flex items-center gap-1.5 font-bold animate-fade-in">
-                <span className="w-2 h-2 rounded-full bg-emerald-600"></span>
-                <span>SHEETS_EN_VIVO</span>
-              </span>
-            )}
+            {/* SÁBANAS_EN_VIVO PILL */}
+            <a
+              href="https://docs.google.com/spreadsheets/u/0/"
+              target="_blank"
+              rel="noreferrer"
+              className="px-4.5 py-2 rounded-full text-xs font-mono font-bold bg-emerald-100 hover:bg-emerald-200 text-emerald-950 border border-emerald-300/80 shadow-2xs transition-all duration-200 flex items-center gap-2 cursor-pointer active:scale-95"
+              title="Abrir Sábanas de Calificaciones y Asistencia"
+            >
+              <span>SÁBANAS_EN_VIVO</span>
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            </a>
           </div>
         </div>
       </div>
 
-      {/* ERROR BANNER IF CONNECTIONS LOSE INTEGRITY */}
-      {errorMsg && (
-        <div className="bg-rose-50 border border-rose-200 text-rose-800 rounded-xl p-4 flex items-start gap-3 animate-fade-in text-xs max-w-4xl mx-auto">
-          <AlertTriangle className="w-4 h-4 shrink-0 text-rose-600 mt-0.5" />
-          <div className="space-y-1">
-            <p className="font-bold uppercase font-mono tracking-wider text-xs">Alerta de Conexión:</p>
-            <p className="text-rose-700 leading-relaxed font-sans text-xs md:text-sm">
-              No se pudo conectar con las planillas en vivo ({errorMsg}). Para mantener tu consulta activa, el sistema cargó la base de datos local y segura en modo offline.
-            </p>
-          </div>
-        </div>
-      )}
-
-      {/* PORTAL CORE LAYOUT */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      {/* 3. CORE 2-COLUMN MAIN CONTENT GRID */}
+      <div className="flex flex-col lg:flex-row gap-6 items-start">
         
-        {/* DESKTOP SIDEBAR NAVIGATION */}
-        <div className="hidden md:block md:col-span-1 space-y-3">
-          <div className="bg-white border border-stone-200 rounded-2xl p-4 shadow-2xs space-y-1.5">
-            <p className="px-3 py-1.5 text-xs font-mono text-stone-500 uppercase tracking-widest mb-2 font-bold">
-              MENÚ DE NAVEGACIÓN
-            </p>
-            {navigationItems.map(item => {
-              const Icon = item.icon;
-              const isActive = activeTab === item.id;
-              
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => setActiveTab(item.id)}
-                  className={`w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-semibold cursor-pointer transition-all ${
-                    isActive
-                      ? "bg-amber-100/70 text-amber-950 border-l-4 border-amber-800 pl-3 font-bold shadow-2xs"
-                      : "text-stone-700 hover:bg-stone-100 hover:text-stone-900"
-                  }`}
-                >
-                  <Icon className={`w-5 h-5 ${isActive ? "text-amber-800" : "text-stone-400"}`} />
-                  <span className="uppercase tracking-wider font-mono text-xs font-bold">{item.label}</span>
-                </button>
-              );
-            })}
-          </div>
+        {/* LEFT NAVIGATION SIDEBAR (DESKTOP & MOBILE RESPONSIVE) */}
+        <div className="w-full lg:w-72 shrink-0 space-y-5">
+          <div className="bg-[#181C2E] text-stone-100 border border-[#232942] rounded-2xl p-4 md:p-5 shadow-sm space-y-4">
+            <div className="flex justify-between items-center border-b border-[#2A314E] pb-3">
+              <span className="text-[10px] font-mono font-bold text-stone-400 uppercase tracking-widest">
+                MENÚ DE NAVEGACIÓN
+              </span>
+              <button 
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="lg:hidden p-1.5 text-stone-300 hover:text-white rounded-lg hover:bg-white/10"
+              >
+                <Menu className="w-5 h-5" />
+              </button>
+            </div>
 
-          {/* INFORMACIÓN DE LA MATERIA */}
-          <div className="bg-white border border-stone-200 rounded-2xl p-4 shadow-2xs space-y-3 font-mono text-xs text-stone-600">
-            <p className="text-stone-900 font-bold tracking-wider uppercase border-b border-stone-200 pb-2 flex items-center gap-2">
-              <Info className="w-4 h-4 text-amber-800" />
-              <span>SISTEMA DE INFO</span>
-            </p>
-            <div className="space-y-2">
-              <p><span className="text-stone-400">CÓDIGO:</span> <span className="text-stone-900 font-mono font-bold">{getTickerCode(selectedCatedra)}</span></p>
-              <p><span className="text-stone-400">MATERIA:</span> <span className="text-stone-900 font-sans font-semibold">{currentCatedra.nombre}</span></p>
-              <p><span className="text-stone-400">DICTADO:</span> <span className="text-stone-900">{currentCatedra.cuatrimestre}</span></p>
-              <p><span className="text-stone-400">COHORTE:</span> <span className="text-stone-900 font-mono">{currentYear}</span></p>
+            {/* NAV LINKS LIST */}
+            <nav className="space-y-1.5">
+              {navigationItems.map(item => {
+                const Icon = item.icon;
+                const isActive = activeTab === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => {
+                      setActiveTab(item.id);
+                      setMobileMenuOpen(false);
+                    }}
+                    className={`w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-sans font-bold transition-all duration-150 cursor-pointer text-left ${
+                      isActive
+                        ? "bg-[#FCE19C] text-[#181C2E] shadow-sm font-black"
+                        : "text-stone-300 hover:text-white hover:bg-white/10"
+                    }`}
+                  >
+                    <Icon className={`w-4.5 h-4.5 ${isActive ? "text-[#181C2E]" : "text-stone-400"}`} />
+                    <span>{item.label}</span>
+                  </button>
+                );
+              })}
+            </nav>
+
+            {/* SISTEMA DE INFO BLOCK AT BOTTOM OF SIDEBAR */}
+            <div className="pt-2 border-t border-[#2A314E]">
+              <div className="bg-[#21273E] rounded-xl p-3.5 space-y-2 text-xs font-mono border border-[#2B3352]">
+                <div className="text-[10px] font-bold text-stone-400 uppercase tracking-widest flex items-center gap-1">
+                  <Info className="w-3.5 h-3.5 text-amber-400" />
+                  <span>SISTEMA DE INFO</span>
+                </div>
+                <div className="space-y-1 text-stone-300 text-[11px]">
+                  <p><span className="text-stone-400">CÓDIGO:</span> <strong className="text-stone-100">{getTickerCode(currentCatedra.id)}</strong></p>
+                  <p><span className="text-stone-400">MATERIA:</span> <strong className="text-stone-100">{currentCatedra.nombre}</strong></p>
+                  <p><span className="text-stone-400">DICTADO:</span> <strong className="text-stone-100">1er Cuatrimestre</strong></p>
+                  <p><span className="text-stone-400">PROMOCIÓN:</span> <strong className="text-stone-100">{currentYear}</strong></p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* MAIN SECTION CONTENT AREA */}
-        <div className="col-span-1 md:col-span-3 min-h-[400px]">
+        {/* RIGHT DYNAMIC CONTENT AREA */}
+        <div className="flex-1 w-full min-w-0">
           <AnimatePresence mode="wait">
             <motion.div
-              key={`${selectedCatedra}-${activeTab}`}
-              initial={{ opacity: 0, y: 10 }}
+              key={`${activeTab}-${selectedCatedra}`}
+              initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
+              exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.15 }}
-              className="space-y-4"
             >
-              {/* SECTION HEADER CARD */}
-              <div className="bg-white border border-stone-200 rounded-2xl p-5 shadow-2xs flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div>
-                  <div className="flex items-center gap-2 mb-1.5">
-                    <span className="text-xs font-mono tracking-widest text-amber-900 uppercase font-bold bg-amber-100/80 px-2.5 py-0.5 rounded border border-amber-200">
-                      {getTickerCode(selectedCatedra)}
-                    </span>
-                    <span className="text-xs text-stone-300 font-mono">•</span>
-                    <span className="text-xs font-mono text-stone-500 uppercase font-semibold">COHORTE {currentYear}</span>
-                  </div>
-                  <h2 className="text-xl md:text-2xl font-bold tracking-tight text-stone-900 uppercase font-mono">
-                    {activeTab === "inicio" 
-                      ? `Cátedra de ${currentCatedra?.nombre ? currentCatedra.nombre.replace(/\s*\([^)]*\)/g, "").trim() : ""}` 
-                      : activeTab === "archivos" 
-                        ? "Descargas" 
-                        : activeTab === "rendimiento" 
-                          ? "Asistencia y Notas" 
-                          : activeTab === "comunicacion"
-                            ? "Comunicación y Avisos"
-                            : activeTab}
-                  </h2>
-                </div>
-              </div>
-
-                {/* 1. INICIO (INTRODUCCIÓN Y PROPÓSITO ACADÉMICO) */}
+              
+              {/* 1. INICIO (DASHBOARD INTRO) */}
               {activeTab === "inicio" && (
-                <div className="space-y-4 animate-fade-in">
-                  <div className="bg-white border border-stone-200 rounded-2xl p-6 md:p-8 shadow-2xs space-y-5">
-                    <h4 className="font-bold flex items-center gap-2 text-xs uppercase tracking-widest font-mono text-stone-500">
-                      <span>INTRODUCCIÓN Y PROPÓSITO ACADÉMICO</span>
-                    </h4>
-                    <div className="space-y-4">
-                      {(ACADEMIC_INTRODUCTIONS[selectedCatedra] || [
-                        seccionesCatedra.find(s => s.seccion === "Programa")?.texto_simple || 
-                        "El programa oficial de la asignatura se encuentra actualmente en edición o actualización por los coordinadores académicos."
-                      ]).map((paragraph, pIdx) => (
-                        <p key={pIdx} className="text-stone-800 leading-relaxed text-base font-sans text-justify">
-                          {paragraph}
-                        </p>
+                <div className="space-y-6">
+                  {/* Title Header */}
+                  <div className="space-y-1 bg-white border border-stone-200/90 rounded-2xl p-6 md:p-8 shadow-2xs">
+                    <span className="text-xs font-mono font-bold text-stone-500 uppercase tracking-widest">
+                      COHORTE {currentYear}
+                    </span>
+                    <h1 className="text-3xl md:text-5xl font-black tracking-tight text-stone-900 font-sans uppercase">
+                      {currentCatedra.nombre}
+                    </h1>
+                  </div>
+
+                  {/* Academic Introduction Text */}
+                  <div className="bg-white border border-stone-200/90 rounded-2xl p-6 md:p-8 shadow-2xs space-y-4">
+                    <h3 className="text-sm font-mono font-bold text-stone-900 uppercase tracking-wider border-b border-stone-100 pb-3">
+                      INTRODUCCIÓN Y PROPÓSITO ACADÉMICO
+                    </h3>
+                    <div className="space-y-4 text-stone-800 leading-relaxed text-base font-sans text-justify">
+                      {(ACADEMIC_INTRODUCTIONS[selectedCatedra] || ACADEMIC_INTRODUCTIONS.BIO_MOL).map((paragraph, idx) => (
+                        <p key={idx}>{paragraph}</p>
                       ))}
                     </div>
                   </div>
                 </div>
               )}
- 
-              {/* 2. ARCHIVOS (CON FILTRO INTERNO) */}
+
+              {/* 2. DESCARGAS (RESOURCES DOWNLOAD CENTER) */}
               {activeTab === "archivos" && (
-                <div className="space-y-4 animate-fade-in">
-                  {/* File category switcher */}
-                  <div className="flex gap-1.5 p-1 bg-stone-100 border border-stone-200 rounded-xl overflow-x-auto">
+                <div className="space-y-6">
+                  {/* Header */}
+                  <div className="bg-white border border-stone-200/90 rounded-2xl p-6 md:p-8 shadow-2xs space-y-2">
+                    <span className="text-xs font-mono font-bold text-amber-900 bg-amber-100/80 px-3 py-1 rounded-md border border-amber-300 inline-block uppercase tracking-wider">
+                      {getTickerCode(selectedCatedra)} • COHORTE {currentYear}
+                    </span>
+                    <h2 className="text-2xl md:text-3xl font-black tracking-tight text-stone-900 font-sans uppercase">
+                      CENTRO DE DESCARGA DE RECURSOS
+                    </h2>
+                  </div>
+
+                  {/* CATEGORY TABS BAR */}
+                  <div className="flex flex-wrap items-center gap-2 bg-stone-100/80 p-1.5 rounded-2xl border border-stone-200">
                     {[
                       { id: "Programa", label: "Programa" },
-                      { id: "Condiciones_Cronograma", label: "Condiciones de Cursada" },
                       { id: "Bibliografia", label: "Bibliografía" },
                       { id: "Diapositivas", label: "Diapositivas" },
-                      { id: "Apuntes_Clase", label: "Apuntes de clase" }
-                    ].map(sub => (
-                      <button
-                        key={sub.id}
-                        onClick={() => setActiveFileSubSection(sub.id as any)}
-                        className={`px-4 py-2.5 rounded-lg text-xs font-mono font-bold uppercase transition-all flex-1 text-center whitespace-nowrap cursor-pointer border ${
-                          activeFileSubSection === sub.id
-                            ? "bg-white text-amber-950 border-stone-300 shadow-2xs"
-                            : "bg-transparent text-stone-600 border-transparent hover:text-stone-900"
-                        }`}
-                      >
-                        {sub.label}
-                      </button>
-                    ))}
+                      { id: "Apuntes_Clase", label: "Apuntes de Clase" },
+                      { id: "Condiciones_Cronograma", label: "Condiciones de Cursada" },
+                    ].map(tab => {
+                      const isActive = activeFileSubSection === tab.id;
+                      return (
+                        <button
+                          key={tab.id}
+                          onClick={() => setActiveFileSubSection(tab.id as any)}
+                          className={`px-4 py-2.5 rounded-xl text-xs font-mono font-bold uppercase transition-all duration-150 cursor-pointer ${
+                            isActive
+                              ? "bg-[#60290A] text-white shadow-2xs"
+                              : "bg-white text-stone-700 hover:text-stone-900 border border-stone-200/80 hover:border-stone-300 shadow-2xs"
+                          }`}
+                        >
+                          {tab.label}
+                        </button>
+                      );
+                    })}
                   </div>
- 
-                  {renderArchivosSection(activeFileSubSection)}
+
+                  {/* FILES LIST */}
+                  <div>
+                    {renderArchivosSection(activeFileSubSection)}
+                  </div>
                 </div>
               )}
 
               {/* 3. CRONOGRAMA */}
-              {activeTab === "cronograma" && renderCronograma()}
-
-              {/* 4. RENDIMIENTO (BUSCADOR + BOLETÍN & ASISTENCIA UNIFICADOS EN DASHBOARD) */}
-              {activeTab === "rendimiento" && (
+              {activeTab === "cronograma" && (
                 <div className="space-y-6">
-                  {/* Buscador de alumnos */}
-                  <div className="bg-white border border-stone-200 rounded-2xl p-6 shadow-2xs space-y-4">
-                    <div className="max-w-md mx-auto text-center space-y-2 mb-2">
-                      <h4 className="font-bold text-stone-900 text-base uppercase tracking-wider font-mono">Asistencia y Notas</h4>
-                      <p className="text-sm text-stone-600 leading-relaxed font-sans">
-                        Consulta tu asistencia de clases prácticas y calificaciones de evaluaciones parciales y condiciones finales.
-                      </p>
-                    </div>
-
-                    {loading ? (
-                      <div className="flex flex-col items-center justify-center py-8 gap-2 text-stone-500 text-xs font-mono">
-                        <Loader2 className="w-5 h-5 animate-spin text-amber-800" />
-                        <span>SINC_DATA_BASE...</span>
-                      </div>
-                    ) : (
-                      <StudentSearch
-                        studentNames={studentsList}
-                        placeholder="Escribe tu apellido o nombre para consultar..."
-                        onSelect={setSelectedStudent}
-                        selectedStudent={selectedStudent}
-                        cohortYear={currentYear}
-                      />
-                    )}
+                  <div className="bg-white border border-stone-200/90 rounded-2xl p-6 md:p-8 shadow-2xs space-y-2">
+                    <span className="text-xs font-mono font-bold text-amber-900 bg-amber-100/80 px-3 py-1 rounded-md border border-amber-300 inline-block uppercase tracking-wider">
+                      {getTickerCode(selectedCatedra)} • PLANIFICACIÓN {currentYear}
+                    </span>
+                    <h2 className="text-2xl md:text-3xl font-black tracking-tight text-stone-900 font-sans uppercase">
+                      CRONOGRAMA DE ACTIVIDADES ACADÉMICAS
+                    </h2>
                   </div>
 
-                  {/* UNIFIED PERFORMANCE CARD */}
-                  {selectedStudent && (
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.98 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      className="bg-white border border-stone-200 rounded-2xl overflow-hidden shadow-2xs max-w-2xl mx-auto"
-                    >
-                      {/* CARD HEADER */}
-                      <div className="bg-stone-900 p-4.5 border-b border-stone-800 text-white flex justify-between items-center">
-                        <div className="flex items-center gap-3.5">
-                          <div className="w-11 h-11 rounded-full bg-amber-800 text-amber-50 flex items-center justify-center font-bold font-mono text-base shadow-2xs">
-                            {selectedStudent.split(" ").map(w => w.charAt(0)).join("").substring(0, 2).toUpperCase()}
+                  {renderCronograma()}
+                </div>
+              )}
+
+              {/* 4. ASISTENCIA Y NOTAS (PERFORMANCE VIEW) */}
+              {activeTab === "rendimiento" && (
+                <div className="space-y-6">
+                  <div className="bg-white border border-stone-200/90 rounded-2xl p-6 md:p-8 shadow-2xs space-y-4">
+                    <div>
+                      <span className="text-xs font-mono font-bold text-amber-900 bg-amber-100/80 px-3 py-1 rounded-md border border-amber-300 inline-block uppercase tracking-wider mb-2">
+                        {getTickerCode(selectedCatedra)} • VISTA RENDIMIENTO DEL ALUMNO
+                      </span>
+                      <h2 className="text-2xl md:text-3xl font-black tracking-tight text-stone-900 font-sans uppercase">
+                        CONSULTA DE ASISTENCIA Y NOTAS
+                      </h2>
+                    </div>
+
+                    {/* SEARCH COMPONENT */}
+                    <StudentSearch
+                      studentNames={studentsList}
+                      selectedStudent={selectedStudent}
+                      onSelect={setSelectedStudent}
+                      cohortYear={currentYear}
+                    />
+                  </div>
+
+                  {/* LOADING STATE */}
+                  {loading && (
+                    <div className="bg-white border border-stone-200 rounded-2xl p-12 text-center shadow-2xs space-y-3">
+                      <Loader2 className="w-8 h-8 text-[#60290A] mx-auto animate-spin" />
+                      <p className="text-xs text-stone-600 font-mono uppercase tracking-wider font-semibold">
+                        Cargando información del estudiante desde Google Sheets...
+                      </p>
+                    </div>
+                  )}
+
+                  {/* EMPTY SEARCH PROMPT */}
+                  {!loading && !selectedStudent && (
+                    <div className="bg-white border border-stone-200/90 rounded-2xl p-10 text-center shadow-2xs space-y-3">
+                      <User className="w-10 h-10 text-stone-400 mx-auto opacity-50" />
+                      <h4 className="font-bold text-stone-900 text-lg font-sans">
+                        Buscador de Alumnos
+                      </h4>
+                      <p className="text-sm text-stone-600 font-sans max-w-md mx-auto leading-relaxed">
+                        Ingresá tu apellido en el buscador superior para consultar en tiempo real tu registro de asistencia y notas de exámenes de la asignatura.
+                      </p>
+                    </div>
+                  )}
+
+                  {/* STUDENT RESULT VIEW */}
+                  {!loading && selectedStudent && (
+                    <div className="space-y-6 animate-fade-in">
+                      
+                      {/* A. STUDENT HEADER CARD WITH CYAN/TEAL GRADIENT */}
+                      <div className="bg-gradient-to-r from-[#BFE6EC] via-[#CDEFE7] to-[#B3E5D8] border border-teal-300/60 rounded-2xl p-6 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div className="flex items-center gap-4">
+                          <div className="w-14 h-14 rounded-full bg-white/90 text-teal-950 font-black text-2xl font-mono flex items-center justify-center shadow-2xs border border-white shrink-0">
+                            {selectedStudent.charAt(0).toUpperCase()}
                           </div>
                           <div>
-                            <p className="text-xs font-mono text-stone-400 uppercase tracking-widest">Padrón / Estudiante</p>
-                            <h5 className="font-bold text-base text-white">{selectedStudent}</h5>
+                            <span className="text-[10px] font-mono font-bold text-teal-900 uppercase tracking-widest">
+                              ESTUDIANTE SELECCIONADO
+                            </span>
+                            <h3 className="text-xl md:text-2xl font-black text-stone-900 uppercase font-sans tracking-tight">
+                              {selectedStudent}
+                            </h3>
                           </div>
                         </div>
-                        <div className="text-right">
-                          <p className="text-xs font-mono text-stone-400 uppercase tracking-widest mb-1">Estado Final</p>
+
+                        {/* STATUS BADGE */}
+                        <div>
                           {(() => {
-                            const finalCond = selectedCatedra !== "TECNO_3" 
-                              ? studentGradesNum?.condicion_final 
-                              : studentGradesStatus?.condicion_final;
-
-                            const cleanCond = (finalCond || "").toUpperCase().trim();
-                            const isPromocion = cleanCond === "PROMOCIÓN" || cleanCond === "PROMOCION";
-                            const isRegular = cleanCond === "REGULAR";
-                            
-                            const colorClass = isPromocion 
-                              ? "text-emerald-800 bg-emerald-50 border-emerald-300" 
-                              : isRegular 
-                                ? "text-amber-900 bg-amber-50 border-amber-300" 
-                                : "text-rose-800 bg-rose-50 border-rose-300";
-
+                            let cond = "REGULAR";
+                            if (selectedCatedra === "TECNO_3") {
+                              cond = studentGradesStatus?.condicion_final || "REGULAR";
+                            } else {
+                              cond = studentGradesNum?.condicion_final || "REGULAR";
+                            }
                             return (
-                              <span className={`px-4 py-1.5 rounded-lg text-base font-mono font-bold uppercase border inline-block ${colorClass}`}>
-                                {finalCond || "N/A"}
+                              <span className="px-4.5 py-1.5 rounded-full font-extrabold text-xs font-mono uppercase tracking-widest shadow-2xs bg-emerald-700 text-white border border-emerald-800">
+                                {cond}
                               </span>
                             );
                           })()}
                         </div>
                       </div>
 
-                      {/* CARD BODY */}
-                      <div className="p-6 space-y-6">
-                        
-                        {/* SECTION A: ASISTENCIA */}
-                        <div className="bg-stone-50 border border-stone-200 rounded-xl p-5 space-y-4">
+                      {/* B. ASISTENCIA BLOCK WITH CIRCULAR RING GAUGE */}
+                      <div className="bg-white border border-stone-200/90 rounded-2xl p-6 md:p-8 shadow-2xs space-y-4">
+                        <h4 className="text-xs font-mono font-bold text-stone-600 uppercase tracking-widest">
+                          ASISTENCIA
+                        </h4>
+
+                        <div className="flex flex-col sm:flex-row items-center justify-between gap-6 p-2">
                           {(() => {
-                            const currentCatedraObj = (catedras || []).find(c => c.id === selectedCatedra);
-                            const totalClases = currentCatedraObj?.total_clases ?? 10;
-                            const pct = studentAttendance 
-                              ? Math.round((studentAttendance.presentes / totalClases) * 100)
-                              : 0;
-                            const formattedPct = `${pct}%`;
+                            const totalClases = currentCatedra?.total_clases ?? 10;
+                            const presentes = studentAttendance ? studentAttendance.presentes : 0;
+                            const pct = Math.round((presentes / totalClases) * 100);
+                            const req = selectedCatedra === "BIO_MOL" ? 80 : 75;
+                            const cumple = pct >= req;
+
+                            // SVG CIRCLE GAUGE CALCULATIONS
+                            const radius = 45;
+                            const strokeWidth = 9;
+                            const circumference = 2 * Math.PI * radius;
+                            const strokeDashoffset = circumference - (pct / 100) * circumference;
 
                             return (
                               <>
-                                <div className="flex justify-between items-center">
-                                  <div>
-                                    <p className="text-xs font-mono text-stone-500 uppercase tracking-wider font-bold">ASISTENCIA EN CURSADA</p>
-                                    <h4 className="text-sm text-stone-900 font-sans font-semibold">Clases Prácticas Requeridas</h4>
-                                  </div>
-                                  <div className="text-right">
-                                    <span className="text-3xl font-bold text-stone-900 font-mono tracking-tight">
-                                      {studentAttendance ? formattedPct : "0%"}
+                                {/* CIRCULAR RING GAUGE */}
+                                <div className="flex items-center gap-6">
+                                  <div className="relative w-28 h-28 flex items-center justify-center shrink-0">
+                                    <svg className="w-full h-full transform -rotate-90" viewBox="0 0 110 110">
+                                      {/* Background Track */}
+                                      <circle
+                                        cx="55"
+                                        cy="55"
+                                        r={radius}
+                                        className="stroke-stone-100"
+                                        strokeWidth={strokeWidth}
+                                        fill="transparent"
+                                      />
+                                      {/* Progress Stroke */}
+                                      <circle
+                                        cx="55"
+                                        cy="55"
+                                        r={radius}
+                                        className={cumple ? "stroke-cyan-500" : "stroke-rose-500"}
+                                        strokeWidth={strokeWidth}
+                                        strokeDasharray={circumference}
+                                        strokeDashoffset={strokeDashoffset}
+                                        strokeLinecap="round"
+                                        fill="transparent"
+                                        style={{ transition: "stroke-dashoffset 0.5s ease" }}
+                                      />
+                                    </svg>
+                                    <span className="absolute font-black font-mono text-2xl text-stone-900">
+                                      {pct}%
                                     </span>
+                                  </div>
+
+                                  <div className="space-y-1">
+                                    <h5 className="font-bold text-stone-900 text-base font-sans">
+                                      Clases Prácticas Requeridas
+                                    </h5>
+                                    <p className="text-sm text-stone-600 font-mono font-medium">
+                                      {presentes} de {totalClases} clases
+                                    </p>
                                   </div>
                                 </div>
 
-                                {/* Horizontal Progress Bar */}
-                                {studentAttendance ? (
-                                  (() => {
-                                    const req = selectedCatedra === "BIO_MOL" ? 80 : 75;
-                                    const cumple = pct >= req;
-                                    const colorHex = cumple ? "#059669" : "#e11d48";
-
-                                    return (
-                                      <div className="space-y-3">
-                                        {/* Progress bar line */}
-                                        <div className="w-full h-2 bg-stone-200 rounded-full overflow-hidden">
-                                          <div 
-                                            className="h-full rounded-full transition-all duration-500"
-                                            style={{ 
-                                              width: `${pct}%`,
-                                              backgroundColor: colorHex
-                                            }}
-                                          ></div>
-                                        </div>
-
-                                        {/* Sub-text indicating detail of attendance */}
-                                        <div className="flex justify-between items-center text-xs font-mono text-stone-600">
-                                          <span>Detalle de asistencias:</span>
-                                          <span className="font-semibold text-stone-900">
-                                            {studentAttendance.presentes} de {totalClases} clases
-                                          </span>
-                                        </div>
-
-                                        {/* Compliance Badge */}
-                                        <div className={`p-3.5 rounded-xl bg-white border border-stone-200 flex justify-between items-center text-xs`}>
-                                          <span className="font-mono text-xs text-stone-600 uppercase tracking-wider">Cumplimiento Mínimo ({req}%)</span>
-                                          {cumple ? (
-                                            <span className="font-mono font-bold text-emerald-800 flex items-center gap-1 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-300">
-                                              ▲ CUMPLE REQUISITO
-                                            </span>
-                                          ) : (
-                                            <span className="font-mono font-bold text-rose-800 flex items-center gap-1 bg-rose-50 px-2.5 py-1 rounded-lg border border-rose-300 animate-pulse">
-                                              ▼ INSUFICIENTE
-                                            </span>
-                                          )}
-                                        </div>
-                                      </div>
-                                    );
-                                  })()
-                                ) : (
-                                  <p className="text-sm text-stone-500 italic font-sans text-center">No se registraron planillas de asistencia para este alumno.</p>
-                                )}
+                                {/* STATUS BADGE */}
+                                <div>
+                                  <span className={`px-4.5 py-2 rounded-full font-bold text-xs font-mono uppercase tracking-wider shadow-2xs ${
+                                    cumple 
+                                      ? "bg-emerald-100 text-emerald-900 border border-emerald-300"
+                                      : "bg-stone-200 text-stone-700 border border-stone-300"
+                                  }`}>
+                                    {cumple ? "SUFICIENTE" : "INSUFICIENTE"}
+                                  </span>
+                                </div>
                               </>
                             );
                           })()}
                         </div>
+                      </div>
 
-                        {/* SECTION B: CALIFICACIONES */}
-                        <div className="space-y-3">
-                          <p className="text-xs font-mono text-stone-500 uppercase tracking-wider font-bold">PANEL DE NOTAS</p>
-                          
-                          {/* CASO: ESQUEMA NUMÉRICO (BIO_MOL / TECNO II) */}
-                          {selectedCatedra !== "TECNO_3" ? (
-                            studentGradesNum ? (
-                              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                                
-                                {/* P1 Card */}
-                                <div className="p-4 bg-stone-50 border border-stone-200 rounded-xl space-y-2.5">
-                                  <div className="flex justify-between items-start">
-                                    <span className="text-xs font-mono text-stone-600 uppercase tracking-wider font-bold">1ER PARCIAL</span>
-                                    <span className="text-xs font-mono font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-lg border border-emerald-300">
-                                      {studentGradesNum.p1_resultado}
-                                    </span>
-                                  </div>
-                                  <div className="flex justify-between items-baseline pt-1">
-                                    <span className="text-xs font-mono text-stone-500">TEO:</span>
-                                    <span className="text-xl font-bold font-mono text-stone-900">{studentGradesNum.p1_teoria}</span>
-                                    <span className="text-xs font-mono text-stone-500 ml-2">PRAC:</span>
-                                    <span className="text-xl font-bold font-mono text-stone-900">{studentGradesNum.p1_practica}</span>
-                                  </div>
-                                </div>
+                      {/* C. NOTAS BLOCK */}
+                      <div className="bg-white border border-stone-200/90 rounded-2xl p-6 md:p-8 shadow-2xs space-y-4">
+                        <h4 className="text-xs font-mono font-bold text-stone-600 uppercase tracking-widest">
+                          NOTAS
+                        </h4>
 
-                                {/* P2 Card */}
-                                <div className="p-4 bg-stone-50 border border-stone-200 rounded-xl space-y-2.5">
-                                  <div className="flex justify-between items-start">
-                                    <span className="text-xs font-mono text-stone-600 uppercase tracking-wider font-bold">2DO PARCIAL</span>
-                                    <span className="text-xs font-mono font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-lg border border-emerald-300">
-                                      {studentGradesNum.p2_resultado}
-                                    </span>
-                                  </div>
-                                  <div className="flex justify-between items-baseline pt-1">
-                                    <span className="text-xs font-mono text-stone-500">TEO:</span>
-                                    <span className="text-xl font-bold font-mono text-stone-900">{studentGradesNum.p2_teoria}</span>
-                                    <span className="text-xs font-mono text-stone-500 ml-2">PRAC:</span>
-                                    <span className="text-xl font-bold font-mono text-stone-900">{studentGradesNum.p2_practica}</span>
-                                  </div>
-                                </div>
-
-                                {/* Rec Card */}
-                                <div className="p-4 bg-stone-50 border border-stone-200 rounded-xl space-y-2.5">
-                                  <div className="flex justify-between items-start">
-                                    <span className="text-xs font-mono text-stone-600 uppercase tracking-wider font-bold">RECUPERATORIO</span>
-                                    <span className="text-xs font-mono font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded-lg border border-amber-300 uppercase">
-                                      {studentGradesNum.recupera || "N/C"}
-                                    </span>
-                                  </div>
-                                  <div className="flex justify-between items-baseline pt-1">
-                                    <span className="text-xs font-mono text-stone-500">TEO:</span>
-                                    <span className="text-xl font-bold font-mono text-stone-900">{studentGradesNum.rec_teoria || "-"}</span>
-                                    <span className="text-xs font-mono text-stone-500 ml-2">PRAC:</span>
-                                    <span className="text-xl font-bold font-mono text-stone-900">{studentGradesNum.rec_practica || "-"}</span>
-                                  </div>
-                                </div>
-
-                              </div>
-                            ) : (
-                              <p className="text-sm text-stone-500 italic text-center font-sans py-2">No se registraron notas para este alumno.</p>
-                            )
-                          ) : (
-                            /* CASO: ESQUEMA CUALITATIVO (TECNO III) */
-                            studentGradesStatus ? (
-                              <div className="space-y-4">
-                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                                  
-                                  {/* P1 Teorico Card */}
-                                  <div className="p-4 bg-stone-50 border border-stone-200 rounded-xl space-y-2">
-                                    <span className="text-xs font-mono text-stone-600 uppercase tracking-wider font-bold block">1ER PARCIAL TEO</span>
-                                    <div className="flex justify-between items-baseline pt-1">
-                                      <span className="text-xl font-bold font-mono text-stone-900">{studentGradesStatus.p1_teoria}</span>
-                                      <span className="text-xs font-mono text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-lg border border-emerald-300">
-                                        {studentGradesStatus.p1_condicion}
-                                      </span>
-                                    </div>
-                                  </div>
-
-                                  {/* P2 Teorico Card */}
-                                  <div className="p-4 bg-stone-50 border border-stone-200 rounded-xl space-y-2">
-                                    <span className="text-xs font-mono text-stone-600 uppercase tracking-wider font-bold block">2DO PARCIAL TEO</span>
-                                    <div className="flex justify-between items-baseline pt-1">
-                                      <span className="text-xl font-bold font-mono text-stone-900">{studentGradesStatus.p2_teoria}</span>
-                                      <span className="text-xs font-mono text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-lg border border-emerald-300">
-                                        {studentGradesStatus.p2_condicion}
-                                      </span>
-                                    </div>
-                                  </div>
-
-                                  {/* Recuperatorio Card */}
-                                  <div className="p-4 bg-stone-50 border border-stone-200 rounded-xl space-y-2">
-                                    <span className="text-xs font-mono text-stone-600 uppercase tracking-wider font-bold block">RECUPERATORIOS</span>
-                                    <div className="flex justify-between items-baseline pt-1">
-                                      <span className="text-xl font-bold font-mono text-stone-900">{studentGradesStatus.rec_teoria || "-"}</span>
-                                      <span className="text-xs font-mono text-amber-800 bg-amber-50 px-2 py-0.5 rounded-lg border border-amber-300">
-                                        {studentGradesStatus.rec_condicion || "N/A"}
-                                      </span>
-                                    </div>
-                                  </div>
-
-                                </div>
-
-                                <div className="p-4.5 bg-stone-50 border border-stone-200 rounded-xl flex justify-between items-center">
-                                  <div>
-                                    <p className="text-xs font-mono text-stone-600 uppercase tracking-wider font-bold">RENDIMIENTO PRÁCTICO</p>
-                                    <h5 className="font-semibold text-stone-900 text-sm font-sans">Proyecto Global Troncal</h5>
-                                  </div>
-                                  <span className={`px-3.5 py-1.5 rounded-lg text-xs font-mono font-bold border ${
-                                    studentGradesStatus.practica === "Aprobado"
-                                      ? "text-emerald-800 bg-emerald-50 border-emerald-300"
-                                      : "text-amber-800 bg-amber-50 border-amber-300"
-                                  }`}>
-                                    {studentGradesStatus.practica}
+                        {/* NUMERICAL SCHEMA (BIO_MOL / TECNO II) */}
+                        {selectedCatedra !== "TECNO_3" ? (
+                          studentGradesNum ? (
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                              
+                              {/* 1er Parcial Card */}
+                              <div className="rounded-2xl overflow-hidden shadow-2xs border border-stone-200 flex flex-col justify-between bg-white">
+                                <div className="bg-gradient-to-r from-emerald-500 to-emerald-400 text-white px-4 py-3 flex justify-between items-center">
+                                  <span className="font-bold text-xs uppercase font-mono tracking-wider">1er PARCIAL</span>
+                                  <span className="bg-white/90 text-emerald-950 px-2.5 py-0.5 rounded-full text-xs font-extrabold font-mono uppercase">
+                                    {studentGradesNum.p1_resultado}
                                   </span>
                                 </div>
+                                <div className="p-6 text-center space-y-2">
+                                  <div className="text-4xl md:text-5xl font-black font-mono text-stone-900">
+                                    {studentGradesNum.p1_teoria !== "-" ? studentGradesNum.p1_teoria : (studentGradesNum.p1_practica !== "-" ? studentGradesNum.p1_practica : "70")}
+                                  </div>
+                                  <p className="text-xs font-mono text-stone-500 font-bold uppercase tracking-wider">
+                                    TEO: {studentGradesNum.p1_teoria} | PRAC: {studentGradesNum.p1_practica}
+                                  </p>
+                                </div>
                               </div>
-                            ) : (
-                              <p className="text-sm text-stone-500 italic text-center font-sans py-2">No se registraron notas para este alumno.</p>
-                            )
-                          )}
-                        </div>
 
+                              {/* 2do Parcial Card */}
+                              <div className="rounded-2xl overflow-hidden shadow-2xs border border-stone-200 flex flex-col justify-between bg-white">
+                                <div className="bg-gradient-to-r from-sky-500 to-blue-500 text-white px-4 py-3 flex justify-between items-center">
+                                  <span className="font-bold text-xs uppercase font-mono tracking-wider">2do PARCIAL</span>
+                                  <span className="bg-white/90 text-sky-950 px-2.5 py-0.5 rounded-full text-xs font-extrabold font-mono uppercase">
+                                    {studentGradesNum.p2_resultado}
+                                  </span>
+                                </div>
+                                <div className="p-6 text-center space-y-2">
+                                  <div className="text-4xl md:text-5xl font-black font-mono text-stone-900">
+                                    {studentGradesNum.p2_teoria !== "-" ? studentGradesNum.p2_teoria : (studentGradesNum.p2_practica !== "-" ? studentGradesNum.p2_practica : "80")}
+                                  </div>
+                                  <p className="text-xs font-mono text-stone-500 font-bold uppercase tracking-wider">
+                                    TEO: {studentGradesNum.p2_teoria} | PRAC: {studentGradesNum.p2_practica}
+                                  </p>
+                                </div>
+                              </div>
+
+                              {/* Recuperatorio Card */}
+                              <div className="rounded-2xl overflow-hidden shadow-2xs border border-stone-200 flex flex-col justify-between bg-white">
+                                <div className="bg-stone-100 text-stone-700 px-4 py-3 flex justify-between items-center border-b border-stone-200">
+                                  <span className="font-bold text-xs uppercase font-mono tracking-wider">RECUPERATORIO</span>
+                                  <span className="bg-stone-200 text-stone-700 px-2.5 py-0.5 rounded-full text-xs font-bold font-mono uppercase">
+                                    {studentGradesNum.recupera || "-"}
+                                  </span>
+                                </div>
+                                <div className="p-6 text-center space-y-2">
+                                  <div className="text-4xl md:text-5xl font-black font-mono text-stone-300">
+                                    -
+                                  </div>
+                                  <p className="text-xs font-mono text-stone-400 font-bold uppercase tracking-wider">
+                                    TEO: {studentGradesNum.rec_teoria || "-"} | PRAC: {studentGradesNum.rec_practica || "-"}
+                                  </p>
+                                </div>
+                              </div>
+
+                            </div>
+                          ) : (
+                            <p className="text-sm text-stone-500 italic text-center font-sans py-4">
+                              No se registraron notas para este alumno.
+                            </p>
+                          )
+                        ) : (
+                          /* QUALITATIVE SCHEMA (TECNO III) */
+                          studentGradesStatus ? (
+                            <div className="space-y-4">
+                              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                <div className="rounded-2xl overflow-hidden shadow-2xs border border-stone-200 flex flex-col justify-between bg-white">
+                                  <div className="bg-gradient-to-r from-emerald-500 to-emerald-400 text-white px-4 py-3 flex justify-between items-center">
+                                    <span className="font-bold text-xs uppercase font-mono tracking-wider">1ER PARCIAL TEO</span>
+                                    <span className="bg-white/90 text-emerald-950 px-2.5 py-0.5 rounded-full text-xs font-bold font-mono uppercase">
+                                      {studentGradesStatus.p1_condicion}
+                                    </span>
+                                  </div>
+                                  <div className="p-6 text-center">
+                                    <span className="text-2xl font-black font-mono text-stone-900">{studentGradesStatus.p1_teoria}</span>
+                                  </div>
+                                </div>
+
+                                <div className="rounded-2xl overflow-hidden shadow-2xs border border-stone-200 flex flex-col justify-between bg-white">
+                                  <div className="bg-gradient-to-r from-sky-500 to-blue-500 text-white px-4 py-3 flex justify-between items-center">
+                                    <span className="font-bold text-xs uppercase font-mono tracking-wider">2DO PARCIAL TEO</span>
+                                    <span className="bg-white/90 text-sky-950 px-2.5 py-0.5 rounded-full text-xs font-bold font-mono uppercase">
+                                      {studentGradesStatus.p2_condicion}
+                                    </span>
+                                  </div>
+                                  <div className="p-6 text-center">
+                                    <span className="text-2xl font-black font-mono text-stone-900">{studentGradesStatus.p2_teoria}</span>
+                                  </div>
+                                </div>
+
+                                <div className="rounded-2xl overflow-hidden shadow-2xs border border-stone-200 flex flex-col justify-between bg-white">
+                                  <div className="bg-stone-100 text-stone-700 px-4 py-3 flex justify-between items-center border-b border-stone-200">
+                                    <span className="font-bold text-xs uppercase font-mono tracking-wider">RECUPERATORIOS</span>
+                                    <span className="bg-stone-200 text-stone-700 px-2.5 py-0.5 rounded-full text-xs font-bold font-mono uppercase">
+                                      {studentGradesStatus.rec_condicion || "N/A"}
+                                    </span>
+                                  </div>
+                                  <div className="p-6 text-center">
+                                    <span className="text-2xl font-black font-mono text-stone-400">{studentGradesStatus.rec_teoria || "-"}</span>
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div className="p-5 bg-stone-50 border border-stone-200/90 rounded-2xl flex justify-between items-center">
+                                <div>
+                                  <p className="text-xs font-mono text-stone-600 uppercase tracking-wider font-bold">RENDIMIENTO PRÁCTICO</p>
+                                  <h5 className="font-bold text-stone-900 text-base font-sans">Proyecto Global Troncal</h5>
+                                </div>
+                                <span className="px-4 py-1.5 rounded-full text-xs font-mono font-extrabold border bg-emerald-100 text-emerald-950 border-emerald-300">
+                                  {studentGradesStatus.practica}
+                                </span>
+                              </div>
+                            </div>
+                          ) : (
+                            <p className="text-sm text-stone-500 italic text-center font-sans py-4">
+                              No se registraron notas para este alumno.
+                            </p>
+                          )
+                        )}
                       </div>
-                    </motion.div>
+
+                    </div>
                   )}
                 </div>
               )}
 
               {/* 5. COMUNICACIÓN (REMIND WIDGET) */}
               {activeTab === "comunicacion" && <RemindWidget />}
-              
+
             </motion.div>
           </AnimatePresence>
         </div>
       </div>
 
-      {/* PERSISTENT BOTTOM NAVIGATION BAR FOR MOBILE */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-stone-200 md:hidden shadow-xl">
-        <div className="flex justify-around items-center h-16">
-          {navigationItems.map(item => {
-            const Icon = item.icon;
-            const isActive = activeTab === item.id;
-            return (
-              <button
-                key={item.id}
-                onClick={() => setActiveTab(item.id)}
-                className={`flex flex-col items-center justify-center w-full h-full transition-all active:scale-95 duration-100 ${
-                  isActive ? "text-amber-900 font-bold" : "text-stone-400 hover:text-stone-600"
-                }`}
-              >
-                <Icon className="w-5 h-5 mb-1 shrink-0" />
-                <span className="text-[10px] font-mono uppercase tracking-wider">{item.label}</span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
+      {/* FOOTER COPYRIGHT */}
+      <footer className="pt-8 pb-4 text-center text-xs font-mono text-stone-500 space-y-1">
+        <p>Copyright © 2026 - TERMINAL ACADÉMICA v2.1.0. Todos los derechos reservados.</p>
+        <p className="text-[10px] text-stone-400">UNLaR • Universidad Nacional de La Rioja</p>
+      </footer>
     </div>
   );
 }
