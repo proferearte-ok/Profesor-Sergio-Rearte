@@ -4,6 +4,7 @@
  */
 
 import { Asistencia, NotaNum, NotaStatus, Catedra, SeccionEstado, Archivo, CarpetaDrive, ClaseCronograma, Anuncio } from "../types";
+import { normalizeDriveImageUrl, normalizeDriveFileUrl } from "../utils/driveLinks";
 import { 
   mockAnuncios, 
   mockCatedras, 
@@ -871,7 +872,7 @@ export async function getCronogramaClasesFromSheet(
  */
 export async function getNovedadesFromSheet(spreadsheetId: string): Promise<Anuncio[]> {
   try {
-    if (!spreadsheetId || spreadsheetId.trim() === "") {
+    if (!spreadsheetId || spreadsheetId.trim() === "" || !isValidGoogleSheetId(spreadsheetId)) {
       return mockAnuncios;
     }
 
@@ -892,17 +893,17 @@ export async function getNovedadesFromSheet(spreadsheetId: string): Promise<Anun
     cols.forEach((col: any, index: number) => {
       const label = col.label || "";
       const norm = normalizarTexto(label);
-      if (norm.includes("link_imagen") || norm.includes("imagen") || norm.includes("img")) {
+      if (norm.includes("link_imagen") || norm.includes("imagen") || norm.includes("img") || norm.includes("foto") || norm.includes("pic") || norm.includes("url_imagen")) {
         if (idxLinkImagen === -1) idxLinkImagen = index;
-      } else if (norm.includes("link_archivo") || norm.includes("archivo") || norm.includes("file") || norm.includes("doc")) {
+      } else if (norm.includes("link_archivo") || norm.includes("archivo") || norm.includes("file") || norm.includes("doc") || norm.includes("pdf") || norm.includes("adjunto")) {
         if (idxLinkArchivo === -1) idxLinkArchivo = index;
-      } else if (norm.includes("tipo_anuncio") || norm.includes("tipo") || norm.includes("categoria")) {
+      } else if (norm.includes("tipo_anuncio") || norm.includes("tipo") || norm.includes("categoria") || norm.includes("type")) {
         if (idxTipo === -1) idxTipo = index;
       } else if (norm.includes("fecha") || norm.includes("date")) {
         if (idxFecha === -1) idxFecha = index;
       } else if (norm.includes("titulo") || norm.includes("title")) {
         if (idxTitulo === -1) idxTitulo = index;
-      } else if (norm.includes("texto") || norm.includes("cuerpo") || norm.includes("descripcion") || norm.includes("body")) {
+      } else if (norm.includes("texto") || norm.includes("cuerpo") || norm.includes("descripcion") || norm.includes("body") || norm.includes("contenido")) {
         if (idxTexto === -1) idxTexto = index;
       } else if (norm.includes("activo") || norm.includes("active") || norm.includes("visible")) {
         if (idxActivo === -1) idxActivo = index;
@@ -913,9 +914,26 @@ export async function getNovedadesFromSheet(spreadsheetId: string): Promise<Anun
       }
     });
 
+    // Asignar índices posicionales de respaldo si no se detectaron por encabezado
+    let offset = 0;
+    if (idxId !== -1 || (cols[0]?.label && normalizarTexto(cols[0].label).includes("id"))) {
+      offset = 1;
+    }
+    if (idxFecha === -1) idxFecha = 0 + offset;
+    if (idxTitulo === -1) idxTitulo = 1 + offset;
+    if (idxTexto === -1) idxTexto = 2 + offset;
+    if (idxTipo === -1) idxTipo = 3 + offset;
+    if (idxLinkImagen === -1) idxLinkImagen = 4 + offset;
+    if (idxLinkArchivo === -1) idxLinkArchivo = 5 + offset;
+    if (idxActivo === -1) idxActivo = 6 + offset;
+    if (idxOrden === -1) idxOrden = 7 + offset;
+
     const getVal = (c: any[], idx: number): string => {
-      if (idx === -1 || !c[idx] || c[idx].v === null || c[idx].v === undefined) return "";
-      return String(c[idx].v).trim();
+      if (idx === -1 || !c[idx]) return "";
+      const raw = c[idx].v !== null && c[idx].v !== undefined 
+        ? c[idx].v 
+        : (c[idx].f !== null && c[idx].f !== undefined ? c[idx].f : "");
+      return String(raw).trim();
     };
 
     const anuncios: Anuncio[] = rows.map((row: any, rIdx: number) => {
@@ -929,13 +947,26 @@ export async function getNovedadesFromSheet(spreadsheetId: string): Promise<Anun
       const rawActivo = getVal(c, idxActivo).toLowerCase();
       const activo = rawActivo === "" || rawActivo === "true" || rawActivo === "si" || rawActivo === "sí" || rawActivo === "1" || rawActivo === "verdadero" || rawActivo === "yes";
 
+      const rawLinkImg = getVal(c, idxLinkImagen);
+      const rawLinkArch = getVal(c, idxLinkArchivo);
+
+      const normalizedImg = normalizeDriveImageUrl(rawLinkImg);
+      const normalizedArch = normalizeDriveFileUrl(rawLinkArch);
+
       const rawTipo = getVal(c, idxTipo).toLowerCase();
       let tipoAnuncio: "Texto" | "Imagen" | "Archivo" | "Mixto" = "Texto";
+      
       if (rawTipo.includes("mix")) {
         tipoAnuncio = "Mixto";
-      } else if (rawTipo.includes("imag")) {
+      } else if (rawTipo.includes("imag") || rawTipo.includes("foto") || rawTipo.includes("img") || rawTipo.includes("pic")) {
         tipoAnuncio = "Imagen";
       } else if (rawTipo.includes("arch") || rawTipo.includes("file") || rawTipo.includes("doc")) {
+        tipoAnuncio = "Archivo";
+      } else if (normalizedImg && normalizedArch) {
+        tipoAnuncio = "Mixto";
+      } else if (normalizedImg) {
+        tipoAnuncio = "Imagen";
+      } else if (normalizedArch) {
         tipoAnuncio = "Archivo";
       }
 
@@ -947,8 +978,8 @@ export async function getNovedadesFromSheet(spreadsheetId: string): Promise<Anun
         titulo: titulo || "Comunicado Sin Título",
         texto,
         tipoAnuncio,
-        linkImagen: getVal(c, idxLinkImagen),
-        linkArchivo: getVal(c, idxLinkArchivo),
+        linkImagen: normalizedImg,
+        linkArchivo: normalizedArch,
         activo,
         orden: isNaN(ordenVal) ? 0 : ordenVal
       };

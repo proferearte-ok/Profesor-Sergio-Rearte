@@ -25,6 +25,7 @@ import { motion } from "motion/react";
 import { Anuncio, Catedra } from "../../types";
 import { mockCatedras, mockAnuncios } from "../../data/mockData";
 import { getNovedadesFromSheet, getCatedrasFromSheet, isValidGoogleSheetId } from "../../services/googleSheets";
+import { normalizeDriveImageUrl, normalizeDriveFileUrl } from "../../utils/driveLinks";
 
 interface HomePageProps {
   onNavigateToPortal: (catedraId?: string) => void;
@@ -254,17 +255,23 @@ export default function HomePage({ onNavigateToPortal }: HomePageProps) {
                 </div>
 
                 {/* IMAGEN CONDICIONAL */}
-                {(item.tipoAnuncio === "Imagen" || item.tipoAnuncio === "Mixto") && item.linkImagen && (
+                {(item.tipoAnuncio === "Imagen" || item.tipoAnuncio === "Mixto" || !!item.linkImagen) && Boolean(item.linkImagen) && (
                   <div className="pt-1">
                     <div className="rounded-xl overflow-hidden border border-stone-200 bg-stone-50 max-h-96">
                       <img
-                        src={item.linkImagen}
+                        src={normalizeDriveImageUrl(item.linkImagen)}
                         alt={item.titulo}
                         referrerPolicy="no-referrer"
                         className="w-full h-auto max-h-96 object-contain bg-stone-100"
                         onError={(e) => {
-                          // Si falla cargar la imagen directa (ej. si es link de view de Drive sin direct URL)
-                          (e.target as HTMLElement).style.display = 'none';
+                          // Si falla cargar la imagen, ocultar el contenedor completo
+                          const target = e.currentTarget;
+                          const container = target.closest('.pt-1') as HTMLElement;
+                          if (container) {
+                            container.style.display = 'none';
+                          } else {
+                            target.style.display = 'none';
+                          }
                         }}
                       />
                     </div>
@@ -272,10 +279,10 @@ export default function HomePage({ onNavigateToPortal }: HomePageProps) {
                 )}
 
                 {/* ARCHIVO ADJUNTO CONDICIONAL */}
-                {(item.tipoAnuncio === "Archivo" || item.tipoAnuncio === "Mixto") && item.linkArchivo && (
+                {(item.tipoAnuncio === "Archivo" || item.tipoAnuncio === "Mixto" || !!item.linkArchivo) && Boolean(item.linkArchivo) && (
                   <div className="pt-2">
                     <a
-                      href={item.linkArchivo}
+                      href={normalizeDriveFileUrl(item.linkArchivo)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-2.5 px-4 py-2.5 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 rounded-xl font-mono text-xs font-bold transition-all shadow-2xs hover:shadow-xs active:scale-98"
