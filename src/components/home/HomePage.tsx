@@ -95,7 +95,7 @@ export default function HomePage({ onNavigateToPortal }: HomePageProps) {
 
           <div className="space-y-2">
             <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight font-sans text-white leading-tight">
-              Cátedras de Biología Molecular &amp; Tecnología
+              Cátedras de Biología Molecular y Tecnologías de Laboratorio
             </h1>
             <p className="text-stone-300 text-base md:text-xl font-sans leading-relaxed max-w-2xl font-normal">
               Profesor Sergio Rearte — Accedé al material de estudio, novedades de cursada, programas, comisiones y calificaciones de forma centralizada.
@@ -115,94 +115,96 @@ export default function HomePage({ onNavigateToPortal }: HomePageProps) {
         </div>
       </section>
 
-      {/* SECCIÓN RESUMEN DE CÁTEDRAS */}
-      <section className="space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-stone-200/90 pb-3">
-          <div>
-            <div className="flex items-center gap-2 text-amber-900 text-xs font-mono font-bold uppercase tracking-wider">
-              <Layers className="w-4 h-4 text-amber-800" />
-              <span>OFERTA ACADÉMICA</span>
+      {/* CONTENEDOR PRINCIPAL DOS COLUMNAS EN DESKTOP / UNA COLUMNA EN MOBILE */}
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
+        {/* SECCIÓN RESUMEN DE CÁTEDRAS (COLUMNA IZQUIERDA EN DESKTOP) */}
+        <section className="md:col-span-5 lg:col-span-4 space-y-4">
+          <div className="flex items-center justify-between border-b border-stone-200/90 pb-3">
+            <div>
+              <div className="flex items-center gap-2 text-amber-900 text-xs font-mono font-bold uppercase tracking-wider">
+                <Layers className="w-4 h-4 text-amber-800" />
+                <span>OFERTA ACADÉMICA</span>
+              </div>
+              <h2 className="text-xl font-bold text-stone-900 tracking-tight">
+                Cátedras Universitarias
+              </h2>
             </div>
-            <h2 className="text-xl md:text-2xl font-bold text-stone-900 tracking-tight">
-              Cátedras Universitarias
-            </h2>
+            <span className="text-xs font-mono text-stone-600 bg-stone-100 px-2.5 py-1 rounded-lg border border-stone-200">
+              2026
+            </span>
           </div>
-          <span className="text-xs font-mono text-stone-600 bg-stone-100 px-3 py-1.5 rounded-lg border border-stone-200 self-start sm:self-auto">
-            Ciclo Lectivo 2026
-          </span>
-        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          {catedras.map((cat) => (
-            <motion.div
-              key={cat.id}
-              whileHover={{ y: -3 }}
-              transition={{ duration: 0.2 }}
-              className="bg-white border border-stone-200/90 rounded-2xl p-6 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between"
-            >
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="font-mono text-xs font-bold text-stone-600 bg-stone-100 px-2.5 py-1 rounded-md border border-stone-200">
-                    {cat.id}
-                  </span>
-                  {cat.activa ? (
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-xs font-semibold border border-emerald-200">
-                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                      Activa 2026
+          <div className="flex flex-col gap-3">
+            {catedras.map((cat) => (
+              <motion.div
+                key={cat.id}
+                whileHover={{ y: -2 }}
+                transition={{ duration: 0.15 }}
+                className="bg-white border border-stone-200/90 rounded-2xl p-4 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between space-y-2.5"
+              >
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-mono text-[11px] font-bold text-stone-600 bg-stone-100 px-2 py-0.5 rounded border border-stone-200 shrink-0">
+                      {cat.id}
                     </span>
-                  ) : (
-                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-stone-100 text-stone-500 text-xs font-medium border border-stone-200">
-                      Inactiva / 1er Cuat.
-                    </span>
-                  )}
-                </div>
-
-                <div>
-                  <h3 className="text-lg font-bold text-stone-900 font-sans tracking-tight">
-                    {cat.nombre}
-                  </h3>
-                  <div className="flex items-center gap-2 text-xs text-stone-600 font-mono mt-1">
-                    <Calendar className="w-3.5 h-3.5 text-stone-600" />
-                    <span>{cat.cuatrimestre} ({cat.anio_vigente})</span>
+                    {cat.activa ? (
+                      <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[11px] font-semibold border border-emerald-200 shrink-0">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                        Activa 2026
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-stone-100 text-stone-500 text-[11px] font-medium border border-stone-200 shrink-0">
+                        Inactiva
+                      </span>
+                    )}
                   </div>
+
+                  <div>
+                    <h3 className="text-base font-bold text-stone-900 font-sans tracking-tight leading-snug">
+                      {cat.nombre}
+                    </h3>
+                    <div className="flex items-center gap-1.5 text-xs text-stone-500 font-mono mt-0.5">
+                      <Calendar className="w-3.5 h-3.5 text-stone-400 shrink-0" />
+                      <span className="truncate">{cat.cuatrimestre} ({cat.anio_vigente})</span>
+                    </div>
+                  </div>
+
+                  <p className="text-xs text-stone-600 line-clamp-2 leading-relaxed">
+                    {cat.contenido_cronograma || "Programa completo, bibliografía oficial y notas en el portal."}
+                  </p>
                 </div>
 
-                <p className="text-xs text-stone-600 line-clamp-2 leading-relaxed">
-                  {cat.contenido_cronograma || "Programa completo, bibliografía oficial y notas en el portal."}
+                <div className="pt-2.5 border-t border-stone-100">
+                  <button
+                    onClick={() => onNavigateToPortal(cat.id)}
+                    className="w-full flex items-center justify-center gap-2 py-2 px-3 bg-stone-100 hover:bg-[#1A1F35] text-stone-800 hover:text-white rounded-xl text-xs font-bold font-mono tracking-wider uppercase transition-all duration-150 cursor-pointer group"
+                  >
+                    <span>Ver Contenidos</span>
+                    <ArrowRight className="w-3.5 h-3.5 text-stone-500 group-hover:text-[#FCE19C] group-hover:translate-x-1 transition-transform" />
+                  </button>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </section>
+
+        {/* SECCIÓN NOVEDADES / FEED DE COMUNICACIONES (COLUMNA DERECHA EN DESKTOP) */}
+        <section className="md:col-span-7 lg:col-span-8 space-y-4">
+          <div className="flex items-center justify-between border-b border-stone-200/90 pb-3">
+            <div className="flex items-center gap-2.5">
+              <div className="p-2 rounded-xl bg-amber-100 text-amber-900 border border-amber-200 shrink-0">
+                <Megaphone className="w-4 h-4 md:w-5 md:h-5" />
+              </div>
+              <div>
+                <h2 className="text-xl md:text-2xl font-bold text-stone-900 tracking-tight">
+                  Novedades &amp; Comunicaciones
+                </h2>
+                <p className="text-xs text-stone-600 font-sans hidden sm:block">
+                  Avisos importantes y actualizaciones recientes de las cátedras.
                 </p>
               </div>
-
-              <div className="pt-5 border-t border-stone-100 mt-4">
-                <button
-                  onClick={() => onNavigateToPortal(cat.id)}
-                  className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-stone-100 hover:bg-[#1A1F35] text-stone-800 hover:text-white rounded-xl text-xs font-bold font-mono tracking-wider uppercase transition-all duration-150 cursor-pointer group"
-                >
-                  <span>Ver Contenidos</span>
-                  <ArrowRight className="w-3.5 h-3.5 text-stone-500 group-hover:text-[#FCE19C] group-hover:translate-x-1 transition-transform" />
-                </button>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </section>
-
-      {/* SECCIÓN NOVEDADES / FEED DE COMUNICACIONES */}
-      <section className="space-y-5 pt-4">
-        <div className="flex items-center justify-between border-b border-stone-200/90 pb-3">
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-amber-100 text-amber-900 border border-amber-200">
-              <Megaphone className="w-5 h-5" />
-            </div>
-            <div>
-              <h2 className="text-xl md:text-2xl font-bold text-stone-900 tracking-tight">
-                Novedades &amp; Comunicaciones
-              </h2>
-              <p className="text-xs text-stone-600 font-sans">
-                Avisos importantes y actualizaciones recientes de las cátedras.
-              </p>
             </div>
           </div>
-        </div>
 
         {loading ? (
           <div className="bg-white border border-stone-200/90 rounded-2xl p-12 text-center space-y-3">
@@ -298,6 +300,7 @@ export default function HomePage({ onNavigateToPortal }: HomePageProps) {
           </div>
         )}
       </section>
+      </div>
     </div>
   );
 }
