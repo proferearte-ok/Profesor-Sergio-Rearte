@@ -20,8 +20,10 @@ import {
   Menu,
   FileCode,
   User,
-  Check
+  Check,
+  ArrowLeft
 } from "lucide-react";
+
 import { motion, AnimatePresence } from "motion/react";
 import { 
   mockCatedras, 
@@ -36,7 +38,8 @@ import {
   getAsistenciaFromSheet, 
   getNotasNumFromSheet, 
   getNotasStatusFromSheet,
-  getCronogramaClasesFromSheet
+  getCronogramaClasesFromSheet,
+  isValidGoogleSheetId
 } from "../../services/googleSheets";
 import { Asistencia, NotaNum, NotaStatus, ClaseCronograma } from "../../types";
 import StudentSearch from "./StudentSearch";
@@ -56,7 +59,12 @@ const ACADEMIC_INTRODUCTIONS: Record<string, string[]> = {
   ]
 };
 
-export default function PortalView() {
+interface PortalViewProps {
+  onBackToHome?: () => void;
+  initialCatedraId?: string;
+}
+
+export default function PortalView({ onBackToHome, initialCatedraId }: PortalViewProps) {
   const [catedras, setCatedras] = useState<any[]>(mockCatedras);
   const [secciones, setSecciones] = useState<any[]>(mockSecciones);
   const [archivosList, setArchivosList] = useState<any[]>(mockArchivos);
@@ -64,8 +72,15 @@ export default function PortalView() {
   const activeCatedras = catedras.filter(c => c.activa);
   
   const [selectedCatedra, setSelectedCatedra] = useState<string>(
-    activeCatedras.length > 0 ? activeCatedras[0].id : "BIO_MOL"
+    initialCatedraId || (activeCatedras.length > 0 ? activeCatedras[0].id : "BIO_MOL")
   );
+
+  useEffect(() => {
+    if (initialCatedraId) {
+      setSelectedCatedra(initialCatedraId);
+    }
+  }, [initialCatedraId]);
+
   
   // Navigation tabs: 'inicio' | 'archivos' | 'cronograma' | 'rendimiento' | 'comunicacion'
   const [activeTab, setActiveTab] = useState<"inicio" | "archivos" | "cronograma" | "rendimiento" | "comunicacion">("inicio");
@@ -107,16 +122,6 @@ export default function PortalView() {
   useEffect(() => {
     const loadPanelConfig = async () => {
       const panelConfigId = import.meta.env.VITE_SHEET_ID_PANEL_CONFIG;
-      
-      const isValidGoogleSheetId = (id: string | undefined): boolean => {
-        if (!id) return false;
-        const trimmed = id.trim();
-        if (trimmed.startsWith("TU_ID_AQUI") || trimmed === "") return false;
-        const pwd = import.meta.env.VITE_DOCENTE_PASSWORD || "nadp3638";
-        if (trimmed === pwd.trim()) return false;
-        if (trimmed.length < 25) return false;
-        return /^[a-zA-Z0-9-_]+$/.test(trimmed);
-      };
 
       if (!isValidGoogleSheetId(panelConfigId)) {
         console.info("ℹ️ [CONFIG] El ID 'VITE_SHEET_ID_PANEL_CONFIG' no está configurado o es inválido. Usando datos locales por defecto.");
@@ -901,7 +906,24 @@ export default function PortalView() {
   return (
     <div className="space-y-6 animate-fade-in pb-16 md:pb-6">
       
+      {/* BOTÓN VOLVER AL INICIO (HOME) */}
+      {onBackToHome && (
+        <div className="flex items-center justify-between bg-white border border-stone-200/90 rounded-2xl px-5 py-3 shadow-2xs">
+          <button
+            onClick={onBackToHome}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-stone-100 hover:bg-[#1A1F35] text-stone-800 hover:text-white rounded-xl text-xs font-mono font-bold uppercase transition-all duration-150 cursor-pointer group shadow-2xs"
+          >
+            <ArrowLeft className="w-4 h-4 text-amber-800 group-hover:text-[#FCE19C] group-hover:-translate-x-1 transition-transform" />
+            <span>Volver a la Página de Inicio</span>
+          </button>
+          <span className="text-xs font-mono text-stone-600 hidden sm:inline">
+            Portal de Estudiantes
+          </span>
+        </div>
+      )}
+
       {/* 1. TOP INSTITUTIONAL BANNER (CALENDARIO ACADÉMICO 2026) */}
+
       <div className="bg-gradient-to-r from-[#1C1510] via-[#351F12] to-[#170F0A] border border-[#3E2313]/50 rounded-2xl p-6 md:p-8 text-stone-100 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative overflow-hidden">
         {/* Subtle background glow effect */}
         <div className="absolute -right-10 -bottom-10 w-60 h-60 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>

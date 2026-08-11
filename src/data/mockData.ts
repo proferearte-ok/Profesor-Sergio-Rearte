@@ -3,7 +3,41 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Catedra, SeccionEstado, Archivo, Asistencia, NotaNum, NotaStatus } from "../types";
+import { Catedra, SeccionEstado, Archivo, Asistencia, NotaNum, NotaStatus, Anuncio } from "../types";
+
+export const mockAnuncios: Anuncio[] = [
+  {
+    id: "1",
+    fecha: "10/08/2026",
+    titulo: "Bienvenida al Ciclo Lectivo 2026 - 2do Cuatrimestre",
+    texto: "Les damos la bienvenida a todos los estudiantes a las cátedras de Biología Molecular y Tecno III. Les recordamos consultar el cronograma de clases y las fechas clave de exámenes y recuperatorios en el portal.",
+    tipoAnuncio: "Texto",
+    activo: true,
+    orden: 1
+  },
+  {
+    id: "2",
+    fecha: "08/08/2026",
+    titulo: "Fecha Confirmada de Examen Recuperatorio",
+    texto: "Se comunica a los alumnos de todas las cátedras que la fecha oficial para los Exámenes Recuperatorios Teórico-Prácticos Integradores de Cátedra queda fijada para el día 11 de Noviembre de 2026.",
+    tipoAnuncio: "Mixto",
+    linkImagen: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=800&q=80",
+    linkArchivo: "https://drive.google.com/file/d/example-cronograma-2026",
+    activo: true,
+    orden: 2
+  },
+  {
+    id: "3",
+    fecha: "02/08/2026",
+    titulo: "Material de Lectura de Biología Molecular Disponible",
+    texto: "Ya se encuentra disponible en la sección de Bibliografía el capítulo actualizado de Estructura e Integración Celular para la primera unidad temática.",
+    tipoAnuncio: "Archivo",
+    linkArchivo: "https://drive.google.com/file/d/example-bibliografia-biomol",
+    activo: true,
+    orden: 3
+  }
+];
+
 
 export const mockCatedras: Catedra[] = [
   {

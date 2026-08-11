@@ -105,3 +105,18 @@ export interface ClaseCronograma {
   tipo: "Normal" | "Feriado" | "Extra";
 }
 
+/**
+ * Novedades y Comunicaciones institucionales/catedra para la Home.
+ */
+export interface Anuncio {
+  id: string;
+  fecha: string;
+  titulo: string;
+  texto: string;
+  tipoAnuncio: "Texto" | "Imagen" | "Archivo" | "Mixto";
+  linkImagen?: string;
+  linkArchivo?: string;
+  activo: boolean;
+  orden: number;
+}
+

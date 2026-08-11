@@ -3,7 +3,29 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Asistencia, NotaNum, NotaStatus, Catedra, SeccionEstado, Archivo, CarpetaDrive, ClaseCronograma } from "../types";
+import { Asistencia, NotaNum, NotaStatus, Catedra, SeccionEstado, Archivo, CarpetaDrive, ClaseCronograma, Anuncio } from "../types";
+import { 
+  mockAnuncios, 
+  mockCatedras, 
+  mockSecciones, 
+  mockArchivos, 
+  mockAsistencia, 
+  mockNotasNum, 
+  mockNotasStatus 
+} from "../data/mockData";
+
+/**
+ * Valida si un string de ID de Google Sheets es válido y no es un valor placeholder o vacío.
+ */
+export function isValidGoogleSheetId(id: string | undefined): boolean {
+  if (!id) return false;
+  const trimmed = id.trim();
+  if (trimmed === "" || trimmed.startsWith("TU_ID_AQUI") || trimmed.includes("YOUR_SHEET_ID") || trimmed === "123") return false;
+  const pwd = (typeof process !== "undefined" && process.env?.VITE_DOCENTE_PASSWORD) || "nadp3638";
+  if (trimmed === pwd.trim()) return false;
+  if (trimmed.length < 25) return false;
+  return /^[a-zA-Z0-9-_]+$/.test(trimmed);
+}
 
 /**
  * Normaliza un texto para búsqueda tolerante de columnas: todo en minúsculas, sin tildes/diacríticos,
@@ -23,6 +45,9 @@ export function normalizarTexto(label: string): string {
  * Soporta de manera transparente el formato JSONP devuelto por la API.
  */
 async function fetchGoogleSheetRows(spreadsheetId: string, sheetName: string): Promise<any> {
+  if (!isValidGoogleSheetId(spreadsheetId)) {
+    throw new Error(`ID de planilla no configurado o no válido ("${spreadsheetId}")`);
+  }
   let url = `https://docs.google.com/spreadsheets/d/${spreadsheetId}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}`;
   
   let response;
@@ -112,6 +137,9 @@ export async function getAsistenciaFromSheet(
   anioVigente: number = 2026
 ): Promise<Asistencia[]> {
   try {
+    if (!isValidGoogleSheetId(spreadsheetId)) {
+      return mockAsistencia;
+    }
     const table = await fetchGoogleSheetRows(spreadsheetId, sheetName);
     const cols = table.cols;
     const rows = table.rows;
@@ -184,9 +212,9 @@ export async function getAsistenciaFromSheet(
         presentes
       };
     }).filter(Boolean) as Asistencia[];
-  } catch (error) {
-    console.error("Error en getAsistenciaFromSheet:", error);
-    throw error;
+  } catch (error: any) {
+    console.warn("ℹ️ [ASISTENCIA] Error al cargar desde Sheets. Usando datos locales:", error?.message || error);
+    return mockAsistencia;
   }
 }
 
@@ -200,6 +228,9 @@ export async function getNotasNumFromSheet(
   anioVigente: number = 2026
 ): Promise<NotaNum[]> {
   try {
+    if (!isValidGoogleSheetId(spreadsheetId)) {
+      return mockNotasNum;
+    }
     const table = await fetchGoogleSheetRows(spreadsheetId, sheetName);
     const cols = table.cols;
     const rows = table.rows;
@@ -304,9 +335,9 @@ export async function getNotasNumFromSheet(
         condicion_final: getCellValue(c, idxCondicionFinal)
       };
     }).filter(Boolean) as NotaNum[];
-  } catch (error) {
-    console.error("Error en getNotasNumFromSheet:", error);
-    throw error;
+  } catch (error: any) {
+    console.warn("ℹ️ [NOTAS NUM] Error al cargar desde Sheets. Usando datos locales:", error?.message || error);
+    return mockNotasNum;
   }
 }
 
@@ -320,6 +351,9 @@ export async function getNotasStatusFromSheet(
   anioVigente: number = 2026
 ): Promise<NotaStatus[]> {
   try {
+    if (!isValidGoogleSheetId(spreadsheetId)) {
+      return mockNotasStatus;
+    }
     const table = await fetchGoogleSheetRows(spreadsheetId, sheetName);
     const cols = table.cols;
     const rows = table.rows;
@@ -411,9 +445,9 @@ export async function getNotasStatusFromSheet(
         condicion_final: getCellValue(c, idxCondicionFinal)
       };
     }).filter(Boolean) as NotaStatus[];
-  } catch (error) {
-    console.error("Error en getNotasStatusFromSheet:", error);
-    throw error;
+  } catch (error: any) {
+    console.warn("ℹ️ [NOTAS STATUS] Error al cargar desde Sheets. Usando datos locales:", error?.message || error);
+    return mockNotasStatus;
   }
 }
 
@@ -422,6 +456,9 @@ export async function getNotasStatusFromSheet(
  */
 export async function getCatedrasFromSheet(spreadsheetId: string): Promise<Catedra[]> {
   try {
+    if (!isValidGoogleSheetId(spreadsheetId)) {
+      return mockCatedras;
+    }
     const table = await fetchGoogleSheetRows(spreadsheetId, "Catedras");
     const cols = table.cols;
     const rows = table.rows;
@@ -488,9 +525,9 @@ export async function getCatedrasFromSheet(spreadsheetId: string): Promise<Cated
         total_clases
       };
     }).filter(Boolean) as Catedra[];
-  } catch (error) {
-    console.error("Error en getCatedrasFromSheet:", error);
-    throw error;
+  } catch (error: any) {
+    console.warn("ℹ️ [CATEDRAS] No se pudieron cargar las cátedras desde Google Sheets. Usando datos locales por defecto.", error?.message || error);
+    return mockCatedras;
   }
 }
 
@@ -499,6 +536,9 @@ export async function getCatedrasFromSheet(spreadsheetId: string): Promise<Cated
  */
 export async function getSeccionesFromSheet(spreadsheetId: string): Promise<any[]> {
   try {
+    if (!isValidGoogleSheetId(spreadsheetId)) {
+      return mockSecciones;
+    }
     const table = await fetchGoogleSheetRows(spreadsheetId, "Secciones");
     const cols = table.cols;
     const rows = table.rows;
@@ -554,9 +594,9 @@ export async function getSeccionesFromSheet(spreadsheetId: string): Promise<any[
         contenido_cronograma: getVal(c, idxContenidoCronograma)
       };
     }).filter(Boolean);
-  } catch (error) {
-    console.error("Error en getSeccionesFromSheet:", error);
-    throw error;
+  } catch (error: any) {
+    console.warn("ℹ️ [SECCIONES] No se pudieron cargar las secciones desde Google Sheets. Usando datos locales por defecto.", error?.message || error);
+    return mockSecciones;
   }
 }
 
@@ -565,6 +605,9 @@ export async function getSeccionesFromSheet(spreadsheetId: string): Promise<any[
  */
 export async function getArchivosFromSheet(spreadsheetId: string): Promise<Archivo[]> {
   try {
+    if (!isValidGoogleSheetId(spreadsheetId)) {
+      return mockArchivos;
+    }
     const table = await fetchGoogleSheetRows(spreadsheetId, "Archivos");
     const cols = table.cols;
     const rows = table.rows;
@@ -633,9 +676,9 @@ export async function getArchivosFromSheet(spreadsheetId: string): Promise<Archi
         fecha_subida: getVal(c, idxFechaSubida) || new Date().toLocaleDateString("es-AR")
       };
     }).filter(Boolean) as Archivo[];
-  } catch (error) {
-    console.error("Error en getArchivosFromSheet:", error);
-    throw error;
+  } catch (error: any) {
+    console.warn("ℹ️ [ARCHIVOS] No se pudieron cargar los archivos desde Google Sheets. Usando datos locales por defecto.", error?.message || error);
+    return mockArchivos;
   }
 }
 
@@ -821,6 +864,109 @@ export async function getCronogramaClasesFromSheet(
     return [];
   }
 }
+
+/**
+ * Obtiene y mapea el listado de novedades/anuncios desde la pestaña "Novedades".
+ * Filtra solo activo=TRUE y ordena por 'orden' (ascendente) y fecha.
+ */
+export async function getNovedadesFromSheet(spreadsheetId: string): Promise<Anuncio[]> {
+  try {
+    if (!spreadsheetId || spreadsheetId.trim() === "") {
+      return mockAnuncios;
+    }
+
+    const table = await fetchGoogleSheetRows(spreadsheetId, "Novedades");
+    const cols = table.cols;
+    const rows = table.rows;
+
+    let idxId = -1;
+    let idxFecha = -1;
+    let idxTitulo = -1;
+    let idxTexto = -1;
+    let idxTipo = -1;
+    let idxLinkImagen = -1;
+    let idxLinkArchivo = -1;
+    let idxActivo = -1;
+    let idxOrden = -1;
+
+    cols.forEach((col: any, index: number) => {
+      const label = col.label || "";
+      const norm = normalizarTexto(label);
+      if (norm.includes("link_imagen") || norm.includes("imagen") || norm.includes("img")) {
+        if (idxLinkImagen === -1) idxLinkImagen = index;
+      } else if (norm.includes("link_archivo") || norm.includes("archivo") || norm.includes("file") || norm.includes("doc")) {
+        if (idxLinkArchivo === -1) idxLinkArchivo = index;
+      } else if (norm.includes("tipo_anuncio") || norm.includes("tipo") || norm.includes("categoria")) {
+        if (idxTipo === -1) idxTipo = index;
+      } else if (norm.includes("fecha") || norm.includes("date")) {
+        if (idxFecha === -1) idxFecha = index;
+      } else if (norm.includes("titulo") || norm.includes("title")) {
+        if (idxTitulo === -1) idxTitulo = index;
+      } else if (norm.includes("texto") || norm.includes("cuerpo") || norm.includes("descripcion") || norm.includes("body")) {
+        if (idxTexto === -1) idxTexto = index;
+      } else if (norm.includes("activo") || norm.includes("active") || norm.includes("visible")) {
+        if (idxActivo === -1) idxActivo = index;
+      } else if (norm.includes("orden") || norm.includes("order")) {
+        if (idxOrden === -1) idxOrden = index;
+      } else if (norm.includes("id")) {
+        if (idxId === -1) idxId = index;
+      }
+    });
+
+    const getVal = (c: any[], idx: number): string => {
+      if (idx === -1 || !c[idx] || c[idx].v === null || c[idx].v === undefined) return "";
+      return String(c[idx].v).trim();
+    };
+
+    const anuncios: Anuncio[] = rows.map((row: any, rIdx: number) => {
+      const c = row.c || [];
+      const id = getVal(c, idxId) || `anuncio-${rIdx + 1}`;
+      const titulo = getVal(c, idxTitulo);
+      const texto = getVal(c, idxTexto);
+      
+      if (!titulo && !texto) return null;
+
+      const rawActivo = getVal(c, idxActivo).toLowerCase();
+      const activo = rawActivo === "" || rawActivo === "true" || rawActivo === "si" || rawActivo === "sí" || rawActivo === "1" || rawActivo === "verdadero" || rawActivo === "yes";
+
+      const rawTipo = getVal(c, idxTipo).toLowerCase();
+      let tipoAnuncio: "Texto" | "Imagen" | "Archivo" | "Mixto" = "Texto";
+      if (rawTipo.includes("mix")) {
+        tipoAnuncio = "Mixto";
+      } else if (rawTipo.includes("imag")) {
+        tipoAnuncio = "Imagen";
+      } else if (rawTipo.includes("arch") || rawTipo.includes("file") || rawTipo.includes("doc")) {
+        tipoAnuncio = "Archivo";
+      }
+
+      const ordenVal = Number(getVal(c, idxOrden));
+
+      return {
+        id,
+        fecha: getVal(c, idxFecha) || new Date().toLocaleDateString("es-AR"),
+        titulo: titulo || "Comunicado Sin Título",
+        texto,
+        tipoAnuncio,
+        linkImagen: getVal(c, idxLinkImagen),
+        linkArchivo: getVal(c, idxLinkArchivo),
+        activo,
+        orden: isNaN(ordenVal) ? 0 : ordenVal
+      };
+    }).filter(Boolean) as Anuncio[];
+
+    // Filtrar solo activos=TRUE
+    const activos = anuncios.filter(a => a.activo);
+
+    // Ordenar por 'orden' (ascendente) y luego fecha/original
+    activos.sort((a, b) => a.orden - b.orden);
+
+    return activos.length > 0 ? activos : mockAnuncios;
+  } catch (error) {
+    console.warn("ℹ️ [NOVEDADES] No se pudieron cargar las novedades desde Sheets. Usando datos locales.", error);
+    return mockAnuncios;
+  }
+}
+
 
 
 
