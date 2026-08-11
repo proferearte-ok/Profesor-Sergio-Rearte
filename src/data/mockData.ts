@@ -32,8 +32,8 @@ export const mockCatedras: Catedra[] = [
     cuatrimestre: "2do Cuatrimestre",
     activa: true,
     anio_vigente: 2026,
-    tipo_cronograma: "CALENDAR_EMBEBIDO",
-    contenido_cronograma: "https://calendar.google.com/calendar/embed?src=catedra_tecno3...",
+    tipo_cronograma: "LISTA_CLASES",
+    contenido_cronograma: "Cronograma de clases prácticas, evaluaciones del Proyecto Troncal y recuperatorios.",
     total_clases: 10
   }
 ];

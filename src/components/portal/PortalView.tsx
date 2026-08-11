@@ -254,7 +254,77 @@ export default function PortalView() {
         const sheetName = currentCatedra.id;
         
         if (!spreadsheetId || spreadsheetId.startsWith("TU_ID_AQUI")) {
-          const mockClases: ClaseCronograma[] = [
+          const mockClasesBioMol: ClaseCronograma[] = [
+            {
+              fecha: new Date(2026, 7, 18),
+              fechaTexto: "18 de Agosto",
+              horario: "8:30 a 12:00",
+              aula: "Aula 102",
+              tema: "Clase 1: Introducción a la Genética Molecular y Estructura del ADN.",
+              tipo: "Normal"
+            },
+            {
+              fecha: new Date(2026, 8, 15),
+              fechaTexto: "15 de Septiembre",
+              horario: "8:30 a 12:00",
+              aula: "Aula 102",
+              tema: "Clase 5: Primer Parcial Teórico-Práctico Integrador.",
+              tipo: "Normal"
+            },
+            {
+              fecha: new Date(2026, 9, 20),
+              fechaTexto: "20 de Octubre",
+              horario: "8:30 a 12:00",
+              aula: "Aula 102",
+              tema: "Clase 9: Segundo Parcial Teórico-Práctico.",
+              tipo: "Normal"
+            },
+            {
+              fecha: new Date(2026, 10, 11),
+              fechaTexto: "11 de Noviembre",
+              horario: "8:30 a 12:00",
+              aula: "Aula 102 / Laboratorio",
+              tema: "Examen Recuperatorio Teórico-Práctico Integrador de Cátedra.",
+              tipo: "Extra"
+            }
+          ];
+
+          const mockClasesTecno3: ClaseCronograma[] = [
+            {
+              fecha: new Date(2026, 7, 20),
+              fechaTexto: "20 de Agosto",
+              horario: "14:00 a 18:00",
+              aula: "Laboratorio A",
+              tema: "Clase 1: Introducción a la Tecnología de Laboratorio III.",
+              tipo: "Normal"
+            },
+            {
+              fecha: new Date(2026, 8, 17),
+              fechaTexto: "17 de Septiembre",
+              horario: "14:00 a 18:00",
+              aula: "Laboratorio A",
+              tema: "Clase 5: Evaluación del Proyecto Troncal - Hito 1.",
+              tipo: "Normal"
+            },
+            {
+              fecha: new Date(2026, 9, 22),
+              fechaTexto: "22 de Octubre",
+              horario: "14:00 a 18:00",
+              aula: "Laboratorio A",
+              tema: "Clase 9: Evaluación del Proyecto Troncal - Hito 2 y Defensa Oral.",
+              tipo: "Normal"
+            },
+            {
+              fecha: new Date(2026, 10, 11),
+              fechaTexto: "11 de Noviembre",
+              horario: "14:00 a 18:00",
+              aula: "Laboratorio A / B",
+              tema: "Examen Recuperatorio Teórico-Práctico e Integrador de Cátedra.",
+              tipo: "Extra"
+            }
+          ];
+
+          const mockClasesDefault: ClaseCronograma[] = [
             {
               fecha: new Date(2026, 2, 10),
               fechaTexto: "10 de Marzo",
@@ -288,14 +358,21 @@ export default function PortalView() {
               tipo: "Normal"
             },
             {
-              fecha: new Date(2026, 3, 4),
-              fechaTexto: "4 de Abril",
+              fecha: new Date(2026, 10, 11),
+              fechaTexto: "11 de Noviembre",
               horario: "14:00 a 16:00",
               aula: "Laboratorio B",
-              tema: "Clase Extra: Consulta y resolución de dudas pre-examen.",
+              tema: "Examen Recuperatorio Teórico-Práctico Integrador.",
               tipo: "Extra"
             }
           ];
+
+          let mockClases = mockClasesDefault;
+          if (selectedCatedra === "BIO_MOL") {
+            mockClases = mockClasesBioMol;
+          } else if (selectedCatedra === "TECNO_3") {
+            mockClases = mockClasesTecno3;
+          }
           if (active) {
             setClasesCronograma(mockClases);
           }
@@ -444,7 +521,18 @@ export default function PortalView() {
         { sem: "Semana 9", desc: "Primer Parcial Teórico-Práctico Integrador (Aulas 102-105)" },
         { sem: "Semana 12", desc: "Traducción Proteica y Mutaciones Génicas. Trabajos Prácticos de Laboratorio 2" },
         { sem: "Semana 15", desc: "Segundo Parcial Teórico-Práctico e Integración Final de Calificaciones" },
+        { sem: "11 de Noviembre", desc: "Examen Recuperatorio Teórico-Práctico Integrador de Cátedra" },
       ];
+
+      const fechasTecno3 = [
+        { sem: "Semana 1", desc: "Presentación del Programa y Metodologías de Tecnología de Laboratorio III" },
+        { sem: "Semana 4", desc: "Taller Práctico de Procesamiento y Técnicas de Laboratorio Avanzadas" },
+        { sem: "Semana 8", desc: "Evaluación del Proyecto Troncal - Hito 1" },
+        { sem: "Semana 12", desc: "Evaluación del Proyecto Troncal - Hito 2 y Defensa Oral" },
+        { sem: "11 de Noviembre", desc: "Examen Recuperatorio Teórico-Práctico e Integrador de Cátedra" },
+      ];
+
+      const fechas = selectedCatedra === "TECNO_3" ? fechasTecno3 : fechasBio;
 
       return (
         <div className="space-y-4 animate-fade-in">
@@ -453,7 +541,7 @@ export default function PortalView() {
               <span>HITOS Y FECHAS CLAVE</span>
             </h4>
             <div className="relative border-l-2 border-stone-200 pl-6 ml-3 space-y-8">
-              {fechasBio.map((item, idx) => (
+              {fechas.map((item, idx) => (
                 <div key={idx} className="relative">
                   <div className="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-[#60290A] border-4 border-white shadow-2xs"></div>
                   <span className="font-mono text-xs font-bold text-[#60290A] bg-amber-100/80 px-3 py-1 rounded-md border border-amber-300 uppercase tracking-wider">
@@ -1123,15 +1211,20 @@ export default function PortalView() {
                         {/* STATUS BADGE */}
                         <div>
                           {(() => {
-                            let cond = "REGULAR";
+                            let cond: string | undefined;
                             if (selectedCatedra === "TECNO_3") {
-                              cond = studentGradesStatus?.condicion_final || "REGULAR";
+                              cond = studentGradesStatus?.condicion_final;
                             } else {
-                              cond = studentGradesNum?.condicion_final || "REGULAR";
+                              cond = studentGradesNum?.condicion_final;
                             }
+                            const hasCond = cond && cond.trim() !== "" && cond !== "-";
                             return (
-                              <span className="px-4.5 py-1.5 rounded-full font-extrabold text-xs font-mono uppercase tracking-widest shadow-2xs bg-emerald-700 text-white border border-emerald-800">
-                                {cond}
+                              <span className={`px-4.5 py-1.5 rounded-full font-extrabold text-xs font-mono uppercase tracking-widest shadow-2xs border ${
+                                hasCond 
+                                  ? "bg-emerald-700 text-white border-emerald-800" 
+                                  : "bg-stone-200 text-stone-600 border-stone-300"
+                              }`}>
+                                {hasCond ? cond : "SIN REGISTRO"}
                               </span>
                             );
                           })()}
@@ -1234,15 +1327,19 @@ export default function PortalView() {
                                 <div className="bg-gradient-to-r from-emerald-500 to-emerald-400 text-white px-4 py-3 flex justify-between items-center">
                                   <span className="font-bold text-xs uppercase font-mono tracking-wider">1er PARCIAL</span>
                                   <span className="bg-white/90 text-emerald-950 px-2.5 py-0.5 rounded-full text-xs font-extrabold font-mono uppercase">
-                                    {studentGradesNum.p1_resultado}
+                                    {studentGradesNum.p1_resultado || "-"}
                                   </span>
                                 </div>
                                 <div className="p-6 text-center space-y-2">
                                   <div className="text-4xl md:text-5xl font-black font-mono text-stone-900">
-                                    {studentGradesNum.p1_teoria !== "-" ? studentGradesNum.p1_teoria : (studentGradesNum.p1_practica !== "-" ? studentGradesNum.p1_practica : "70")}
+                                    {studentGradesNum.p1_teoria && studentGradesNum.p1_teoria !== "-" 
+                                      ? studentGradesNum.p1_teoria 
+                                      : (studentGradesNum.p1_practica && studentGradesNum.p1_practica !== "-" 
+                                          ? studentGradesNum.p1_practica 
+                                          : "-")}
                                   </div>
                                   <p className="text-xs font-mono text-stone-500 font-bold uppercase tracking-wider">
-                                    TEO: {studentGradesNum.p1_teoria} | PRAC: {studentGradesNum.p1_practica}
+                                    TEO: {studentGradesNum.p1_teoria || "-"} | PRAC: {studentGradesNum.p1_practica || "-"}
                                   </p>
                                 </div>
                               </div>
@@ -1252,15 +1349,19 @@ export default function PortalView() {
                                 <div className="bg-gradient-to-r from-sky-500 to-blue-500 text-white px-4 py-3 flex justify-between items-center">
                                   <span className="font-bold text-xs uppercase font-mono tracking-wider">2do PARCIAL</span>
                                   <span className="bg-white/90 text-sky-950 px-2.5 py-0.5 rounded-full text-xs font-extrabold font-mono uppercase">
-                                    {studentGradesNum.p2_resultado}
+                                    {studentGradesNum.p2_resultado || "-"}
                                   </span>
                                 </div>
                                 <div className="p-6 text-center space-y-2">
                                   <div className="text-4xl md:text-5xl font-black font-mono text-stone-900">
-                                    {studentGradesNum.p2_teoria !== "-" ? studentGradesNum.p2_teoria : (studentGradesNum.p2_practica !== "-" ? studentGradesNum.p2_practica : "80")}
+                                    {studentGradesNum.p2_teoria && studentGradesNum.p2_teoria !== "-" 
+                                      ? studentGradesNum.p2_teoria 
+                                      : (studentGradesNum.p2_practica && studentGradesNum.p2_practica !== "-" 
+                                          ? studentGradesNum.p2_practica 
+                                          : "-")}
                                   </div>
                                   <p className="text-xs font-mono text-stone-500 font-bold uppercase tracking-wider">
-                                    TEO: {studentGradesNum.p2_teoria} | PRAC: {studentGradesNum.p2_practica}
+                                    TEO: {studentGradesNum.p2_teoria || "-"} | PRAC: {studentGradesNum.p2_practica || "-"}
                                   </p>
                                 </div>
                               </div>
@@ -1274,8 +1375,12 @@ export default function PortalView() {
                                   </span>
                                 </div>
                                 <div className="p-6 text-center space-y-2">
-                                  <div className="text-4xl md:text-5xl font-black font-mono text-stone-300">
-                                    -
+                                  <div className="text-4xl md:text-5xl font-black font-mono text-stone-900">
+                                    {studentGradesNum.rec_teoria && studentGradesNum.rec_teoria !== "-" 
+                                      ? studentGradesNum.rec_teoria 
+                                      : (studentGradesNum.rec_practica && studentGradesNum.rec_practica !== "-" 
+                                          ? studentGradesNum.rec_practica 
+                                          : "-")}
                                   </div>
                                   <p className="text-xs font-mono text-stone-400 font-bold uppercase tracking-wider">
                                     TEO: {studentGradesNum.rec_teoria || "-"} | PRAC: {studentGradesNum.rec_practica || "-"}
@@ -1298,11 +1403,11 @@ export default function PortalView() {
                                   <div className="bg-gradient-to-r from-emerald-500 to-emerald-400 text-white px-4 py-3 flex justify-between items-center">
                                     <span className="font-bold text-xs uppercase font-mono tracking-wider">1ER PARCIAL TEO</span>
                                     <span className="bg-white/90 text-emerald-950 px-2.5 py-0.5 rounded-full text-xs font-bold font-mono uppercase">
-                                      {studentGradesStatus.p1_condicion}
+                                      {studentGradesStatus.p1_condicion || "-"}
                                     </span>
                                   </div>
                                   <div className="p-6 text-center">
-                                    <span className="text-2xl font-black font-mono text-stone-900">{studentGradesStatus.p1_teoria}</span>
+                                    <span className="text-2xl font-black font-mono text-stone-900">{studentGradesStatus.p1_teoria || "-"}</span>
                                   </div>
                                 </div>
 
@@ -1310,11 +1415,11 @@ export default function PortalView() {
                                   <div className="bg-gradient-to-r from-sky-500 to-blue-500 text-white px-4 py-3 flex justify-between items-center">
                                     <span className="font-bold text-xs uppercase font-mono tracking-wider">2DO PARCIAL TEO</span>
                                     <span className="bg-white/90 text-sky-950 px-2.5 py-0.5 rounded-full text-xs font-bold font-mono uppercase">
-                                      {studentGradesStatus.p2_condicion}
+                                      {studentGradesStatus.p2_condicion || "-"}
                                     </span>
                                   </div>
                                   <div className="p-6 text-center">
-                                    <span className="text-2xl font-black font-mono text-stone-900">{studentGradesStatus.p2_teoria}</span>
+                                    <span className="text-2xl font-black font-mono text-stone-900">{studentGradesStatus.p2_teoria || "-"}</span>
                                   </div>
                                 </div>
 
@@ -1322,7 +1427,7 @@ export default function PortalView() {
                                   <div className="bg-stone-100 text-stone-700 px-4 py-3 flex justify-between items-center border-b border-stone-200">
                                     <span className="font-bold text-xs uppercase font-mono tracking-wider">RECUPERATORIOS</span>
                                     <span className="bg-stone-200 text-stone-700 px-2.5 py-0.5 rounded-full text-xs font-bold font-mono uppercase">
-                                      {studentGradesStatus.rec_condicion || "N/A"}
+                                      {studentGradesStatus.rec_condicion || "-"}
                                     </span>
                                   </div>
                                   <div className="p-6 text-center">
@@ -1337,7 +1442,7 @@ export default function PortalView() {
                                   <h5 className="font-bold text-stone-900 text-base font-sans">Proyecto Global Troncal</h5>
                                 </div>
                                 <span className="px-4 py-1.5 rounded-full text-xs font-mono font-extrabold border bg-emerald-100 text-emerald-950 border-emerald-300">
-                                  {studentGradesStatus.practica}
+                                  {studentGradesStatus.practica || "-"}
                                 </span>
                               </div>
                             </div>
