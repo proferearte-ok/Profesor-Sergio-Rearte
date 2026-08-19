@@ -20,7 +20,8 @@ import {
   AlertTriangle,
   Megaphone,
   Home as HomeIcon,
-  BookOpen
+  BookOpen,
+  ExternalLink
 } from "lucide-react";
 
 // Import core data
@@ -53,12 +54,15 @@ export default function App() {
 
   const handlePasswordSubmit = (e: FormEvent) => {
     e.preventDefault();
-    const envPassword = import.meta.env.VITE_DOCENTE_PASSWORD;
-    const correctPassword = (envPassword && envPassword.trim() !== "" && !envPassword.startsWith("TU_CLAVE"))
-      ? envPassword.trim()
-      : "nadp3638";
+    const inputClean = passwordInput.trim().toLowerCase();
+    const envPassword = import.meta.env.VITE_DOCENTE_PASSWORD?.trim().toLowerCase();
 
-    if (passwordInput === correctPassword) {
+    const allowedPasswords = ["nadp3638"];
+    if (envPassword && envPassword !== "" && !envPassword.startsWith("tu_clave")) {
+      allowedPasswords.push(envPassword);
+    }
+
+    if (allowedPasswords.includes(inputClean)) {
       setIsAuthenticated(true);
       setPasswordError(null);
     } else {
@@ -348,11 +352,24 @@ export default function App() {
                 <span>4. Especificación Markdown Completa</span>
               </button>
 
-              <div className="ml-auto shrink-0 pb-2 hidden lg:block">
+              <div className="ml-auto shrink-0 pb-2 flex items-center gap-2.5">
+                <a
+                  id="btn-sabanas-en-vivo-docente"
+                  href="https://docs.google.com/spreadsheets/u/0/"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center gap-2 bg-emerald-700 hover:bg-emerald-800 text-white px-4 py-2.5 rounded-xl font-bold text-xs font-mono uppercase tracking-wider transition-all shadow-2xs active:scale-95 cursor-pointer"
+                  title="Abrir Sábanas de Calificaciones y Asistencia en Google Sheets"
+                >
+                  <FileSpreadsheet className="w-4 h-4 text-emerald-200" />
+                  <span>Sábanas en Vivo</span>
+                  <ExternalLink className="w-3.5 h-3.5 text-emerald-200 opacity-80" />
+                </a>
+
                 <button
                   id="btn-copy-header"
                   onClick={copyToClipboard}
-                  className="flex items-center gap-2 bg-amber-900 hover:bg-amber-950 text-white px-4.5 py-2.5 rounded-xl font-bold text-xs font-mono uppercase tracking-wider transition-all shadow-2xs active:scale-95 cursor-pointer"
+                  className="hidden lg:flex items-center gap-2 bg-amber-900 hover:bg-amber-950 text-white px-4.5 py-2.5 rounded-xl font-bold text-xs font-mono uppercase tracking-wider transition-all shadow-2xs active:scale-95 cursor-pointer"
                 >
                   {copied ? (
                     <>

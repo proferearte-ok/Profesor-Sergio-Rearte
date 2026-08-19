@@ -988,18 +988,6 @@ export default function PortalView({ onBackToHome, initialCatedraId }: PortalVie
                 </button>
               );
             })}
-
-            {/* SÁBANAS_EN_VIVO PILL */}
-            <a
-              href="https://docs.google.com/spreadsheets/u/0/"
-              target="_blank"
-              rel="noreferrer"
-              className="px-4.5 py-2 rounded-full text-xs font-mono font-bold bg-emerald-100 hover:bg-emerald-200 text-emerald-950 border border-emerald-300/80 shadow-2xs transition-all duration-200 flex items-center gap-2 cursor-pointer active:scale-95"
-              title="Abrir Sábanas de Calificaciones y Asistencia"
-            >
-              <span>SÁBANAS_EN_VIVO</span>
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-            </a>
           </div>
         </div>
       </div>
