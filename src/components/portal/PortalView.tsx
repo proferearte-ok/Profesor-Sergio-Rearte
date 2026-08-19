@@ -1297,7 +1297,7 @@ export default function PortalView({ onBackToHome, initialCatedraId }: PortalVie
 
                                   <div className="space-y-1">
                                     <h5 className="font-bold text-stone-900 text-base font-sans">
-                                      Clases Prácticas Requeridas
+                                      Asistencia a la Teoría
                                     </h5>
                                     <p className="text-sm text-stone-600 font-mono font-medium">
                                       {presentes} de {totalClases} clases
