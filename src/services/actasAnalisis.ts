@@ -219,6 +219,8 @@ export const mockHistorialAlumnosDemo: HistorialAlumno[] = [
             fecha: "18/12/2024",
             nota: "8",
             resultado: "Aprobado",
+            materia: "Biología Molecular",
+            carrera: "Licenciatura en Biotecnología",
             condicion: "Regular",
             nroActa: "FIN-2024-88",
             tipoActa: "Regular",
@@ -258,6 +260,8 @@ export const mockHistorialAlumnosDemo: HistorialAlumno[] = [
             fecha: "20/02/2024",
             nota: "9",
             resultado: "Aprobado",
+            materia: "Tecnología de Laboratorio III",
+            carrera: "Técnico Univ. de Laboratorio",
             condicion: "Regular",
             tipoActa: "Regular",
           },
@@ -270,6 +274,8 @@ export const mockHistorialAlumnosDemo: HistorialAlumno[] = [
             fecha: "05/07/2024",
             nota: "7",
             resultado: "Aprobado",
+            materia: "Biología Molecular",
+            carrera: "Licenciatura en Biotecnología",
             condicion: "Libre",
             tipoActa: "Libre",
           },
@@ -435,6 +441,7 @@ export async function getHistorialAlumnos(
     const tipoActa = (row[colDcTipoActa] || "").trim();
     const turno = (row[colDcTurno] || "").trim();
     const carrera = (row[colDcCarrera] || "").trim();
+    const materiaFila = (rawMateria || "").trim();
 
     // Solo agregar si hay algún dato de examen
     if (fecha || nota || resultado || nroActa) {
@@ -442,11 +449,12 @@ export async function getHistorialAlumnos(
         fecha,
         nota,
         resultado,
+        materia: materiaFila || materia,
+        carrera: carrera || undefined,
         condicion: condicion || undefined,
         nroActa: nroActa || undefined,
         tipoActa: tipoActa || undefined,
         turno: turno || undefined,
-        carrera: carrera || undefined,
       });
     }
   }

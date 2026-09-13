@@ -520,33 +520,33 @@ export default function BuscadorAlumnos() {
 
                     {/* DOS BLOQUES SEPARADOS: CURSADAS Y EXÁMENES RENDIDOS */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                      {/* BLOQUE 1: CURSADAS (REGULARIDAD) */}
-                      <div className="space-y-3">
+                      {/* BLOQUE 1: CURSADAS (REGULARIDAD) - FONDO Y BORDE VERDE MENTA / CLARO */}
+                      <div className="space-y-3 p-4 sm:p-5 rounded-2xl bg-[#F0FDF4] border border-[#A7F3D0]">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            <Layers className="w-4 h-4 text-stone-500" />
-                            <h5 className="font-bold text-sm text-stone-800 uppercase font-mono tracking-wider">
+                            <Layers className="w-4 h-4 text-[#15803D]" />
+                            <h5 className="font-bold text-sm text-[#14532D] uppercase font-mono tracking-wider">
                               Cursadas
                             </h5>
                           </div>
-                          <span className="text-xs font-mono text-stone-500 bg-stone-100 px-2 py-0.5 rounded">
+                          <span className="text-xs font-mono text-[#166534] bg-[#DCFCE7] border border-[#86EFAC] px-2 py-0.5 rounded">
                             Pestaña Regularidad
                           </span>
                         </div>
 
                         {tieneCursadas ? (
-                          <div className="border border-stone-200 rounded-xl overflow-hidden shadow-2xs bg-stone-50/50">
+                          <div className="border border-[#A7F3D0] rounded-xl overflow-hidden shadow-2xs bg-white">
                             <table className="w-full text-left text-xs">
-                              <thead className="bg-stone-100/90 border-b border-stone-200 font-mono text-stone-600 uppercase tracking-wider text-[11px]">
+                              <thead className="bg-[#ECFDF5] border-b border-[#A7F3D0] font-mono text-[#065F46] uppercase tracking-wider text-[11px]">
                                 <tr>
                                   <th className="px-3.5 py-2.5 font-bold">Año Cursada</th>
                                   <th className="px-3.5 py-2.5 font-bold">Condición</th>
                                   <th className="px-3.5 py-2.5 font-bold text-right">Origen</th>
                                 </tr>
                               </thead>
-                              <tbody className="divide-y divide-stone-200 bg-white">
+                              <tbody className="divide-y divide-[#E2F7EB] bg-white">
                                 {data.cursadas.map((cur, cIdx) => (
-                                  <tr key={cIdx} className="hover:bg-stone-50/80 transition-colors">
+                                  <tr key={cIdx} className="hover:bg-[#F0FDF4] transition-colors">
                                     <td className="px-3.5 py-3 font-mono font-bold text-stone-900 text-sm">
                                       {cur.anio || "—"}
                                     </td>
@@ -581,17 +581,17 @@ export default function BuscadorAlumnos() {
                             </table>
                           </div>
                         ) : (
-                          <div className="p-5 bg-stone-50 border border-dashed border-stone-200 rounded-xl text-center text-xs font-mono text-stone-500 space-y-1">
-                            <p className="font-semibold">Sin cursada registrada para esta materia</p>
-                            <p className="text-[11px] text-stone-400">
+                          <div className="p-5 bg-white/70 border border-dashed border-[#A7F3D0] rounded-xl text-center text-xs font-mono text-stone-600 space-y-1">
+                            <p className="font-semibold text-[#14532D]">Sin cursada registrada para esta materia</p>
+                            <p className="text-[11px] text-[#166534]/70">
                               No se encontraron filas en la pestaña "Regularidad".
                             </p>
                           </div>
                         )}
                       </div>
 
-                      {/* BLOQUE 2: EXÁMENES RENDIDOS (DATOS COMPLETOS) */}
-                      <div className="space-y-3">
+                      {/* BLOQUE 2: EXÁMENES RENDIDOS (DATOS COMPLETOS) - ESTILO BEIGE/BLANCO CON MATERIA Y CARRERA */}
+                      <div className="space-y-3 p-4 sm:p-5 rounded-2xl bg-[#FAFAF9] border border-[#E7E5E4]">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
                             <Award className="w-4 h-4 text-stone-500" />
@@ -599,26 +599,27 @@ export default function BuscadorAlumnos() {
                               Exámenes Rendidos
                             </h5>
                           </div>
-                          <span className="text-xs font-mono text-stone-500 bg-stone-100 px-2 py-0.5 rounded">
+                          <span className="text-xs font-mono text-stone-500 bg-stone-100 border border-stone-200 px-2 py-0.5 rounded">
                             Pestaña Datos Completos
                           </span>
                         </div>
 
                         {tieneExamenes ? (
-                          <div className="border border-stone-200 rounded-xl overflow-hidden shadow-2xs bg-stone-50/50">
+                          <div className="border border-stone-200 rounded-xl overflow-hidden shadow-2xs bg-white">
                             <table className="w-full text-left text-xs">
                               <thead className="bg-stone-100/90 border-b border-stone-200 font-mono text-stone-600 uppercase tracking-wider text-[11px]">
                                 <tr>
                                   <th className="px-3.5 py-2.5 font-bold">Fecha</th>
                                   <th className="px-3.5 py-2.5 font-bold text-center">Nota</th>
                                   <th className="px-3.5 py-2.5 font-bold">Resultado</th>
-                                  <th className="px-3.5 py-2.5 font-bold text-right">Acta / Tipo</th>
+                                  <th className="px-3.5 py-2.5 font-bold">Materia</th>
+                                  <th className="px-3.5 py-2.5 font-bold">Carrera</th>
                                 </tr>
                               </thead>
                               <tbody className="divide-y divide-stone-200 bg-white">
                                 {data.examenes.map((ex, eIdx) => (
                                   <tr key={eIdx} className="hover:bg-stone-50/80 transition-colors">
-                                    <td className="px-3.5 py-3 font-mono text-stone-800">
+                                    <td className="px-3.5 py-3 font-mono text-stone-800 whitespace-nowrap">
                                       <div className="font-bold text-stone-900">{ex.fecha || "—"}</div>
                                       {ex.turno && (
                                         <div className="text-[10px] text-stone-500 font-mono">
@@ -631,7 +632,7 @@ export default function BuscadorAlumnos() {
                                         {ex.nota || "—"}
                                       </span>
                                     </td>
-                                    <td className="px-3.5 py-3">
+                                    <td className="px-3.5 py-3 whitespace-nowrap">
                                       <span
                                         className={`inline-block px-2.5 py-1 rounded-md text-xs font-mono border ${getBadgeResultadoExamen(
                                           ex.resultado,
@@ -641,13 +642,11 @@ export default function BuscadorAlumnos() {
                                         {ex.resultado || "Sin resultado"}
                                       </span>
                                     </td>
-                                    <td className="px-3.5 py-3 text-right text-[11px] font-mono text-stone-500">
-                                      <div>{ex.nroActa ? `Acta ${ex.nroActa}` : "—"}</div>
-                                      {ex.tipoActa && (
-                                        <div className="text-[10px] text-stone-400 uppercase">
-                                          {ex.tipoActa}
-                                        </div>
-                                      )}
+                                    <td className="px-3.5 py-3 font-sans text-stone-900 font-medium">
+                                      {ex.materia || materia || "—"}
+                                    </td>
+                                    <td className="px-3.5 py-3 font-mono text-stone-600 text-[11px]">
+                                      {ex.carrera || "—"}
                                     </td>
                                   </tr>
                                 ))}
@@ -655,7 +654,7 @@ export default function BuscadorAlumnos() {
                             </table>
                           </div>
                         ) : (
-                          <div className="p-5 bg-stone-50 border border-dashed border-stone-200 rounded-xl text-center text-xs font-mono text-stone-500 space-y-1">
+                          <div className="p-5 bg-white border border-dashed border-stone-200 rounded-xl text-center text-xs font-mono text-stone-500 space-y-1">
                             <p className="font-semibold">Sin exámenes registrados para esta materia</p>
                             <p className="text-[11px] text-stone-400">
                               No figuran finales rendidos en la pestaña "Datos Completos".

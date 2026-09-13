@@ -139,11 +139,12 @@ export interface ExamenItem {
   fecha: string;
   nota: string;
   resultado: string;
+  materia?: string;
+  carrera?: string;
   condicion?: string;
   nroActa?: string;
   tipoActa?: string;
   turno?: string;
-  carrera?: string;
 }
 
 /**
