@@ -21,7 +21,8 @@ import {
   Megaphone,
   Home as HomeIcon,
   BookOpen,
-  ExternalLink
+  ExternalLink,
+  Search
 } from "lucide-react";
 
 // Import core data
@@ -35,6 +36,7 @@ import MarkdownTab from "./components/MarkdownTab";
 import PortalView from "./components/portal/PortalView";
 import HomePage from "./components/home/HomePage";
 import AnunciosFormTab from "./components/admin/AnunciosFormTab";
+import BuscadorAlumnos from "./components/docente/BuscadorAlumnos";
 
 /**
  * Orquestador principal de la aplicación.
@@ -46,7 +48,7 @@ export default function App() {
   const [studentSubView, setStudentSubView] = useState<"home" | "portal">("home");
   const [selectedCatedraForPortal, setSelectedCatedraForPortal] = useState<string | undefined>(undefined);
 
-  const [activeTab, setActiveTab] = useState<"visualizer" | "recommendation" | "versioning" | "markdown" | "anuncios">("visualizer");
+  const [activeTab, setActiveTab] = useState<"buscador" | "visualizer" | "recommendation" | "versioning" | "markdown" | "anuncios">("buscador");
   const [copied, setCopied] = useState<boolean>(false);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [passwordInput, setPasswordInput] = useState<string>("");
@@ -292,6 +294,18 @@ export default function App() {
             {/* NAVIGATION TABS */}
             <div className="flex border-b border-stone-200 mb-8 overflow-x-auto gap-2">
               <button
+                id="tab-buscador"
+                onClick={() => setActiveTab("buscador")}
+                className={`flex items-center gap-2 px-5 py-3.5 border-b-2 font-bold text-base whitespace-nowrap transition-all cursor-pointer ${
+                  activeTab === "buscador"
+                    ? "border-amber-800 text-amber-950 bg-amber-100/50"
+                    : "border-transparent text-stone-500 hover:text-stone-900 hover:border-stone-300"
+                }`}
+              >
+                <Search className="w-4.5 h-4.5" />
+                <span>6. Buscador de Alumnos (Actas)</span>
+              </button>
+              <button
                 id="tab-anuncios"
                 onClick={() => setActiveTab("anuncios")}
                 className={`flex items-center gap-2 px-5 py-3.5 border-b-2 font-bold text-base whitespace-nowrap transition-all cursor-pointer ${
@@ -387,6 +401,7 @@ export default function App() {
             </div>
 
             {/* TAB CONTENTS */}
+            {activeTab === "buscador" && <BuscadorAlumnos />}
             {activeTab === "anuncios" && <AnunciosFormTab />}
             {activeTab === "visualizer" && <VisualizerTab />}
             {activeTab === "recommendation" && <RecommendationTab />}

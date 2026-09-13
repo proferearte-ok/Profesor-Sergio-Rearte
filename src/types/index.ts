@@ -120,3 +120,48 @@ export interface Anuncio {
   orden: number;
 }
 
+/**
+ * Registro de cursada para el historial académico (Pestaña "Regularidad").
+ */
+export interface CursadaItem {
+  anio: string;
+  condicion: string;
+  matchedBy: "legajo" | "nombre";
+  carrera?: string;
+  nroActa?: string;
+  catedraOrigen?: string;
+}
+
+/**
+ * Registro de examen final para el historial académico (Pestaña "Datos Completos").
+ */
+export interface ExamenItem {
+  fecha: string;
+  nota: string;
+  resultado: string;
+  condicion?: string;
+  nroActa?: string;
+  tipoActa?: string;
+  turno?: string;
+  carrera?: string;
+}
+
+/**
+ * Historial por materia que agrupa cursadas y exámenes rendidos.
+ */
+export interface MateriaHistorial {
+  cursadas: CursadaItem[];
+  examenes: ExamenItem[];
+}
+
+/**
+ * Estructura unificada de un alumno con todo su historial académico por materia.
+ */
+export interface HistorialAlumno {
+  legajo: string;
+  apellidoYNombre: string;
+  porMateria: {
+    [materia: string]: MateriaHistorial;
+  };
+}
+
