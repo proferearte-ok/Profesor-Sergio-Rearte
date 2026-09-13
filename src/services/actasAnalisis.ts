@@ -88,6 +88,58 @@ export function parseAnioNumber(anioStr: string): number {
 }
 
 /**
+ * Mapeo oficial de prefijos de 3 letras para carreras
+ */
+export const CARRERA_CODE_MAP: Record<string, string> = {
+  BBI: "BBI Bioquimica",
+  BFA: "Farmacia",
+  ETB: "Tecnicatura en Biogenetica",
+  AIA: "Ingenieria Agro Industrial",
+  ECB: "Licenciatura en Ciencias Biologicas",
+};
+
+/**
+ * Deriva el nombre de la carrera si la columna Carrera viene vacía o no confiable,
+ * a partir del código de 3 letras que precede al número en el código de la materia (ej. "BBI56" → BBI, "ETB20" → ETB).
+ * Si no matchea ninguno de los prefijos conocidos, se muestra el valor original de la columna Carrera.
+ */
+export function derivarCarrera(carreraOriginal?: string, materia?: string, archivo?: string): string {
+  const cleanCarrera = (carreraOriginal || "").trim();
+
+  // 1. Si el valor de carrera original es exactamente uno de los códigos conocidos
+  const upperCarrera = cleanCarrera.toUpperCase();
+  if (CARRERA_CODE_MAP[upperCarrera]) {
+    return CARRERA_CODE_MAP[upperCarrera];
+  }
+
+  // 2. Extraer código de 3 letras que precede al número en el código de la materia (ej. "BBI56" -> BBI, "ETB20" -> ETB)
+  const textMateria = `${materia || ""} ${archivo || ""}`;
+  const match3LettersBeforeNumber = textMateria.match(/\b([A-Za-z]{3})\d+/);
+  if (match3LettersBeforeNumber) {
+    const prefix = match3LettersBeforeNumber[1].toUpperCase();
+    if (CARRERA_CODE_MAP[prefix]) {
+      return CARRERA_CODE_MAP[prefix];
+    }
+  }
+
+  // 3. Buscar si alguno de los prefijos conocidos (BBI, BFA, ETB, AIA, ECB) aparece en materia, archivo o carrera
+  const matchKnownPrefix = `${textMateria} ${cleanCarrera}`.match(/\b(BBI|BFA|ETB|AIA|ECB)\b/i);
+  if (matchKnownPrefix) {
+    const prefix = matchKnownPrefix[1].toUpperCase();
+    if (CARRERA_CODE_MAP[prefix]) {
+      return CARRERA_CODE_MAP[prefix];
+    }
+  }
+
+  // 4. Si la columna Carrera original tiene un valor válido (no vacío ni guion), devolverlo tal cual
+  if (cleanCarrera && cleanCarrera !== "-" && cleanCarrera !== "—" && cleanCarrera.toLowerCase() !== "sin dato") {
+    return cleanCarrera;
+  }
+
+  return cleanCarrera || "—";
+}
+
+/**
  * Normaliza el título de la materia para agrupar variantes leves de mayúsculas/minúsculas
  * conservando una presentación legible.
  */
@@ -331,6 +383,7 @@ export async function getHistorialAlumnos(
   // 2. Mapear índices de columnas para "Datos Completos" (Exámenes)
   // Anio Carpeta | Archivo | N Acta | Tipo Acta | Anio Academico | Fecha Examen | Turno | Materia | Carrera | Docentes | DNI | Legajo | Apellido y Nombre | Condicion | Nota | Resultado | Concepto | Fuente
   const dcHeaders = datosCompletosResult.headers;
+  const colDcArchivo = findColIndex(dcHeaders, ["archivo"], 1);
   const colDcLegajo = findColIndex(dcHeaders, ["legajo"], 11);
   const colDcNombre = findColIndex(dcHeaders, ["apellido y nombre", "apellido", "nombre", "alumno", "estudiante"], 12);
   const colDcMateria = findColIndex(dcHeaders, ["materia", "asignatura"], 7);
@@ -440,8 +493,12 @@ export async function getHistorialAlumnos(
     const nroActa = (row[colDcNActa] || "").trim();
     const tipoActa = (row[colDcTipoActa] || "").trim();
     const turno = (row[colDcTurno] || "").trim();
-    const carrera = (row[colDcCarrera] || "").trim();
+    const rawCarrera = (row[colDcCarrera] || "").trim();
+    const rawArchivo = (row[colDcArchivo] || "").trim();
     const materiaFila = (rawMateria || "").trim();
+
+    // Derivar carrera a partir del código de 3 letras (BBI, BFA, ETB, AIA, ECB) o fallback
+    const carreraDerivada = derivarCarrera(rawCarrera, materiaFila, rawArchivo);
 
     // Solo agregar si hay algún dato de examen
     if (fecha || nota || resultado || nroActa) {
@@ -450,7 +507,7 @@ export async function getHistorialAlumnos(
         nota,
         resultado,
         materia: materiaFila || materia,
-        carrera: carrera || undefined,
+        carrera: carreraDerivada || undefined,
         condicion: condicion || undefined,
         nroActa: nroActa || undefined,
         tipoActa: tipoActa || undefined,

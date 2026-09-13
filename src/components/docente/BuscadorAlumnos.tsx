@@ -29,6 +29,7 @@ import {
   buscarAlumno,
   cleanLegajo,
   mockHistorialAlumnosDemo,
+  derivarCarrera,
 } from "../../services/actasAnalisis";
 import { isValidGoogleSheetId } from "../../services/googleSheets";
 
@@ -520,31 +521,57 @@ export default function BuscadorAlumnos() {
 
                     {/* DOS BLOQUES SEPARADOS: CURSADAS Y EXÁMENES RENDIDOS */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                      {/* BLOQUE 1: CURSADAS (REGULARIDAD) - FONDO Y BORDE VERDE MENTA / CLARO */}
-                      <div className="space-y-3 p-4 sm:p-5 rounded-2xl bg-[#F0FDF4] border border-[#A7F3D0]">
+                      {/* BLOQUE 1: CURSADAS (REGULARIDAD) - FONDO: #ECFDF5 (VERDE MENTA CLARO), BORDE: #6EE7B7 (VERDE CELESTE) */}
+                      <div
+                        className="space-y-3 p-4 sm:p-5 rounded-2xl border"
+                        style={{
+                          backgroundColor: "#ECFDF5",
+                          borderColor: "#6EE7B7",
+                        }}
+                      >
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            <Layers className="w-4 h-4 text-[#15803D]" />
-                            <h5 className="font-bold text-sm text-[#14532D] uppercase font-mono tracking-wider">
+                            <Layers className="w-4 h-4 text-[#047857]" style={{ color: "#047857" }} />
+                            <h5
+                              className="font-bold text-sm uppercase font-mono tracking-wider text-[#047857]"
+                              style={{ color: "#047857" }}
+                            >
                               Cursadas
                             </h5>
                           </div>
-                          <span className="text-xs font-mono text-[#166534] bg-[#DCFCE7] border border-[#86EFAC] px-2 py-0.5 rounded">
+                          <span
+                            className="text-xs font-mono px-2 py-0.5 rounded border"
+                            style={{
+                              backgroundColor: "#D1FAE5",
+                              borderColor: "#6EE7B7",
+                              color: "#047857",
+                            }}
+                          >
                             Pestaña Regularidad
                           </span>
                         </div>
 
                         {tieneCursadas ? (
-                          <div className="border border-[#A7F3D0] rounded-xl overflow-hidden shadow-2xs bg-white">
+                          <div
+                            className="rounded-xl overflow-hidden shadow-2xs bg-white border"
+                            style={{ borderColor: "#6EE7B7" }}
+                          >
                             <table className="w-full text-left text-xs">
-                              <thead className="bg-[#ECFDF5] border-b border-[#A7F3D0] font-mono text-[#065F46] uppercase tracking-wider text-[11px]">
+                              <thead
+                                className="border-b font-mono uppercase tracking-wider text-[11px]"
+                                style={{
+                                  backgroundColor: "#D1FAE5",
+                                  borderColor: "#6EE7B7",
+                                  color: "#047857",
+                                }}
+                              >
                                 <tr>
                                   <th className="px-3.5 py-2.5 font-bold">Año Cursada</th>
                                   <th className="px-3.5 py-2.5 font-bold">Condición</th>
                                   <th className="px-3.5 py-2.5 font-bold text-right">Origen</th>
                                 </tr>
                               </thead>
-                              <tbody className="divide-y divide-[#E2F7EB] bg-white">
+                              <tbody className="divide-y bg-white" style={{ borderColor: "#E2F7EB" }}>
                                 {data.cursadas.map((cur, cIdx) => (
                                   <tr key={cIdx} className="hover:bg-[#F0FDF4] transition-colors">
                                     <td className="px-3.5 py-3 font-mono font-bold text-stone-900 text-sm">
@@ -581,9 +608,17 @@ export default function BuscadorAlumnos() {
                             </table>
                           </div>
                         ) : (
-                          <div className="p-5 bg-white/70 border border-dashed border-[#A7F3D0] rounded-xl text-center text-xs font-mono text-stone-600 space-y-1">
-                            <p className="font-semibold text-[#14532D]">Sin cursada registrada para esta materia</p>
-                            <p className="text-[11px] text-[#166534]/70">
+                          <div
+                            className="p-5 rounded-xl text-center text-xs font-mono space-y-1 border border-dashed"
+                            style={{
+                              backgroundColor: "rgba(255, 255, 255, 0.7)",
+                              borderColor: "#6EE7B7",
+                            }}
+                          >
+                            <p className="font-semibold text-[#047857]" style={{ color: "#047857" }}>
+                              Sin cursada registrada para esta materia
+                            </p>
+                            <p className="text-[11px]" style={{ color: "rgba(4, 120, 87, 0.7)" }}>
                               No se encontraron filas en la pestaña "Regularidad".
                             </p>
                           </div>
@@ -591,7 +626,13 @@ export default function BuscadorAlumnos() {
                       </div>
 
                       {/* BLOQUE 2: EXÁMENES RENDIDOS (DATOS COMPLETOS) - ESTILO BEIGE/BLANCO CON MATERIA Y CARRERA */}
-                      <div className="space-y-3 p-4 sm:p-5 rounded-2xl bg-[#FAFAF9] border border-[#E7E5E4]">
+                      <div
+                        className="space-y-3 p-4 sm:p-5 rounded-2xl border"
+                        style={{
+                          backgroundColor: "#FAFAF9",
+                          borderColor: "#E7E5E4",
+                        }}
+                      >
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
                             <Award className="w-4 h-4 text-stone-500" />
@@ -609,11 +650,11 @@ export default function BuscadorAlumnos() {
                             <table className="w-full text-left text-xs">
                               <thead className="bg-stone-100/90 border-b border-stone-200 font-mono text-stone-600 uppercase tracking-wider text-[11px]">
                                 <tr>
-                                  <th className="px-3.5 py-2.5 font-bold">Fecha</th>
-                                  <th className="px-3.5 py-2.5 font-bold text-center">Nota</th>
-                                  <th className="px-3.5 py-2.5 font-bold">Resultado</th>
-                                  <th className="px-3.5 py-2.5 font-bold">Materia</th>
-                                  <th className="px-3.5 py-2.5 font-bold">Carrera</th>
+                                  <th className="px-3.5 py-2.5 font-bold">FECHA</th>
+                                  <th className="px-3.5 py-2.5 font-bold text-center">NOTA</th>
+                                  <th className="px-3.5 py-2.5 font-bold">RESULTADO</th>
+                                  <th className="px-3.5 py-2.5 font-bold">MATERIA</th>
+                                  <th className="px-3.5 py-2.5 font-bold">CARRERA</th>
                                 </tr>
                               </thead>
                               <tbody className="divide-y divide-stone-200 bg-white">
@@ -646,7 +687,7 @@ export default function BuscadorAlumnos() {
                                       {ex.materia || materia || "—"}
                                     </td>
                                     <td className="px-3.5 py-3 font-mono text-stone-600 text-[11px]">
-                                      {ex.carrera || "—"}
+                                      {derivarCarrera(ex.carrera, ex.materia || materia)}
                                     </td>
                                   </tr>
                                 ))}
