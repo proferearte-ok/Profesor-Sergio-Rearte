@@ -486,6 +486,24 @@ export default function PortalView({ onBackToHome, initialCatedraId }: PortalVie
     n => n.estudiante.toLowerCase() === selectedStudent?.toLowerCase()
   );
 
+  // Helper de badges para resultado de evaluación en las mini-tarjetas de Notas
+  const getBadgeResultadoMiniCard = (resultadoRaw?: string) => {
+    const norm = (resultadoRaw || "").trim().toLowerCase();
+    if (!norm || norm === "-" || norm === "—" || norm === "sin registro") {
+      return "bg-stone-100 text-stone-500 border-stone-200";
+    }
+    if (norm.includes("aprob") || norm.includes("prom")) {
+      return "bg-emerald-100 text-emerald-900 border-emerald-300 font-extrabold";
+    }
+    if (norm.includes("reprob") || norm.includes("desap")) {
+      return "bg-rose-100 text-rose-900 border-rose-300 font-extrabold";
+    }
+    if (norm.includes("aus")) {
+      return "bg-amber-100 text-amber-900 border-amber-300 font-extrabold";
+    }
+    return "bg-stone-100 text-stone-800 border-stone-300 font-extrabold";
+  };
+
   // Helper to map id to beautiful tickers
   const getTickerCode = (id: string) => {
     if (id === "BIO_MOL") return "BIO-MOL";
@@ -1336,21 +1354,11 @@ export default function PortalView({ onBackToHome, initialCatedraId }: PortalVie
                               <div className="rounded-2xl overflow-hidden shadow-2xs border border-stone-200 flex flex-col justify-between bg-white">
                                 <div className="bg-gradient-to-r from-emerald-500 to-emerald-400 text-white px-4 py-3 flex justify-between items-center">
                                   <span className="font-bold text-xs uppercase font-mono tracking-wider">1er PARCIAL</span>
-                                  <span className="bg-white/90 text-emerald-950 px-2.5 py-0.5 rounded-full text-xs font-extrabold font-mono uppercase">
+                                </div>
+                                <div className="p-5 flex items-center justify-center bg-stone-50/40 min-h-[76px]">
+                                  <span className={`px-4 py-1.5 rounded-full text-xs font-mono uppercase tracking-wider border shadow-2xs ${getBadgeResultadoMiniCard(studentGradesNum.p1_resultado)}`}>
                                     {studentGradesNum.p1_resultado || "-"}
                                   </span>
-                                </div>
-                                <div className="p-6 text-center space-y-2">
-                                  <div className="text-4xl md:text-5xl font-black font-mono text-stone-900">
-                                    {studentGradesNum.p1_teoria && studentGradesNum.p1_teoria !== "-" 
-                                      ? studentGradesNum.p1_teoria 
-                                      : (studentGradesNum.p1_practica && studentGradesNum.p1_practica !== "-" 
-                                          ? studentGradesNum.p1_practica 
-                                          : "-")}
-                                  </div>
-                                  <p className="text-xs font-mono text-stone-500 font-bold uppercase tracking-wider">
-                                    TEO: {studentGradesNum.p1_teoria || "-"} | PRAC: {studentGradesNum.p1_practica || "-"}
-                                  </p>
                                 </div>
                               </div>
 
@@ -1358,21 +1366,11 @@ export default function PortalView({ onBackToHome, initialCatedraId }: PortalVie
                               <div className="rounded-2xl overflow-hidden shadow-2xs border border-stone-200 flex flex-col justify-between bg-white">
                                 <div className="bg-gradient-to-r from-sky-500 to-blue-500 text-white px-4 py-3 flex justify-between items-center">
                                   <span className="font-bold text-xs uppercase font-mono tracking-wider">2do PARCIAL</span>
-                                  <span className="bg-white/90 text-sky-950 px-2.5 py-0.5 rounded-full text-xs font-extrabold font-mono uppercase">
+                                </div>
+                                <div className="p-5 flex items-center justify-center bg-stone-50/40 min-h-[76px]">
+                                  <span className={`px-4 py-1.5 rounded-full text-xs font-mono uppercase tracking-wider border shadow-2xs ${getBadgeResultadoMiniCard(studentGradesNum.p2_resultado)}`}>
                                     {studentGradesNum.p2_resultado || "-"}
                                   </span>
-                                </div>
-                                <div className="p-6 text-center space-y-2">
-                                  <div className="text-4xl md:text-5xl font-black font-mono text-stone-900">
-                                    {studentGradesNum.p2_teoria && studentGradesNum.p2_teoria !== "-" 
-                                      ? studentGradesNum.p2_teoria 
-                                      : (studentGradesNum.p2_practica && studentGradesNum.p2_practica !== "-" 
-                                          ? studentGradesNum.p2_practica 
-                                          : "-")}
-                                  </div>
-                                  <p className="text-xs font-mono text-stone-500 font-bold uppercase tracking-wider">
-                                    TEO: {studentGradesNum.p2_teoria || "-"} | PRAC: {studentGradesNum.p2_practica || "-"}
-                                  </p>
                                 </div>
                               </div>
 
@@ -1380,21 +1378,21 @@ export default function PortalView({ onBackToHome, initialCatedraId }: PortalVie
                               <div className="rounded-2xl overflow-hidden shadow-2xs border border-stone-200 flex flex-col justify-between bg-white">
                                 <div className="bg-stone-100 text-stone-700 px-4 py-3 flex justify-between items-center border-b border-stone-200">
                                   <span className="font-bold text-xs uppercase font-mono tracking-wider">RECUPERATORIO</span>
-                                  <span className="bg-stone-200 text-stone-700 px-2.5 py-0.5 rounded-full text-xs font-bold font-mono uppercase">
-                                    {studentGradesNum.recupera || "-"}
-                                  </span>
                                 </div>
-                                <div className="p-6 text-center space-y-2">
-                                  <div className="text-4xl md:text-5xl font-black font-mono text-stone-900">
-                                    {studentGradesNum.rec_teoria && studentGradesNum.rec_teoria !== "-" 
-                                      ? studentGradesNum.rec_teoria 
-                                      : (studentGradesNum.rec_practica && studentGradesNum.rec_practica !== "-" 
-                                          ? studentGradesNum.rec_practica 
-                                          : "-")}
-                                  </div>
-                                  <p className="text-xs font-mono text-stone-400 font-bold uppercase tracking-wider">
-                                    TEO: {studentGradesNum.rec_teoria || "-"} | PRAC: {studentGradesNum.rec_practica || "-"}
-                                  </p>
+                                <div className="p-5 flex items-center justify-center bg-stone-50/40 min-h-[76px]">
+                                  {(() => {
+                                    const recLabel = 
+                                      (studentGradesNum.rec_resultado && studentGradesNum.rec_resultado !== "-")
+                                        ? (studentGradesNum.recupera && studentGradesNum.recupera !== "-" 
+                                            ? `${studentGradesNum.rec_resultado} (${studentGradesNum.recupera})` 
+                                            : studentGradesNum.rec_resultado)
+                                        : (studentGradesNum.recupera || "-");
+                                    return (
+                                      <span className={`px-4 py-1.5 rounded-full text-xs font-mono uppercase tracking-wider border shadow-2xs ${getBadgeResultadoMiniCard(recLabel)}`}>
+                                        {recLabel}
+                                      </span>
+                                    );
+                                  })()}
                                 </div>
                               </div>
 
@@ -1412,36 +1410,33 @@ export default function PortalView({ onBackToHome, initialCatedraId }: PortalVie
                                 <div className="rounded-2xl overflow-hidden shadow-2xs border border-stone-200 flex flex-col justify-between bg-white">
                                   <div className="bg-gradient-to-r from-emerald-500 to-emerald-400 text-white px-4 py-3 flex justify-between items-center">
                                     <span className="font-bold text-xs uppercase font-mono tracking-wider">1ER PARCIAL TEO</span>
-                                    <span className="bg-white/90 text-emerald-950 px-2.5 py-0.5 rounded-full text-xs font-bold font-mono uppercase">
+                                  </div>
+                                  <div className="p-5 flex items-center justify-center bg-stone-50/40 min-h-[76px]">
+                                    <span className={`px-4 py-1.5 rounded-full text-xs font-mono uppercase tracking-wider border shadow-2xs ${getBadgeResultadoMiniCard(studentGradesStatus.p1_condicion)}`}>
                                       {studentGradesStatus.p1_condicion || "-"}
                                     </span>
-                                  </div>
-                                  <div className="p-6 text-center">
-                                    <span className="text-2xl font-black font-mono text-stone-900">{studentGradesStatus.p1_teoria || "-"}</span>
                                   </div>
                                 </div>
 
                                 <div className="rounded-2xl overflow-hidden shadow-2xs border border-stone-200 flex flex-col justify-between bg-white">
                                   <div className="bg-gradient-to-r from-sky-500 to-blue-500 text-white px-4 py-3 flex justify-between items-center">
                                     <span className="font-bold text-xs uppercase font-mono tracking-wider">2DO PARCIAL TEO</span>
-                                    <span className="bg-white/90 text-sky-950 px-2.5 py-0.5 rounded-full text-xs font-bold font-mono uppercase">
+                                  </div>
+                                  <div className="p-5 flex items-center justify-center bg-stone-50/40 min-h-[76px]">
+                                    <span className={`px-4 py-1.5 rounded-full text-xs font-mono uppercase tracking-wider border shadow-2xs ${getBadgeResultadoMiniCard(studentGradesStatus.p2_condicion)}`}>
                                       {studentGradesStatus.p2_condicion || "-"}
                                     </span>
-                                  </div>
-                                  <div className="p-6 text-center">
-                                    <span className="text-2xl font-black font-mono text-stone-900">{studentGradesStatus.p2_teoria || "-"}</span>
                                   </div>
                                 </div>
 
                                 <div className="rounded-2xl overflow-hidden shadow-2xs border border-stone-200 flex flex-col justify-between bg-white">
                                   <div className="bg-stone-100 text-stone-700 px-4 py-3 flex justify-between items-center border-b border-stone-200">
                                     <span className="font-bold text-xs uppercase font-mono tracking-wider">RECUPERATORIOS</span>
-                                    <span className="bg-stone-200 text-stone-700 px-2.5 py-0.5 rounded-full text-xs font-bold font-mono uppercase">
+                                  </div>
+                                  <div className="p-5 flex items-center justify-center bg-stone-50/40 min-h-[76px]">
+                                    <span className={`px-4 py-1.5 rounded-full text-xs font-mono uppercase tracking-wider border shadow-2xs ${getBadgeResultadoMiniCard(studentGradesStatus.rec_condicion)}`}>
                                       {studentGradesStatus.rec_condicion || "-"}
                                     </span>
-                                  </div>
-                                  <div className="p-6 text-center">
-                                    <span className="text-2xl font-black font-mono text-stone-400">{studentGradesStatus.rec_teoria || "-"}</span>
                                   </div>
                                 </div>
                               </div>
